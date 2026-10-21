@@ -72,7 +72,7 @@ jobs:
       - name: Read version and names
         id: meta
         run: |
-          PUBSPEC_VERSION=$(grep '^version:' pubspec.yaml | head -1 | sed -E 's/^version:[[:space:]]*([^+[:space:]]+).*//')
+          PUBSPEC_VERSION=$(grep '^version:' pubspec.yaml | head -1 | sed -E 's/^version:[[:space:]]*([^+[:space:]]+).*/\1/')
           if [ "$GITHUB_REF_TYPE" = "tag" ]; then
             VERSION="${GITHUB_REF_NAME#v}"
             if [ "$VERSION" != "$PUBSPEC_VERSION" ]; then
@@ -83,7 +83,7 @@ jobs:
             VERSION="$PUBSPEC_VERSION"
           fi
 
-          DISPLAY_NAME=$(grep -E "displayName = '" lib/app_identity.dart | head -1 | sed -E "s/.*displayName = '([^']*)'.*//" | tr -d '')
+          DISPLAY_NAME=$(grep -E "displayName = '" lib/app_identity.dart | head -1 | sed -E "s/.*displayName = '([^']*)'.*/\1/" | tr -d '\r')
           test -n "$DISPLAY_NAME"
           FILE_NAME=$(printf '%s' "$DISPLAY_NAME" | tr -cd '[:alnum:]')
 
