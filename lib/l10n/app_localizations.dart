@@ -452,6 +452,36 @@ abstract class AppLocalizations {
   /// **'관리자 권한이 아니에요. 서비스 시작·중지·설정 변경은 관리자 권한으로 실행해야 동작해요.'**
   String get adminWarning;
 
+  /// No description provided for @trayShow.
+  ///
+  /// In ko, this message translates to:
+  /// **'창 열기'**
+  String get trayShow;
+
+  /// No description provided for @trayExit.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료'**
+  String get trayExit;
+
+  /// No description provided for @startupMenuTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작프로그램'**
+  String get startupMenuTooltip;
+
+  /// No description provided for @startupAutoRun.
+  ///
+  /// In ko, this message translates to:
+  /// **'Windows 시작 시 자동 실행 (트레이 상주)'**
+  String get startupAutoRun;
+
+  /// No description provided for @startupChangeFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작프로그램 설정을 바꾸지 못했어요: {detail}'**
+  String startupChangeFailed(String detail);
+
   /// No description provided for @notInstalled.
   ///
   /// In ko, this message translates to:

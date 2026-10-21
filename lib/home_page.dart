@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'l10n/app_localizations.dart';
 import 'service_manager.dart';
 import 'settings/settings_menus.dart';
+import 'startup_manager.dart';
 import 'theme/app_theme.dart';
 import 'watch_item.dart';
 import 'window/focus_tint.dart';
@@ -254,6 +255,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: _busy ? null : _addDialog,
                 icon: const Icon(Icons.add_rounded),
               ),
+              const StartupMenuButton(),
               const ThemeMenuButton(),
               const LanguageMenuButton(),
               IconButton(

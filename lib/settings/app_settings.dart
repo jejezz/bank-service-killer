@@ -14,6 +14,7 @@ class AppSettings extends ChangeNotifier {
   /// 저장 키 — 모든 앱 공통 (localization.md §5). 바꾸지 않는다.
   static const themeModeKey = 'theme_mode';
   static const localeKey = 'app_locale';
+  static const startupAttemptedKey = 'startup_registration_attempted';
 
   final SharedPreferences _prefs;
   ThemeMode _themeMode;
@@ -33,6 +34,11 @@ class AppSettings extends ChangeNotifier {
     final code = prefs.getString(localeKey);
     return AppSettings._(prefs, mode, code == null ? null : Locale(code));
   }
+
+  /// 첫 실행 자동 등록을 이미 시도했는지 (사용자가 끈 뒤 다시 켜지 않기 위해).
+  bool get startupRegistrationAttempted => _prefs.getBool(startupAttemptedKey) ?? false;
+
+  Future<void> markStartupRegistrationAttempted() => _prefs.setBool(startupAttemptedKey, true);
 
   ThemeMode get themeMode => _themeMode;
 

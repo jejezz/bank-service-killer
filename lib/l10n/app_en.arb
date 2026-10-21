@@ -131,6 +131,18 @@
   "refreshTooltip": "Refresh (F5)",
   "addServiceTooltip": "Add Service (Ctrl+N)",
   "adminWarning": "Not running as administrator. Starting, stopping and changing services only works with administrator rights.",
+  "trayShow": "Open window",
+  "trayExit": "Exit",
+  "startupMenuTooltip": "Startup",
+  "startupAutoRun": "Run at Windows startup (stay in tray)",
+  "startupChangeFailed": "Couldn't change the startup setting: {detail}",
+  "@startupChangeFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
   "notInstalled": "Not installed / name mismatch",
   "serviceSubtitle": "{displayName} · {state} · Startup {startMode}",
   "@serviceSubtitle": {

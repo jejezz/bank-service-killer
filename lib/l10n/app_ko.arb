@@ -148,6 +148,18 @@
   "refreshTooltip": "새로 고침 (F5)",
   "addServiceTooltip": "서비스 추가 (Ctrl+N)",
   "adminWarning": "관리자 권한이 아니에요. 서비스 시작·중지·설정 변경은 관리자 권한으로 실행해야 동작해요.",
+  "trayShow": "창 열기",
+  "trayExit": "종료",
+  "startupMenuTooltip": "시작프로그램",
+  "startupAutoRun": "Windows 시작 시 자동 실행 (트레이 상주)",
+  "startupChangeFailed": "시작프로그램 설정을 바꾸지 못했어요: {detail}",
+  "@startupChangeFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
   "notInstalled": "설치되지 않음 / 이름 불일치",
   "serviceSubtitle": "{displayName} · {state} · 시작 유형 {startMode}",
   "@serviceSubtitle": {

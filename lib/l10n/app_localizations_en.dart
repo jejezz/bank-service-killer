@@ -215,6 +215,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Not running as administrator. Starting, stopping and changing services only works with administrator rights.';
 
   @override
+  String get trayShow => 'Open window';
+
+  @override
+  String get trayExit => 'Exit';
+
+  @override
+  String get startupMenuTooltip => 'Startup';
+
+  @override
+  String get startupAutoRun => 'Run at Windows startup (stay in tray)';
+
+  @override
+  String startupChangeFailed(String detail) {
+    return 'Couldn\'t change the startup setting: $detail';
+  }
+
+  @override
   String get notInstalled => 'Not installed / name mismatch';
 
   @override

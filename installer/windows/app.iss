@@ -78,5 +78,9 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[UninstallRun]
+; 시작프로그램으로 등록된 예약 작업을 지운다.
+Filename: "schtasks.exe"; Parameters: "/Delete /TN ""BankServiceKiller"" /F"; Flags: runhidden; RunOnceId: "RemoveStartupTask"
+
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent

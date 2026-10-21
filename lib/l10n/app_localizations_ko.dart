@@ -213,6 +213,23 @@ class AppLocalizationsKo extends AppLocalizations {
       '관리자 권한이 아니에요. 서비스 시작·중지·설정 변경은 관리자 권한으로 실행해야 동작해요.';
 
   @override
+  String get trayShow => '창 열기';
+
+  @override
+  String get trayExit => '종료';
+
+  @override
+  String get startupMenuTooltip => '시작프로그램';
+
+  @override
+  String get startupAutoRun => 'Windows 시작 시 자동 실행 (트레이 상주)';
+
+  @override
+  String startupChangeFailed(String detail) {
+    return '시작프로그램 설정을 바꾸지 못했어요: $detail';
+  }
+
+  @override
   String get notInstalled => '설치되지 않음 / 이름 불일치';
 
   @override

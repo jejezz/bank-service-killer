@@ -8,6 +8,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'about/about_dialog.dart';
@@ -16,14 +17,16 @@ import 'about/extra_licenses.dart';
 import 'app_identity.dart';
 import 'home_page.dart';
 import 'l10n/app_localizations.dart';
+import 'service_manager.dart';
 import 'settings/app_settings.dart';
+import 'startup_manager.dart';
 import 'theme/app_theme.dart';
 import 'update/update_scope.dart';
 import 'update/update_service.dart';
 
 final bool _isDesktop = Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   registerExtraLicenses();
 
@@ -36,17 +39,31 @@ Future<void> main() async {
       center: true,
       title: AppIdentity.displayName,
     );
+    // 상주 프로그램: 닫기 단추는 종료가 아니라 트레이로 숨기기다.
+    await windowManager.setPreventClose(true);
+    // 시작프로그램으로 실행됐으면 창 없이 트레이에만 둔다.
+    final background = args.contains(StartupManager.backgroundArg);
     await windowManager.waitUntilReadyToShow(options, () async {
+      if (background) return;
       await windowManager.show();
       await windowManager.focus();
     });
   }
 
   final settings = await AppSettings.load();
+  if (Platform.isWindows) await _registerStartupOnce(settings);
   // 데스크톱이 아니거나 UPDATE_SERVER 가 비어 있으면 null — 업데이트 확인 없음.
   final updates = await UpdateService.create();
   // UpdateScope 는 MaterialApp 위에 둔다 — 정보 창이 이것을 읽어 "업데이트 확인" 단추를 붙인다.
   runApp(UpdateScope(service: updates, child: App(settings: settings, updates: updates)));
+}
+
+/// 첫 실행 때 한 번만 시작프로그램으로 등록한다. 사용자가 나중에 끄면 다시 켜지 않는다.
+Future<void> _registerStartupOnce(AppSettings settings) async {
+  if (settings.startupRegistrationAttempted) return;
+  if (!await ServiceManager.isAdmin()) return;
+  final failed = !await StartupManager.isRegistered() && await StartupManager.register() != null;
+  if (!failed) await settings.markStartupRegistrationAttempted();
 }
 
 class App extends StatefulWidget {
@@ -59,7 +76,7 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> with WidgetsBindingObserver {
+class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, TrayListener {
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
@@ -68,12 +85,23 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     widget.settings.addListener(_syncWindowBrightness);
     _syncWindowBrightness();
+    if (Platform.isWindows) {
+      windowManager.addListener(this);
+      trayManager.addListener(this);
+      widget.settings.addListener(_updateTray);
+      _initTray();
+    }
     widget.updates?.startAutomaticCheck(_navigatorKey);
   }
 
   @override
   void dispose() {
     widget.settings.removeListener(_syncWindowBrightness);
+    if (Platform.isWindows) {
+      widget.settings.removeListener(_updateTray);
+      windowManager.removeListener(this);
+      trayManager.removeListener(this);
+    }
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -90,6 +118,52 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       ThemeMode.system => WidgetsBinding.instance.platformDispatcher.platformBrightness,
     };
     windowManager.setBrightness(brightness);
+  }
+
+  // ── 상주(트레이) ─────────────────────────────────────────────
+
+  Future<void> _initTray() async {
+    await trayManager.setIcon('assets/icon/app_icon.ico');
+    await trayManager.setToolTip(AppIdentity.displayName);
+    await _updateTray();
+  }
+
+  Future<void> _updateTray() async {
+    final device = WidgetsBinding.instance.platformDispatcher.locale;
+    final l10n = lookupAppLocalizations(AppSettings.resolveLocale(widget.settings.locale ?? device, const []));
+    await trayManager.setContextMenu(Menu(items: [
+      MenuItem(key: 'show', label: l10n.trayShow),
+      MenuItem.separator(),
+      MenuItem(key: 'exit', label: l10n.trayExit),
+    ]));
+  }
+
+  Future<void> _showWindow() async {
+    await windowManager.show();
+    await windowManager.restore();
+    await windowManager.focus();
+  }
+
+  @override
+  void onWindowClose() => windowManager.hide();
+
+  @override
+  void onTrayIconMouseDown() => _showWindow();
+
+  @override
+  void onTrayIconRightMouseDown() => trayManager.popUpContextMenu();
+
+  @override
+  void onTrayMenuItemClick(MenuItem menuItem) {
+    switch (menuItem.key) {
+      case 'show':
+        _showWindow();
+      case 'exit':
+        () async {
+          await trayManager.destroy();
+          await windowManager.destroy();
+        }();
+    }
   }
 
   void _showAbout() {
