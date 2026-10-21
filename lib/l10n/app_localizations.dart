@@ -590,6 +590,24 @@ abstract class AppLocalizations {
   /// **'창을 닫으면 종료되지 않고 작업 표시줄 오른쪽 트레이에 남아요. 트레이 아이콘을 누르면 창이 열리고, 우클릭 메뉴의 \'종료\'로 완전히 끝내요. 첫 실행 때 Windows 로그온 시 자동으로 시작(창 없이 트레이에만)되도록 등록되며, 위쪽 전원 아이콘 메뉴에서 켜고 끌 수 있어요.'**
   String get helpResidentBody;
 
+  /// No description provided for @commonSave.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장'**
+  String get commonSave;
+
+  /// No description provided for @editTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름·분류 수정'**
+  String get editTooltip;
+
+  /// No description provided for @editDialogTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'감시 서비스 수정'**
+  String get editDialogTitle;
+
   /// No description provided for @notInstalled.
   ///
   /// In ko, this message translates to:

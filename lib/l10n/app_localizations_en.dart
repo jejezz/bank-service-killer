@@ -292,6 +292,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Closing the window doesn\'t quit; the app stays in the system tray. Click the tray icon to open the window, and use Exit in its right-click menu to quit completely. On first run it registers itself to start at Windows sign-in (tray only, no window); toggle this from the power icon in the top bar.';
 
   @override
+  String get commonSave => 'Save';
+
+  @override
+  String get editTooltip => 'Edit name / group';
+
+  @override
+  String get editDialogTitle => 'Edit Watched Service';
+
+  @override
   String get notInstalled => 'Not installed / name mismatch';
 
   @override

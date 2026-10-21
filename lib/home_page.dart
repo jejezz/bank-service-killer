@@ -132,10 +132,11 @@ class _HomePageState extends State<HomePage> {
     await _refresh();
   }
 
-  Future<void> _addDialog() async {
+  /// [edit]이 있으면 그 항목의 이름·분류를 고친다 (오타 수정 등).
+  Future<void> _addDialog({SvcRow? edit}) async {
     final l = _l10n;
-    final nameCtl = TextEditingController();
-    String group = 'B';
+    final nameCtl = TextEditingController(text: edit?.item.name ?? '');
+    String group = edit?.item.group ?? 'B';
     final result = await showDialog<WatchItem>(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -150,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                   .take(8)
                   .toList();
           return AlertDialog(
-            title: Text(l.addDialogTitle),
+            title: Text(edit == null ? l.addDialogTitle : l.editDialogTitle),
             content: SizedBox(
               width: 460,
               child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -185,9 +186,11 @@ class _HomePageState extends State<HomePage> {
               FilledButton(
                 onPressed: () {
                   final n = nameCtl.text.trim();
-                  if (n.isNotEmpty) Navigator.pop(ctx, WatchItem(n, group: group));
+                  if (n.isNotEmpty) {
+                    Navigator.pop(ctx, WatchItem(n, group: group, note: edit?.item.note ?? ''));
+                  }
                 },
-                child: Text(l.commonAdd),
+                child: Text(edit == null ? l.commonAdd : l.commonSave),
               ),
             ],
           );
@@ -195,11 +198,17 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (result == null) return;
-    if (_items.any((e) => e.name.toLowerCase() == result.name.toLowerCase())) {
+    final index = edit == null ? -1 : _items.indexWhere((e) => e.name == edit.item.name);
+    if (_items.asMap().entries.any(
+        (e) => e.key != index && e.value.name.toLowerCase() == result.name.toLowerCase())) {
       _addLog(l.logAlreadyInList(result.name));
       return;
     }
-    _items.add(result);
+    if (index >= 0) {
+      _items[index] = result;
+    } else {
+      _items.add(result);
+    }
     await WatchStore.save(_items);
     await _refresh();
   }
@@ -429,6 +438,11 @@ class _HomePageState extends State<HomePage> {
                     icon: Icon(s.running ? Icons.stop_circle_outlined : Icons.play_circle_outline),
                   ),
                 ],
+                IconButton(
+                  tooltip: l.editTooltip,
+                  onPressed: _busy ? null : () => _addDialog(edit: r),
+                  icon: const Icon(Icons.edit_outlined),
+                ),
                 IconButton(
                   tooltip: l.removeTooltip,
                   onPressed: _busy ? null : () => _remove(r),

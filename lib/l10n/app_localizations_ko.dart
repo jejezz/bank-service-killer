@@ -290,6 +290,15 @@ class AppLocalizationsKo extends AppLocalizations {
       '창을 닫으면 종료되지 않고 작업 표시줄 오른쪽 트레이에 남아요. 트레이 아이콘을 누르면 창이 열리고, 우클릭 메뉴의 \'종료\'로 완전히 끝내요. 첫 실행 때 Windows 로그온 시 자동으로 시작(창 없이 트레이에만)되도록 등록되며, 위쪽 전원 아이콘 메뉴에서 켜고 끌 수 있어요.';
 
   @override
+  String get commonSave => '저장';
+
+  @override
+  String get editTooltip => '이름·분류 수정';
+
+  @override
+  String get editDialogTitle => '감시 서비스 수정';
+
+  @override
   String get notInstalled => '설치되지 않음 / 이름 불일치';
 
   @override

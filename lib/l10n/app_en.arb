@@ -161,6 +161,9 @@
   "helpModeBody": "Pick it from the dropdown on a row; it applies immediately. It doesn't start or stop the running service now — it affects how the service starts from the next boot onward.\n• Automatic: starts at boot.\n• Manual: doesn't start at boot; start it with the on button when needed. Recommended for banking services.\n• Disabled: starting is blocked. This app's on button switches it to Manual first, then starts it.\n\"disabled in msconfig\" marks a service you turned off in msconfig.",
   "helpResidentTitle": "Resident mode and startup",
   "helpResidentBody": "Closing the window doesn't quit; the app stays in the system tray. Click the tray icon to open the window, and use Exit in its right-click menu to quit completely. On first run it registers itself to start at Windows sign-in (tray only, no window); toggle this from the power icon in the top bar.",
+  "commonSave": "Save",
+  "editTooltip": "Edit name / group",
+  "editDialogTitle": "Edit Watched Service",
   "notInstalled": "Not installed / name mismatch",
   "serviceSubtitle": "{displayName} · {state} · Startup {startMode}",
   "@serviceSubtitle": {
