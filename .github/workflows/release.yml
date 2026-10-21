@@ -1,0 +1,224 @@
+name: Release
+
+# From jejezz/application-release-templates desktop/ @ conventions-v1.
+# Validated end-to-end (including macOS signing/notarization) on Portside and
+# Dove Zip before being generalized here. See this template's README before
+# wiring it up in a new app, and conventions/ for the rules it implements.
+#
+# Windows-only app: the macOS and Linux jobs of the desktop/ template are
+# removed on purpose (services are a Windows concept). Needs the windows/
+# platform folder.
+#
+# Flutter app in a subfolder (e.g. gui/ beside a Rust crate at the repository
+# root; .github/, installer/, tool/readme/, README*, LICENSE stay at the root).
+# allwinner-phoenix's release.yml is a working example. Changes:
+#   - uncomment `defaults: run: working-directory:` below, so every `run:`
+#     step (pub get, gen-l10n, flutter build, signing, packaging) runs in the
+#     app folder;
+#   - give the steps that use repository-root files `working-directory: .`:
+#     "README follows conventions", "Package installer" (installer/windows/
+#     app.iss — pass the app's build output as gui/build/…), and the release
+#     job (`defaults: run: working-directory: .`; "Checksums" keeps dist);
+#   - `uses:` steps ignore run defaults, so paths they see need the prefix:
+#     write DMG_PATH=gui/$DMG_PATH to GITHUB_ENV (then "Notarize DMG" runs
+#     in `.`), and upload path: "gui/*-linux-x64.tar.gz";
+#   - read Cargo.toml as ../Cargo.toml in the check job (scripts/bump-version.sh
+#     already bumps a root Cargo.toml together with gui/pubspec.yaml);
+#   - `hashFiles('l10n.yaml')` is relative to the repository root: write
+#     hashFiles('gui/l10n.yaml').
+#
+# Push a `vX.Y.Z` (or `vX.Y.Z-rc.N`) tag to:
+#   1. check  — the tag must equal pubspec.yaml's version, and every
+#               translation must be present (conventions/versioning.md,
+#               localization.md)
+#   2. build  — Windows
+#   3. release — only once the build succeeds, one GitHub Release with every
+#               asset plus SHA256SUMS.txt. If any build fails, nothing is
+#               published.
+#
+# workflow_dispatch runs steps 1–2 only (build check); it never creates a
+# Release (conventions/tagging.md §3).
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+env:
+  # Pin Flutter so re-running a tag rebuilds the same thing
+  # (conventions/workflow.md §3). Bump it in a PR.
+  FLUTTER_VERSION: "3.47.1"
+
+# Flutter app in a subfolder (see the header):
+# defaults:
+#   run:
+#     working-directory: gui
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      display_name: ${{ steps.meta.outputs.display_name }}
+      file_name: ${{ steps.meta.outputs.file_name }}
+      prerelease: ${{ steps.meta.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Names come from conventions/identity.md §2. This app has no macOS
+      # folder, so the display name's single source is displayName in
+      # lib/app_identity.dart; the file name is the display name without
+      # spaces.
+      - name: Read version and names
+        id: meta
+        run: |
+          PUBSPEC_VERSION=$(grep '^version:' pubspec.yaml | head -1 | sed -E 's/^version:[[:space:]]*([^+[:space:]]+).*//')
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            if [ "$VERSION" != "$PUBSPEC_VERSION" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match pubspec.yaml version $PUBSPEC_VERSION"
+              exit 1
+            fi
+          else
+            VERSION="$PUBSPEC_VERSION"
+          fi
+
+          DISPLAY_NAME=$(grep -E "displayName = '" lib/app_identity.dart | head -1 | sed -E "s/.*displayName = '([^']*)'.*//" | tr -d '')
+          test -n "$DISPLAY_NAME"
+          FILE_NAME=$(printf '%s' "$DISPLAY_NAME" | tr -cd '[:alnum:]')
+
+          case "$VERSION" in *-*) PRERELEASE=true ;; *) PRERELEASE=false ;; esac
+
+          {
+            echo "version=$VERSION"
+            echo "display_name=$DISPLAY_NAME"
+            echo "file_name=$FILE_NAME"
+            echo "prerelease=$PRERELEASE"
+          } >> "$GITHUB_OUTPUT"
+          echo "$DISPLAY_NAME $VERSION → $FILE_NAME-$VERSION-* (prerelease: $PRERELEASE)"
+
+      # conventions/readme-guide.md — a real release needs a finished README
+      # (no TODOs, real images). A pre-release tag (vX.Y.Z-rc.N) — e.g. the
+      # first pipeline run before any feature exists — only needs its
+      # structure (tagging.md §1).
+      - name: README follows conventions
+        if: hashFiles('tool/readme/check_readme.py') != ''
+        run: |
+          if [ "${{ steps.meta.outputs.prerelease }}" = "true" ]; then
+            python3 tool/readme/check_readme.py --stage bootstrap
+          else
+            python3 tool/readme/check_readme.py
+          fi
+
+      - uses: subosito/flutter-action@v2
+        if: hashFiles('l10n.yaml') != ''
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      # Needs `untranslated-messages-file: build/untranslated.json` in
+      # l10n.yaml (conventions/localization.md §2). gen-l10n writes `{}` (or
+      # nothing) when every locale has every key.
+      - name: Every translation present
+        if: hashFiles('l10n.yaml') != ''
+        run: |
+          flutter pub get
+          # gen-l10n won't create the directory for the report itself.
+          mkdir -p build
+          flutter gen-l10n
+          if [ -s build/untranslated.json ] && [ "$(tr -d '[:space:]' < build/untranslated.json)" != "{}" ]; then
+            echo "::error::Untranslated messages:"
+            cat build/untranslated.json
+            exit 1
+          fi
+
+  build-windows:
+    needs: check
+    runs-on: windows-latest
+    env:
+      FILE_NAME: ${{ needs.check.outputs.file_name }}
+      VERSION: ${{ needs.check.outputs.version }}
+      DISPLAY_NAME: ${{ needs.check.outputs.display_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - run: flutter pub get
+
+      - run: flutter build windows --release --dart-define=APP_VERSION=${{ env.VERSION }}
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      # Everything installer/windows/app.iss needs is passed in, so only
+      # AppId (a GUID) and the repository URL are edited by hand there.
+      - name: Package installer
+        shell: bash
+        # Git Bash would treat ISCC's /D... switches as POSIX paths and
+        # rewrite them into Windows paths, so ISCC sees extra script file
+        # names ("You may not specify more than one script filename"). Pass
+        # the arguments through unchanged.
+        env:
+          MSYS_NO_PATHCONV: "1"
+          MSYS2_ARG_CONV_EXCL: "*"
+        run: |
+          # tr: the Windows checkout may have CRLF line endings.
+          BINARY_NAME=$(grep -oE 'set\(BINARY_NAME "[^"]+"\)' windows/CMakeLists.txt | sed -E 's/.*"(.*)".*/\1/' | tr -d '\r')
+          test -n "$BINARY_NAME"
+
+          # VersionInfoVersion only takes digits: 1.5.0-rc.1 -> 1.5.0
+          "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" \
+            "/DMyAppName=$DISPLAY_NAME" \
+            "/DMyFileName=$FILE_NAME" \
+            "/DMyAppVersion=$VERSION" \
+            "/DMyAppNumericVersion=${VERSION%%-*}" \
+            "/DMyAppExeName=$BINARY_NAME.exe" \
+            installer/windows/app.iss
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/*-windows-x64-setup.exe
+          if-no-files-found: error
+
+  release:
+    # Tag pushes only — a manual run is a build check (conventions/tagging.md §3).
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    needs: [check, build-windows]
+    permissions:
+      contents: write
+    steps:
+      # For .github/release-notes-header.md.
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+
+      # Title "<Display Name> vX.Y.Z"; notes = the install-guide header
+      # followed by GitHub's generated PR list (conventions/workflow.md §4).
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          DISPLAY_NAME: ${{ needs.check.outputs.display_name }}
+          PRERELEASE: ${{ needs.check.outputs.prerelease }}
+        run: |
+          ARGS=(--title "$DISPLAY_NAME $GITHUB_REF_NAME" --generate-notes)
+          if [ -f .github/release-notes-header.md ]; then
+            ARGS+=(--notes-file .github/release-notes-header.md)
+          fi
+          if [ "$PRERELEASE" = "true" ]; then
+            ARGS+=(--prerelease)
+          fi
+          gh release create "$GITHUB_REF_NAME" dist/* "${ARGS[@]}"

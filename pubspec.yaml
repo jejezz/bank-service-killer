@@ -1,0 +1,41 @@
+name: bank_service_killer
+description: 금융보안·키보드보안 같은 상주 서비스를 필요할 때만 켜고 끄고, 실제로 on/off 되었는지 검증하는 Windows 전용 앱.
+publish_to: none
+version: 0.1.0-rc.1+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  package_info_plus: ^10.2.2
+  shared_preferences: ^2.5.6
+  url_launcher: ^6.3.3
+  window_manager: ^0.5.2
+  app_updater:
+    git:
+      url: https://github.com/jejezz/application-release-templates
+      path: updater
+      ref: updater-v0.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/icon/app_icon.png
+    - assets/licenses/
+  fonts:
+    - family: SeoulNamsan
+      fonts:
+        - { asset: assets/fonts/seoul_namsan_regular.ttf, weight: 400 }
+        - { asset: assets/fonts/seoul_namsan_bold.ttf, weight: 700 }
+        - { asset: assets/fonts/seoul_namsan_extra_bold.ttf, weight: 800 }
