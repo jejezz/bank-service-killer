@@ -35,9 +35,7 @@ Future<void> main(List<String> args) async {
     await windowManager.ensureInitialized();
     // ui-ux.md §5: 최소 크기는 960×600 이하 (1366×768 노트북).
     const options = WindowOptions(
-      size: Size(960, 640),
       minimumSize: Size(960, 600),
-      center: true,
       title: AppIdentity.displayName,
     );
     // 상주 프로그램: 닫기 단추는 종료가 아니라 트레이로 숨기기다.

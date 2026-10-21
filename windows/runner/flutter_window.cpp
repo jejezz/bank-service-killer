@@ -1,4 +1,5 @@
 #include "flutter_window.h"
+#include "window_placement.h"
 
 #include <optional>
 
@@ -53,6 +54,10 @@ LRESULT
 FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
                               WPARAM const wparam,
                               LPARAM const lparam) noexcept {
+  if (message == WM_EXITSIZEMOVE || message == WM_DESTROY) {
+    window_placement::Save(hwnd);
+  }
+
   // Give Flutter, including plugins, an opportunity to handle window messages.
   if (flutter_controller_) {
     std::optional<LRESULT> result =
