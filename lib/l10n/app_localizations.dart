@@ -482,6 +482,24 @@ abstract class AppLocalizations {
   /// **'시작프로그램 설정을 바꾸지 못했어요: {detail}'**
   String startupChangeFailed(String detail);
 
+  /// No description provided for @logTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그'**
+  String get logTitle;
+
+  /// No description provided for @logEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'작업 결과가 여기에 표시돼요.'**
+  String get logEmpty;
+
+  /// No description provided for @logResizeTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'드래그해서 로그 창 크기 조절'**
+  String get logResizeTooltip;
+
   /// No description provided for @notInstalled.
   ///
   /// In ko, this message translates to:

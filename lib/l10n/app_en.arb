@@ -143,6 +143,9 @@
       }
     }
   },
+  "logTitle": "Log",
+  "logEmpty": "Results of your actions appear here.",
+  "logResizeTooltip": "Drag to resize the log panel",
   "notInstalled": "Not installed / name mismatch",
   "serviceSubtitle": "{displayName} · {state} · Startup {startMode}",
   "@serviceSubtitle": {

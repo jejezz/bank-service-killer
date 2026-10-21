@@ -232,6 +232,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get logTitle => 'Log';
+
+  @override
+  String get logEmpty => 'Results of your actions appear here.';
+
+  @override
+  String get logResizeTooltip => 'Drag to resize the log panel';
+
+  @override
   String get notInstalled => 'Not installed / name mismatch';
 
   @override

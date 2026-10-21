@@ -230,6 +230,15 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get logTitle => '로그';
+
+  @override
+  String get logEmpty => '작업 결과가 여기에 표시돼요.';
+
+  @override
+  String get logResizeTooltip => '드래그해서 로그 창 크기 조절';
+
+  @override
   String get notInstalled => '설치되지 않음 / 이름 불일치';
 
   @override

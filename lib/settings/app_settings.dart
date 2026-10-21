@@ -14,6 +14,7 @@ class AppSettings extends ChangeNotifier {
   /// 저장 키 — 모든 앱 공통 (localization.md §5). 바꾸지 않는다.
   static const themeModeKey = 'theme_mode';
   static const localeKey = 'app_locale';
+  static const logHeightKey = 'log_panel_height';
   static const startupAttemptedKey = 'startup_registration_attempted';
 
   final SharedPreferences _prefs;
@@ -39,6 +40,11 @@ class AppSettings extends ChangeNotifier {
   bool get startupRegistrationAttempted => _prefs.getBool(startupAttemptedKey) ?? false;
 
   Future<void> markStartupRegistrationAttempted() => _prefs.setBool(startupAttemptedKey, true);
+
+  /// 로그 패널 높이. 저장된 값이 없으면 null.
+  double? get logHeight => _prefs.getDouble(logHeightKey);
+
+  Future<void> setLogHeight(double height) => _prefs.setDouble(logHeightKey, height);
 
   ThemeMode get themeMode => _themeMode;
 

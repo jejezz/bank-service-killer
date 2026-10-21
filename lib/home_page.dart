@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'l10n/app_localizations.dart';
 import 'service_manager.dart';
+import 'settings/app_settings.dart';
 import 'settings/settings_menus.dart';
 import 'startup_manager.dart';
 import 'theme/app_theme.dart';
@@ -34,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   bool _busy = false;
   bool _admin = true;
   bool _loaded = false;
+  double? _logHeight;
 
   AppLocalizations get _l10n => AppLocalizations.of(context);
 
@@ -294,19 +296,59 @@ class _HomePageState extends State<HomePage> {
               ]),
             ),
             Expanded(
-              flex: 3,
-              child: _loaded && _rows.isEmpty ? _emptyState(l, theme) : _list(l, theme),
-            ),
-            const Divider(height: 1),
-            Expanded(
-              flex: 1,
-              child: ListView(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                children: [
-                  for (final line in _log)
-                    Text(line, style: AppFonts.mono.copyWith(fontSize: 12)),
-                ],
-              ),
+              child: LayoutBuilder(builder: (context, c) {
+                // 목록·로그 모두 최소 높이를 남긴다.
+                const minList = 120.0, minLog = 64.0, handle = 10.0;
+                final maxLog = (c.maxHeight - minList - handle).clamp(minLog, double.infinity);
+                final logH = (_logHeight ?? AppSettingsScope.of(context).logHeight ?? 150.0)
+                    .clamp(minLog, maxLog);
+                return Column(children: [
+                  Expanded(
+                    child: _loaded && _rows.isEmpty ? _emptyState(l, theme) : _list(l, theme),
+                  ),
+                  Tooltip(
+                    message: l.logResizeTooltip,
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.resizeRow,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onVerticalDragUpdate: (d) =>
+                            setState(() => _logHeight = (logH - d.delta.dy).clamp(minLog, maxLog)),
+                        onVerticalDragEnd: (_) {
+                          if (_logHeight != null) AppSettingsScope.of(context).setLogHeight(_logHeight!);
+                        },
+                        child: SizedBox(
+                          height: handle,
+                          child: Center(child: Divider(height: 1, color: theme.dividerColor)),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: logH,
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.xs),
+                        child: Text(l.logTitle, style: theme.textTheme.labelLarge),
+                      ),
+                      Expanded(
+                        child: _log.isEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                                child: Text(l.logEmpty, style: theme.textTheme.bodySmall),
+                              )
+                            : ListView(
+                                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                                children: [
+                                  for (final line in _log)
+                                    Text(line, style: AppFonts.mono.copyWith(fontSize: 12)),
+                                ],
+                              ),
+                      ),
+                    ]),
+                  ),
+                ]);
+              }),
             ),
           ]),
         ),
