@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'l10n/app_localizations.dart';
+import 'theme/app_theme.dart';
 
 /// 로그온 시 관리자 권한으로 자동 실행되는 예약 작업 관리.
 ///
@@ -83,7 +84,10 @@ class _StartupMenuButtonState extends State<StartupMenuButton> {
     final l10n = AppLocalizations.of(context);
     return PopupMenuButton<bool>(
       tooltip: l10n.startupMenuTooltip,
-      icon: const Icon(Icons.power_settings_new_rounded),
+      icon: Icon(
+        Icons.power_settings_new_rounded,
+        color: _registered ? AppColors.success : null,
+      ),
       onSelected: (_) => _toggle(),
       itemBuilder: (_) => [
         CheckedPopupMenuItem<bool>(

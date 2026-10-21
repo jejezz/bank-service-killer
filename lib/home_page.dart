@@ -221,6 +221,15 @@ class _HomePageState extends State<HomePage> {
     await _refresh();
   }
 
+  /// 아이콘 색: 다크는 밝은 의미색, 라이트는 대비를 확보한 짙은 변형.
+  Color _tone(Color dark, Color light) =>
+      Theme.of(context).brightness == Brightness.dark ? dark : light;
+
+  Color get _runColor => _tone(AppColors.success, AppColors.successTextLight);
+  Color get _stopColor => _tone(AppColors.danger, AppColors.dangerTextLight);
+  Color get _editColor => _tone(AppColors.primary, AppColors.primaryDeep);
+  Color get _toolColor => _tone(AppColors.warning, AppColors.warningTextLight);
+
   Color _stateColor(SvcInfo? s) {
     if (s == null) return AppColors.textLow;
     return s.running ? AppColors.success : AppColors.warning;
@@ -262,16 +271,16 @@ class _HomePageState extends State<HomePage> {
               IconButton(
                 tooltip: l.refreshTooltip,
                 onPressed: _busy ? null : _refresh,
-                icon: const Icon(Icons.refresh_rounded),
+                icon: Icon(Icons.refresh_rounded, color: _editColor),
               ),
               IconButton(
                 tooltip: l.addServiceTooltip,
                 onPressed: _busy ? null : _addDialog,
-                icon: const Icon(Icons.add_rounded),
+                icon: Icon(Icons.add_rounded, color: _runColor),
               ),
               PopupMenuButton<String>(
                 tooltip: l.systemToolsTooltip,
-                icon: const Icon(Icons.settings_applications_outlined),
+                icon: Icon(Icons.settings_applications_outlined, color: _toolColor),
                 onSelected: (tool) => Process.start(
                   tool == 'msconfig' ? 'msconfig.exe' : 'mmc.exe',
                   // -3 = 서비스 탭
@@ -285,7 +294,7 @@ class _HomePageState extends State<HomePage> {
               ),
               IconButton(
                 tooltip: l.helpTooltip,
-                icon: const Icon(Icons.help_outline_rounded),
+                icon: const Icon(Icons.help_outline_rounded, color: AppColors.accent),
                 onPressed: () => showHelpDialog(context),
               ),
               const StartupMenuButton(),
@@ -451,18 +460,21 @@ class _HomePageState extends State<HomePage> {
                   IconButton(
                     tooltip: s.running ? l.stopVerifyTooltip : l.startVerifyTooltip,
                     onPressed: _busy ? null : () => _runOne(s.running ? _turnOff : _turnOn, r),
-                    icon: Icon(s.running ? Icons.stop_circle_outlined : Icons.play_circle_outline),
+                    icon: Icon(
+                      s.running ? Icons.stop_circle_rounded : Icons.play_circle_fill_rounded,
+                      color: s.running ? _stopColor : _runColor,
+                    ),
                   ),
                 ],
                 IconButton(
                   tooltip: l.editTooltip,
                   onPressed: _busy ? null : () => _addDialog(edit: r),
-                  icon: const Icon(Icons.edit_outlined),
+                  icon: Icon(Icons.edit_rounded, color: _editColor),
                 ),
                 IconButton(
                   tooltip: l.removeTooltip,
                   onPressed: _busy ? null : () => _remove(r),
-                  icon: const Icon(Icons.delete_outline_rounded),
+                  icon: Icon(Icons.delete_rounded, color: _stopColor),
                 ),
               ]),
             ),
