@@ -32,7 +32,7 @@ const defaultWatchItems = <WatchItem>[
   WatchItem('nxTS Process Manager Service', group: 'C', note: '키보드보안, 드라이버 연동 가능'),
   WatchItem('OZWLservice'),
   WatchItem('SignKoreaWD'),
-  WatchItem('ToucnEn_nxFireWell', group: 'C', note: '개인방화벽, 드라이버 연동 가능'),
+  WatchItem('ToucnEn_nxFireWall', group: 'C', note: '개인방화벽, 드라이버 연동 가능'),
   WatchItem('WIZVERA Process Manager Service'),
 ];
 
