@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'help_dialog.dart';
 import 'l10n/app_localizations.dart';
 import 'service_manager.dart';
 import 'settings/app_settings.dart';
@@ -256,6 +257,11 @@ class _HomePageState extends State<HomePage> {
                 tooltip: l.addServiceTooltip,
                 onPressed: _busy ? null : _addDialog,
                 icon: const Icon(Icons.add_rounded),
+              ),
+              IconButton(
+                tooltip: l.helpTooltip,
+                icon: const Icon(Icons.help_outline_rounded),
+                onPressed: () => showHelpDialog(context),
               ),
               const StartupMenuButton(),
               const ThemeMenuButton(),

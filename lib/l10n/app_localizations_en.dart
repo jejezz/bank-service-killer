@@ -241,6 +241,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logResizeTooltip => 'Drag to resize the log panel';
 
   @override
+  String get helpTooltip => 'How to use';
+
+  @override
+  String get helpTitle => 'How to use';
+
+  @override
+  String get helpClose => 'Close';
+
+  @override
+  String get helpPurposeTitle => 'What is this app?';
+
+  @override
+  String get helpPurposeBody =>
+      'Security programs required for online banking often slow your PC or cause conflicts the rest of the time. This app turns those resident services on only when you bank, turns them off afterwards, and verifies they really started or stopped. Controlling services needs administrator rights, so Windows shows a UAC prompt when you launch it.';
+
+  @override
+  String get helpListTitle => 'Where does the service list come from?';
+
+  @override
+  String get helpListBody =>
+      'The list is not built automatically. It starts with common banking/security services, and after that you manage it yourself.\n• Add: press + (Ctrl+N) and type a service name or display name; matching services installed on this PC appear below — click one to pick it.\n• Newly installed services are NOT detected automatically; add them yourself. You can find service names in msconfig (Services tab) or services.msc.\n• Partial names match too. \"Not installed / name mismatch\" means the service isn\'t on this PC or the name differs.\n• The list is saved to %APPDATA%\\BankServiceKiller\\watchlist.json. Refresh (F5) re-reads the current service states.';
+
+  @override
+  String get helpGroupTitle => 'The [A] [B] [C] after a service name';
+
+  @override
+  String get helpGroupBody =>
+      'A label you chose when adding the item.\n• A: not security-related (e.g. audio effects)\n• B: web-plugin style security service (most banking security software)\n• C: may be tied to a driver (keyboard security, personal firewall…). Turning it off may cause problems.\nThe label is only a hint and doesn\'t change what On/Off does.';
+
+  @override
+  String get helpOnOffTitle => 'Turning on and off';
+
+  @override
+  String get helpOnOffBody =>
+      '• Turn All On / Off and the play/stop button on each row start or stop the service right now. If the startup type is Disabled it is set to Manual first, then started.\n• After starting or stopping, the app verifies the real state and writes the result to the log below. After a stop it checks again 3 seconds later in case the service came back.\n• Turning off only stops the service; it doesn\'t change the startup type. If it is Automatic, it starts again the next time the PC boots.';
+
+  @override
+  String get helpModeTitle => 'Startup type (Automatic / Manual / Disabled)';
+
+  @override
+  String get helpModeBody =>
+      'Pick it from the dropdown on a row; it applies immediately. It doesn\'t start or stop the running service now — it affects how the service starts from the next boot onward.\n• Automatic: starts at boot.\n• Manual: doesn\'t start at boot; start it with the on button when needed. Recommended for banking services.\n• Disabled: starting is blocked. This app\'s on button switches it to Manual first, then starts it.\n\"disabled in msconfig\" marks a service you turned off in msconfig.';
+
+  @override
+  String get helpResidentTitle => 'Resident mode and startup';
+
+  @override
+  String get helpResidentBody =>
+      'Closing the window doesn\'t quit; the app stays in the system tray. Click the tray icon to open the window, and use Exit in its right-click menu to quit completely. On first run it registers itself to start at Windows sign-in (tray only, no window); toggle this from the power icon in the top bar.';
+
+  @override
   String get notInstalled => 'Not installed / name mismatch';
 
   @override
