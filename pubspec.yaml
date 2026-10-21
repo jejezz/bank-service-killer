@@ -1,7 +1,7 @@
 name: bank_service_killer
 description: 금융보안·키보드보안 같은 상주 서비스를 필요할 때만 켜고 끄고, 실제로 on/off 되었는지 검증하는 Windows 전용 앱.
 publish_to: none
-version: 0.1.1+3
+version: 0.1.2+4
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
