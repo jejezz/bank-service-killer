@@ -301,6 +301,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editDialogTitle => 'Edit Watched Service';
 
   @override
+  String get systemToolsTooltip => 'Open Windows service tools';
+
+  @override
+  String get openMsconfig => 'msconfig (Services tab)';
+
+  @override
+  String get openServicesMsc => 'Services (services.msc)';
+
+  @override
   String get notInstalled => 'Not installed / name mismatch';
 
   @override

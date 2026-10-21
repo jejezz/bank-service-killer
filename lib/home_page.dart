@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -266,6 +268,20 @@ class _HomePageState extends State<HomePage> {
                 tooltip: l.addServiceTooltip,
                 onPressed: _busy ? null : _addDialog,
                 icon: const Icon(Icons.add_rounded),
+              ),
+              PopupMenuButton<String>(
+                tooltip: l.systemToolsTooltip,
+                icon: const Icon(Icons.settings_applications_outlined),
+                onSelected: (tool) => Process.start(
+                  tool == 'msconfig' ? 'msconfig.exe' : 'mmc.exe',
+                  // -3 = 서비스 탭
+                  tool == 'msconfig' ? ['-3'] : ['services.msc'],
+                  mode: ProcessStartMode.detached,
+                ),
+                itemBuilder: (_) => [
+                  PopupMenuItem(value: 'msconfig', child: Text(l.openMsconfig)),
+                  PopupMenuItem(value: 'services', child: Text(l.openServicesMsc)),
+                ],
               ),
               IconButton(
                 tooltip: l.helpTooltip,

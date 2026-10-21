@@ -299,6 +299,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get editDialogTitle => '감시 서비스 수정';
 
   @override
+  String get systemToolsTooltip => 'Windows 서비스 도구 열기';
+
+  @override
+  String get openMsconfig => 'msconfig (서비스 탭)';
+
+  @override
+  String get openServicesMsc => '서비스 관리 (services.msc)';
+
+  @override
   String get notInstalled => '설치되지 않음 / 이름 불일치';
 
   @override

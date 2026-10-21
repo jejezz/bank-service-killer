@@ -608,6 +608,24 @@ abstract class AppLocalizations {
   /// **'감시 서비스 수정'**
   String get editDialogTitle;
 
+  /// No description provided for @systemToolsTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'Windows 서비스 도구 열기'**
+  String get systemToolsTooltip;
+
+  /// No description provided for @openMsconfig.
+  ///
+  /// In ko, this message translates to:
+  /// **'msconfig (서비스 탭)'**
+  String get openMsconfig;
+
+  /// No description provided for @openServicesMsc.
+  ///
+  /// In ko, this message translates to:
+  /// **'서비스 관리 (services.msc)'**
+  String get openServicesMsc;
+
   /// No description provided for @notInstalled.
   ///
   /// In ko, this message translates to:

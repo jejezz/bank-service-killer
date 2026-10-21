@@ -164,6 +164,9 @@
   "commonSave": "Save",
   "editTooltip": "Edit name / group",
   "editDialogTitle": "Edit Watched Service",
+  "systemToolsTooltip": "Open Windows service tools",
+  "openMsconfig": "msconfig (Services tab)",
+  "openServicesMsc": "Services (services.msc)",
   "notInstalled": "Not installed / name mismatch",
   "serviceSubtitle": "{displayName} · {state} · Startup {startMode}",
   "@serviceSubtitle": {

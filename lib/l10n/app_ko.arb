@@ -181,6 +181,9 @@
   "commonSave": "저장",
   "editTooltip": "이름·분류 수정",
   "editDialogTitle": "감시 서비스 수정",
+  "systemToolsTooltip": "Windows 서비스 도구 열기",
+  "openMsconfig": "msconfig (서비스 탭)",
+  "openServicesMsc": "서비스 관리 (services.msc)",
   "notInstalled": "설치되지 않음 / 이름 불일치",
   "serviceSubtitle": "{displayName} · {state} · 시작 유형 {startMode}",
   "@serviceSubtitle": {
