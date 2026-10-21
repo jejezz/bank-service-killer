@@ -325,6 +325,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   SizedBox(
+                    width: double.infinity,
                     height: logH,
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Padding(
