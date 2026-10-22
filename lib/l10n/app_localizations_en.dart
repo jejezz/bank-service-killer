@@ -822,7 +822,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpCatalogBody =>
-      'Security services change names between products and versions, so a fixed list goes stale quickly. The app keeps a catalog of which product installs under which names and executables, and refreshes it regularly (every 24 hours).\n• The globe icon (Security service catalog) shows services found on this PC that aren\'t in your list, and items that look renamed. A number appears on the icon when there are new suggestions.\n• The catalog only suggests. It never turns services on or off by itself, and you choose what to add. Newly created categories aren\'t set to \'On\' in any mode, so every mode turns them off until you decide in Manage modes.\n• Downloaded catalogs are signature-checked. One with a bad signature or an older version is ignored and the built-in catalog is used.\n• For a service the catalog doesn\'t know, use \'Report\'. It opens a draft GitHub issue containing only the service name, display name, executable name and signer; you review it and submit it yourself (no paths are included).';
+      'Security services change names between products and versions, so a fixed list goes stale quickly. The app keeps a catalog of which product installs under which names and executables, and refreshes it regularly (every 24 hours).\n• The globe icon (Security service catalog) shows services found on this PC that aren\'t in your list, and items that look renamed. A number appears on the icon when there are new suggestions.\n• The catalog only suggests. It never turns services on or off by itself, and you choose what to add. Newly created categories aren\'t set to \'On\' in any mode, so every mode turns them off until you decide in Manage modes.\n• Downloaded catalogs are signature-checked. One with a bad signature or an older version is ignored and the built-in catalog is used.\n• For a service the catalog doesn\'t know, use \'Report\'. It opens a draft GitHub issue containing only the service name, display name, executable name and signer; you review it and submit it yourself (no paths are included).\n• New installs are noticed too. Each time services are read (at start and every 30 minutes) they are compared with what was seen last time, and even if the catalog doesn\'t know a service, it\'s flagged as a candidate when its name, path or signer looks like security software. The count shows on the icon badge and the tray tooltip. On the first run the current services become the baseline and nothing is flagged.\n• When you add a candidate you also pick its category and which modes turn it on. A mode you leave unchecked turns it off. If you decide it isn\'t security software, \'Ignore\' it so it isn\'t shown again.';
 
   @override
   String catalogKeyInfo(String fp) {
@@ -832,5 +832,85 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String catalogErrSignatureDetail(int bytes, String sig, String fp) {
     return 'signature does not match (catalog $bytes bytes, signature $sig…, public key $fp…)';
+  }
+
+  @override
+  String suspectsHeader(int n) {
+    return '$n services that look like security software (not in the catalog)';
+  }
+
+  @override
+  String get suspectsHint =>
+      'Guessed from the name, path and signer. They can be wrong, so check the reasons before choosing.';
+
+  @override
+  String suspectReasonName(String v) {
+    return 'name contains \'$v\'';
+  }
+
+  @override
+  String suspectReasonDisplay(String v) {
+    return 'display name contains \'$v\'';
+  }
+
+  @override
+  String suspectReasonPath(String v) {
+    return 'path contains \'$v\'';
+  }
+
+  @override
+  String suspectReasonSigner(String v) {
+    return 'signer contains \'$v\'';
+  }
+
+  @override
+  String suspectAdd(int n) {
+    return 'Add $n selected…';
+  }
+
+  @override
+  String suspectIgnore(int n) {
+    return 'Ignore $n selected';
+  }
+
+  @override
+  String suspectUnignore(int n) {
+    return 'Show $n ignored services again';
+  }
+
+  @override
+  String suspectAddTitle(int n) {
+    return 'Add $n services to the list';
+  }
+
+  @override
+  String get suspectCategory => 'Category';
+
+  @override
+  String get suspectNewCategory => 'New category name';
+
+  @override
+  String get suspectCategoryDefault => 'New security services';
+
+  @override
+  String get suspectModesTitle => 'Turn on in which modes?';
+
+  @override
+  String suspectModeItem(String name) {
+    return 'Turn on in \'$name\' mode';
+  }
+
+  @override
+  String get suspectModesNote =>
+      'In modes you leave unchecked, this service is turned off. Check modes that need security services, like Banking. You can change this later in Manage modes.';
+
+  @override
+  String suspectNoMode(String category) {
+    return 'Added the \'$category\' category without turning it on in any mode, so every mode turns it off. Change this in Manage modes if needed.';
+  }
+
+  @override
+  String trayAlerts(int n) {
+    return '$n suspected new security services';
   }
 }

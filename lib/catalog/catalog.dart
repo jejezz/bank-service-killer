@@ -30,7 +30,13 @@ class LocalizedText {
 
 /// 이 PC에 설치된 서비스 하나 (카탈로그와 견주는 쪽의 최소 정보).
 class InstalledService {
-  const InstalledService({required this.name, this.displayName = '', this.exe = '', this.signer});
+  const InstalledService({
+    required this.name,
+    this.displayName = '',
+    this.exe = '',
+    this.signer,
+    this.path = '',
+  });
 
   final String name;
   final String displayName;
@@ -41,8 +47,17 @@ class InstalledService {
   /// 실행 파일 서명자(인증서 주체). 아직 조사하지 않았으면 null.
   final String? signer;
 
+  /// 실행 파일 전체 경로. 이 PC 안에서 서명자를 조사하고 후보를 가릴 때만 쓰고, 밖으로 내보내지 않는다.
+  final String path;
+
+  /// Windows 가 직접 깔아 둔 서비스(Windows 폴더 아래)인가.
+  bool get isWindowsOwn {
+    final p = path.toLowerCase();
+    return p.contains(r'\windows\') || p.contains(r'\windowsapps\');
+  }
+
   InstalledService withSigner(String? s) =>
-      InstalledService(name: name, displayName: displayName, exe: exe, signer: s);
+      InstalledService(name: name, displayName: displayName, exe: exe, signer: s, path: path);
 }
 
 /// `"C:\Program Files\X\a.exe" /arg` 같은 서비스 명령줄에서 실행 파일 경로만 뽑는다.
@@ -146,6 +161,26 @@ class CatalogProduct {
       );
 }
 
+/// 카탈로그가 덧붙이는 "보안 프로그램처럼 보이는가" 판정 자료 (모두 소문자로 견준다). 앱에 든 기본 규칙에 더해진다.
+class HeuristicsData {
+  const HeuristicsData({this.keywords = const [], this.signers = const [], this.trustedSigners = const []});
+
+  /// 이름·표시 이름·경로에 들어 있으면 의심하는 낱말.
+  final List<String> keywords;
+
+  /// 서명자에 들어 있으면 의심하는 보안 업체 이름.
+  final List<String> signers;
+
+  /// 서명자에 들어 있으면 의심하지 않는 믿을 만한 서명자 (예: Microsoft).
+  final List<String> trustedSigners;
+
+  factory HeuristicsData.fromJson(Object? json) {
+    if (json is! Map) return const HeuristicsData();
+    List<String> list(String k) => [for (final v in (json[k] as List? ?? const [])) v.toString().toLowerCase()];
+    return HeuristicsData(keywords: list('keywords'), signers: list('signers'), trustedSigners: list('trustedSigners'));
+  }
+}
+
 class Catalog {
   const Catalog({
     required this.schema,
@@ -153,7 +188,10 @@ class Catalog {
     required this.updated,
     required this.categories,
     required this.products,
+    this.heuristics = const HeuristicsData(),
   });
+
+  final HeuristicsData heuristics;
 
   final int schema;
 
@@ -179,6 +217,7 @@ class Catalog {
       updated: (json['updated'] ?? '') as String,
       categories: cats is Map ? {for (final e in cats.entries) e.key.toString(): LocalizedText.fromJson(e.value)} : {},
       products: [for (final p in (json['products'] as List? ?? const [])) CatalogProduct.fromJson(_asMap(p))],
+      heuristics: HeuristicsData.fromJson(json['heuristics']),
     );
   }
 

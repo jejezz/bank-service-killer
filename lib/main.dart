@@ -180,7 +180,12 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
     final l10n = lookupAppLocalizations(AppSettings.resolveLocale(widget.settings.locale ?? device, const []));
     final current = _modeActions.current;
     final summary = _modeActions.summary;
-    await trayManager.setToolTip(summary == null ? AppIdentity.displayName : '${AppIdentity.displayName} · $summary');
+    final alerts = _modeActions.alerts;
+    await trayManager.setToolTip([
+      AppIdentity.displayName,
+      if (summary != null) summary,
+      if (alerts > 0) l10n.trayAlerts(alerts),
+    ].join(' · '));
     await trayManager.setContextMenu(Menu(items: [
       MenuItem(key: 'show', label: l10n.trayShow),
       MenuItem.separator(),

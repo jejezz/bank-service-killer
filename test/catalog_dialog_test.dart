@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:bank_service_killer/catalog/catalog.dart';
 import 'package:bank_service_killer/catalog/catalog_controller.dart';
 import 'package:bank_service_killer/catalog/catalog_dialog.dart';
+import 'package:bank_service_killer/catalog/installed.dart';
+import 'package:bank_service_killer/catalog/seen_state.dart';
 import 'package:bank_service_killer/l10n/app_localizations.dart';
 import 'package:bank_service_killer/service_manager.dart';
 import 'package:bank_service_killer/watch_item.dart';
@@ -50,6 +52,9 @@ Future<_Result> _open(
   required WatchData data,
   required List<SvcInfo> services,
   bool remote = false,
+  SeenState? seen,
+  Map<String, String> signers = const {},
+  void Function(SeenState)? onSeenChanged,
 }) async {
   // 디렉터리를 실제로 만들지 않는다 (위젯 테스트의 가짜 시계 안에서는 실제 파일 입출력이 끝나지 않는다).
   final controller = CatalogController(
@@ -58,6 +63,10 @@ Future<_Result> _open(
     publicKey: remote ? 'AAAA' : '',
     url: remote ? Uri.parse('https://example.test/c.json') : null,
   );
+  // 창이 길어졌으니 화면도 크게 잡아 모든 구역이 보이게 한다.
+  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = const Size(1000, 1800);
+  addTearDown(tester.view.reset);
   final out = _Result();
   await tester.pumpWidget(MaterialApp(
     locale: const Locale('ko'),
@@ -67,7 +76,16 @@ Future<_Result> _open(
       body: Builder(
         builder: (context) => TextButton(
           onPressed: () async {
-            out.data = await showCatalogDialog(context, controller: controller, data: data, services: services);
+            out.data = await showCatalogDialog(
+              context,
+              controller: controller,
+              data: data,
+              services: services,
+              seen: seen,
+              // 실제 PowerShell 을 부르지 않는다 (위젯 테스트의 가짜 시계 안에서는 프로세스가 끝나지 않는다).
+              signers: SignerCache(lookup: (paths) async => {for (final p in paths) p: signers[p] ?? ''}),
+              onSeenChanged: onSeenChanged == null ? null : (s) async => onSeenChanged(s),
+            );
             out.closed = true;
           },
           child: const Text('open'),
@@ -84,6 +102,7 @@ WatchData _watch(List<WatchItem> items) => WatchData(
       categories: const [],
       items: items,
       modes: [const WatchMode('뱅킹'), const WatchMode('개발')],
+      defaultMode: '개발',
     );
 
 void main() {
@@ -172,6 +191,109 @@ void main() {
     expect(find.text('FooSvc'), findsOneWidget);
     expect(find.text('Spooler'), findsNothing);
     expect(find.text('nxTSSvc'), findsNothing);
+  });
+
+
+  group('보안 프로그램 후보', () {
+    // 카탈로그에는 없지만 이름·서명자가 보안 프로그램처럼 보이는 서비스.
+    List<SvcInfo> services() => [
+          _svc('nxTSSvc', r'C:\x\nxtssvc.exe'),
+          _svc('GuardSvc', r'C:\Program Files\Guard\guard.exe'),
+          _svc('PlainSvc', r'C:\Program Files\Plain\plain.exe'),
+          _svc('Spooler', r'C:\Windows\System32\spoolsv.exe'),
+        ];
+    const signers = {r'C:\Program Files\Guard\guard.exe': 'CN=INCA Internet Co.'};
+
+    testWidgets('이유와 함께 보여 주고, 카탈로그가 아는 서비스·Windows 서비스·평범한 서비스는 뺀다', (tester) async {
+      await _open(tester, data: _watch(const []), services: services(), signers: signers);
+      expect(find.textContaining('보안 프로그램으로 보이는 서비스 1개'), findsOneWidget);
+      expect(find.textContaining("GuardSvc  ·  서명자에 'inca internet'"), findsOneWidget);
+      expect(find.textContaining('PlainSvc'), findsNothing);
+      expect(find.textContaining('Spooler'), findsNothing);
+    });
+
+    testWidgets('목록에 이미 있는 서비스는 후보에서 뺀다', (tester) async {
+      await _open(tester, data: _watch([const WatchItem('GuardSvc')]), services: services(), signers: signers);
+      expect(find.textContaining('보안 프로그램으로 보이는 서비스'), findsNothing);
+    });
+
+    testWidgets('창을 열면 지금 서비스를 모두 본 것으로 치고 저장을 맡긴다', (tester) async {
+      final seen = SeenState();
+      var saved = 0;
+      await _open(
+        tester,
+        data: _watch(const []),
+        services: services(),
+        seen: seen,
+        onSeenChanged: (_) => saved++,
+      );
+      expect(seen.initialized, isTrue);
+      expect(seen.seen, containsAll(['nxtssvc', 'guardsvc', 'plainsvc', 'spooler']));
+      expect(saved, greaterThan(0));
+    });
+
+    testWidgets('추가: 카테고리와 켤 모드를 고르면 항목·카테고리·모드가 함께 반영된다', (tester) async {
+      final out = await _open(tester, data: _watch(const []), services: services(), signers: signers);
+      await tester.tap(find.widgetWithText(CheckboxListTile, 'GuardSvc'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('선택한 1개 추가…'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('서비스 1개를 목록에 추가'), findsOneWidget);
+      // 기본 모드('개발')가 아닌 '뱅킹'이 미리 체크돼 있다.
+      expect(tester.widget<CheckboxListTile>(find.widgetWithText(CheckboxListTile, "'뱅킹' 모드에서 켜기")).value, isTrue);
+      expect(tester.widget<CheckboxListTile>(find.widgetWithText(CheckboxListTile, "'개발' 모드에서 켜기")).value, isFalse);
+
+      await tester.tap(find.text('추가').last);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('서비스 1개를 목록에 추가했어요'), findsOneWidget);
+      expect(find.textContaining('보안 프로그램으로 보이는 서비스'), findsNothing, reason: '추가하면 후보에서 빠진다');
+
+      await tester.tap(find.text('닫기'));
+      await tester.pumpAndSettle();
+      final saved = out.data!;
+      expect(saved.items.single.name, 'GuardSvc');
+      expect(saved.items.single.categories, ['새 보안 서비스']);
+      expect(saved.categories, contains('새 보안 서비스'));
+      expect(saved.modeNamed('뱅킹')!.on, ['새 보안 서비스']);
+      expect(saved.modeNamed('개발')!.on, isEmpty);
+    });
+
+    testWidgets('모드를 하나도 고르지 않으면 어느 모드에서도 켜지 않는다고 알린다', (tester) async {
+      final out = await _open(tester, data: _watch(const []), services: services(), signers: signers);
+      await tester.tap(find.widgetWithText(CheckboxListTile, 'GuardSvc'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('선택한 1개 추가…'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(CheckboxListTile, "'뱅킹' 모드에서 켜기"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('추가').last);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('어느 모드에서도 켜지 않도록 추가했어요'), findsOneWidget);
+      await tester.tap(find.text('닫기'));
+      await tester.pumpAndSettle();
+      expect(out.data!.modes.every((m) => m.on.isEmpty), isTrue);
+    });
+
+    testWidgets('무시하면 후보에서 빠지고 기억하며, 다시 보기로 되돌린다', (tester) async {
+      final seen = SeenState();
+      final out = await _open(tester, data: _watch(const []), services: services(), signers: signers, seen: seen);
+      await tester.tap(find.widgetWithText(CheckboxListTile, 'GuardSvc'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('선택한 1개 무시'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('보안 프로그램으로 보이는 서비스'), findsNothing);
+      expect(seen.ignored, {'guardsvc'});
+
+      await tester.tap(find.text('무시한 서비스 1개 다시 보기'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('보안 프로그램으로 보이는 서비스 1개'), findsOneWidget);
+      expect(seen.ignored, isEmpty);
+
+      await tester.tap(find.text('닫기'));
+      await tester.pumpAndSettle();
+      expect(out.data, isNull, reason: '목록은 바뀌지 않았다');
+    });
   });
 
   test('suggestionCount: 배지 숫자는 발견+이름 변경 합계', () {

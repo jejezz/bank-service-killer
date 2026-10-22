@@ -5,8 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'catalog/catalog.dart';
 import 'catalog/catalog_controller.dart';
 import 'catalog/catalog_dialog.dart';
+import 'catalog/discovery.dart';
+import 'catalog/heuristics.dart';
+import 'catalog/installed.dart';
+import 'catalog/seen_state.dart';
 import 'category_dialog.dart';
 import 'help_dialog.dart';
 import 'l10n/app_localizations.dart';
@@ -66,6 +71,10 @@ class _HomePageState extends State<HomePage> {
   bool _admin = true;
   bool _loaded = false;
   int _suggestions = 0; // 카탈로그가 제안하는 개수 (배지)
+  int _newSuspects = 0; // 새로 생긴 서비스 중 보안 프로그램처럼 보이는 것 (배지)
+  SeenState _seen = SeenState();
+  final SignerCache _signers = SignerCache();
+  Timer? _rescanTimer;
   double? _logHeight;
 
   // ── 모드 ──
@@ -86,11 +95,16 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     widget.modeActions?.apply = (name) => _applyMode(name);
     widget.catalog.addListener(_onCatalogChanged);
+    // 상주하는 동안 새로 설치된 서비스를 알아채도록 30분마다 다시 읽는다 (바쁠 때는 건너뛴다).
+    _rescanTimer = Timer.periodic(const Duration(minutes: 30), (_) {
+      if (mounted && !_busy && !_switching) _refresh();
+    });
     _init();
   }
 
   @override
   void dispose() {
+    _rescanTimer?.cancel();
     widget.catalog.removeListener(_onCatalogChanged);
     _cancelRevert(closeDialog: false);
     widget.modeActions?.detach();
@@ -111,6 +125,7 @@ class _HomePageState extends State<HomePage> {
         devMode: l.modeDefaultDev,
       ),
     );
+    _seen = await SeenStore.load();
     _admin = await ServiceManager.isAdmin();
     await _refresh();
     // 로그온 때 자동 시작이면 PC가 늘 같은 상태(기본 모드)에서 출발하게 한다.
@@ -155,7 +170,44 @@ class _HomePageState extends State<HomePage> {
         _loaded = true;
         _updateStatus();
       });
+      _updateAlerts(); // 새로 생긴 서비스를 살핀다 (기다리지 않는다).
     }
+  }
+
+  /// 지난번에 본 서비스와 견줘 새로 생긴 것을 찾고, 그중 보안 프로그램처럼 보이는 것을 센다 (배지·트레이).
+  /// 첫 실행에는 지금 있는 서비스를 기준선으로만 삼고 알리지 않는다.
+  Future<void> _updateAlerts() async {
+    if (_all.isEmpty) return;
+    final names = [for (final s in _all) s.name];
+    if (!_seen.initialized) {
+      _seen.markSeen(names);
+      await SeenStore.save(_seen);
+      return;
+    }
+    final fresh = _seen.newNames(names);
+    var count = 0;
+    if (fresh.isNotEmpty) {
+      final catalog = widget.catalog.catalog;
+      // 서명자는 새로 생긴 서비스만 조사한다 (조사한 파일은 캐시에서 쓴다).
+      final installed = await loadInstalled(_all, catalog, cache: _signers, withSigners: true, signerFor: fresh);
+      if (!mounted) return;
+      final skip = <String>{
+        ..._seen.ignored,
+        for (final h in findHits(catalog, installed)) h.service.name.toLowerCase(),
+        for (final s in installed)
+          if (_data.items.any((i) => itemCovers(i, s))) s.name.toLowerCase(),
+      };
+      count = findSuspects(
+        Heuristics.defaults.merge(catalog.heuristics),
+        [for (final s in installed) if (fresh.contains(s.name.toLowerCase())) s],
+        skip: skip,
+      ).length;
+    }
+    if (!mounted) return;
+    setState(() {
+      _newSuspects = count;
+      _publishModes();
+    });
   }
 
   /// 시작 유형을 Manual 로 맞춘 뒤 시작하고 실제 상태를 검증.
@@ -209,28 +261,49 @@ class _HomePageState extends State<HomePage> {
   /// 서비스의 실제 상태로 현재 모드를 다시 판정하고, 트레이 쪽에도 알린다.
   void _onCatalogChanged() {
     if (!mounted) return;
-    setState(() => _suggestions = suggestionCount(widget.catalog.catalog, _data, _all));
+    setState(() {
+      _suggestions = suggestionCount(widget.catalog.catalog, _data, _all);
+      _publishModes();
+    });
+    _updateAlerts();
   }
 
   Future<void> _openCatalog() async {
-    final result = await showCatalogDialog(context, controller: widget.catalog, data: _data, services: _all);
-    if (result == null || !mounted) return;
-    setState(() => _data = result);
-    await WatchStore.save(_data);
-    await _refresh();
+    final result = await showCatalogDialog(
+      context,
+      controller: widget.catalog,
+      data: _data,
+      services: _all,
+      seen: _seen,
+      signers: _signers,
+      onSeenChanged: SeenStore.save,
+    );
+    if (!mounted) return;
+    if (result != null) {
+      setState(() => _data = result);
+      await WatchStore.save(_data);
+      await _refresh();
+    } else {
+      _updateAlerts(); // 창을 열어 본 것으로 새 서비스 배지가 꺼진다.
+    }
   }
 
   void _updateStatus() {
     _suggestions = suggestionCount(widget.catalog.catalog, _data, _all);
     _status = detect(_data, _states, preferred: _lastMode);
-    final l = _l10n;
     final cur = _status.current;
     // 자동 복귀 타이머는 그 모드에 머무는 동안만 의미가 있다.
     if (cur == null || cur.name != _revertFrom) _cancelRevert();
+    _publishModes();
+  }
+
+  /// 트레이 쪽(메뉴·툴팁)에 모드와 알림 개수를 알린다.
+  void _publishModes() {
     widget.modeActions?.update(
       names: [for (final m in _data.modes) m.name],
-      current: cur?.name,
-      summary: _statusText(l),
+      current: _status.current?.name,
+      summary: _statusText(_l10n),
+      alerts: _suggestions + _newSuspects,
     );
   }
 
@@ -636,11 +709,13 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               IconButton(
-                tooltip: _suggestions > 0 ? l.catalogTooltipCount(_suggestions) : l.catalogTooltip,
+                tooltip: _suggestions + _newSuspects > 0
+                    ? l.catalogTooltipCount(_suggestions + _newSuspects)
+                    : l.catalogTooltip,
                 onPressed: _busy ? null : _openCatalog,
                 icon: Badge(
-                  isLabelVisible: _suggestions > 0,
-                  label: Text('$_suggestions'),
+                  isLabelVisible: _suggestions + _newSuspects > 0,
+                  label: Text('${_suggestions + _newSuspects}'),
                   child: Icon(Icons.travel_explore_rounded, color: _toolColor),
                 ),
               ),

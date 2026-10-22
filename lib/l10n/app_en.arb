@@ -679,7 +679,7 @@
   "reportOpenFailed": "Couldn't open the browser.",
   "reportChecking": "Checking the signer…",
   "helpCatalogTitle": "Security service catalog",
-  "helpCatalogBody": "Security services change names between products and versions, so a fixed list goes stale quickly. The app keeps a catalog of which product installs under which names and executables, and refreshes it regularly (every 24 hours).\n• The globe icon (Security service catalog) shows services found on this PC that aren't in your list, and items that look renamed. A number appears on the icon when there are new suggestions.\n• The catalog only suggests. It never turns services on or off by itself, and you choose what to add. Newly created categories aren't set to 'On' in any mode, so every mode turns them off until you decide in Manage modes.\n• Downloaded catalogs are signature-checked. One with a bad signature or an older version is ignored and the built-in catalog is used.\n• For a service the catalog doesn't know, use 'Report'. It opens a draft GitHub issue containing only the service name, display name, executable name and signer; you review it and submit it yourself (no paths are included).",
+  "helpCatalogBody": "Security services change names between products and versions, so a fixed list goes stale quickly. The app keeps a catalog of which product installs under which names and executables, and refreshes it regularly (every 24 hours).\n• The globe icon (Security service catalog) shows services found on this PC that aren't in your list, and items that look renamed. A number appears on the icon when there are new suggestions.\n• The catalog only suggests. It never turns services on or off by itself, and you choose what to add. Newly created categories aren't set to 'On' in any mode, so every mode turns them off until you decide in Manage modes.\n• Downloaded catalogs are signature-checked. One with a bad signature or an older version is ignored and the built-in catalog is used.\n• For a service the catalog doesn't know, use 'Report'. It opens a draft GitHub issue containing only the service name, display name, executable name and signer; you review it and submit it yourself (no paths are included).\n• New installs are noticed too. Each time services are read (at start and every 30 minutes) they are compared with what was seen last time, and even if the catalog doesn't know a service, it's flagged as a candidate when its name, path or signer looks like security software. The count shows on the icon badge and the tray tooltip. On the first run the current services become the baseline and nothing is flagged.\n• When you add a candidate you also pick its category and which modes turn it on. A mode you leave unchecked turns it off. If you decide it isn't security software, 'Ignore' it so it isn't shown again.",
   "catalogKeyInfo": "Signing public key: {fp}…",
   "@catalogKeyInfo": {
     "placeholders": {
@@ -699,6 +699,108 @@
       },
       "fp": {
         "type": "String"
+      }
+    }
+  },
+  "suspectsHeader": "{n} services that look like security software (not in the catalog)",
+  "@suspectsHeader": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectsHint": "Guessed from the name, path and signer. They can be wrong, so check the reasons before choosing.",
+  "suspectReasonName": "name contains '{v}'",
+  "@suspectReasonName": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "suspectReasonDisplay": "display name contains '{v}'",
+  "@suspectReasonDisplay": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "suspectReasonPath": "path contains '{v}'",
+  "@suspectReasonPath": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "suspectReasonSigner": "signer contains '{v}'",
+  "@suspectReasonSigner": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "suspectAdd": "Add {n} selected…",
+  "@suspectAdd": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectIgnore": "Ignore {n} selected",
+  "@suspectIgnore": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectUnignore": "Show {n} ignored services again",
+  "@suspectUnignore": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectAddTitle": "Add {n} services to the list",
+  "@suspectAddTitle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectCategory": "Category",
+  "suspectNewCategory": "New category name",
+  "suspectCategoryDefault": "New security services",
+  "suspectModesTitle": "Turn on in which modes?",
+  "suspectModeItem": "Turn on in '{name}' mode",
+  "@suspectModeItem": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "suspectModesNote": "In modes you leave unchecked, this service is turned off. Check modes that need security services, like Banking. You can change this later in Manage modes.",
+  "suspectNoMode": "Added the '{category}' category without turning it on in any mode, so every mode turns it off. Change this in Manage modes if needed.",
+  "@suspectNoMode": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "trayAlerts": "{n} suspected new security services",
+  "@trayAlerts": {
+    "placeholders": {
+      "n": {
+        "type": "int"
       }
     }
   }

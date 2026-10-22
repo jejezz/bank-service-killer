@@ -197,6 +197,18 @@ class WatchData {
     return true;
   }
 
+  /// [category]를 [mode] 모드에서 "켜기"로 지정한다 ("그대로"에 있었으면 거기서 뺀다). 없는 모드·카테고리면 false.
+  bool enableCategoryIn(String mode, String category) {
+    final i = modes.indexWhere((m) => m.name == mode);
+    if (i < 0 || !categories.contains(category)) return false;
+    final m = modes[i];
+    modes[i] = m.copyWith(
+      on: m.on.contains(category) ? m.on : [...m.on, category],
+      keep: m.keep.where((c) => c != category).toList(),
+    );
+    return true;
+  }
+
   /// 마지막 하나는 지울 수 없다. 기본 모드를 지우면 첫 모드가 기본이 된다.
   bool deleteMode(String name) {
     if (modes.length <= 1) return false;

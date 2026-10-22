@@ -9,20 +9,36 @@ import '../watch_item.dart';
 import 'catalog.dart';
 import 'catalog_controller.dart';
 import 'discovery.dart';
+import 'heuristics.dart';
 import 'installed.dart';
 import 'report.dart';
+import 'seen_state.dart';
 
-/// 카탈로그 창: 이 PC에서 발견한 서비스와 이름이 바뀐 항목을 제안하고, 승인하면 목록에 반영한다.
-/// 고친 사본을 돌려준다 (바꾼 것이 없으면 null). 카탈로그는 제안만 하고 아무것도 자동으로 하지 않는다.
+/// 카탈로그 창: 이 PC에서 발견한 서비스, 이름이 바뀐 항목, 카탈로그에 없지만 보안 프로그램처럼 보이는 후보를
+/// 제안하고, 승인하면 목록에 반영한다. 고친 사본을 돌려준다 (바꾼 것이 없으면 null).
+/// 카탈로그는 제안만 하고 아무것도 자동으로 하지 않는다.
+///
+/// [seen]은 이미 본 서비스·무시한 서비스 기록이다. 창을 열면 지금 있는 서비스를 모두 본 것으로 치고,
+/// 바뀔 때마다 [onSeenChanged]로 저장을 맡긴다. [signers]는 서명자 조회 결과 캐시다.
 Future<WatchData?> showCatalogDialog(
   BuildContext context, {
   required CatalogController controller,
   required WatchData data,
   required List<SvcInfo> services,
+  SeenState? seen,
+  SignerCache? signers,
+  Future<void> Function(SeenState)? onSeenChanged,
 }) {
   return showDialog<WatchData>(
     context: context,
-    builder: (_) => _CatalogDialog(controller: controller, data: data.copy(), services: services),
+    builder: (_) => _CatalogDialog(
+      controller: controller,
+      data: data.copy(),
+      services: services,
+      seen: seen ?? SeenState(),
+      signers: signers ?? SignerCache(),
+      onSeenChanged: onSeenChanged,
+    ),
   );
 }
 
@@ -36,11 +52,21 @@ String _fmt(DateTime t) {
 }
 
 class _CatalogDialog extends StatefulWidget {
-  const _CatalogDialog({required this.controller, required this.data, required this.services});
+  const _CatalogDialog({
+    required this.controller,
+    required this.data,
+    required this.services,
+    required this.seen,
+    required this.signers,
+    this.onSeenChanged,
+  });
 
   final CatalogController controller;
   final WatchData data;
   final List<SvcInfo> services;
+  final SeenState seen;
+  final SignerCache signers;
+  final Future<void> Function(SeenState)? onSeenChanged;
 
   @override
   State<_CatalogDialog> createState() => _CatalogDialogState();
@@ -50,6 +76,7 @@ class _CatalogDialogState extends State<_CatalogDialog> {
   late final WatchData _d = widget.data;
   List<InstalledService>? _installed;
   final Set<String> _picked = {};
+  final Set<String> _pickedSuspects = {};
   bool _changed = false;
   String? _message;
   String? _notice;
@@ -74,8 +101,30 @@ class _CatalogDialogState extends State<_CatalogDialog> {
   }
 
   Future<void> _scan() async {
-    final list = await loadInstalled(widget.services, _c.catalog);
-    if (mounted) setState(() => _installed = list);
+    // 후보를 가리려면 서명자가 필요하다. 이미 조사한 파일은 캐시에서 쓰고 새 파일만 조사한다.
+    final list = await loadInstalled(widget.services, _c.catalog, cache: widget.signers, withSigners: true);
+    if (!mounted) return;
+    setState(() => _installed = list);
+    // 창을 열어 본 것이니 지금 있는 서비스는 모두 본 것으로 친다 (새 서비스 배지가 꺼진다).
+    widget.seen.markSeen([for (final s in widget.services) s.name]);
+    _saveSeen();
+  }
+
+  void _saveSeen() => widget.onSeenChanged?.call(widget.seen);
+
+  Heuristics get _heuristics => Heuristics.defaults.merge(_c.catalog.heuristics);
+
+  /// 카탈로그에 없고 목록에도 없고 무시하지도 않았지만 보안 프로그램처럼 보이는 서비스.
+  List<Suspect> get _suspects {
+    final installed = _installed;
+    if (installed == null) return const [];
+    final skip = <String>{
+      ...widget.seen.ignored,
+      for (final h in findHits(_c.catalog, installed)) h.service.name.toLowerCase(),
+      for (final s in installed)
+        if (_d.items.any((i) => itemCovers(i, s))) s.name.toLowerCase(),
+    };
+    return findSuspects(_heuristics, installed, skip: skip);
   }
 
   Discovery get _discovery =>
@@ -120,6 +169,48 @@ class _CatalogDialogState extends State<_CatalogDialog> {
     });
   }
 
+  Future<void> _addSuspects() async {
+    final l = AppLocalizations.of(context);
+    final chosen = [for (final s in _suspects) if (_pickedSuspects.contains(s.service.name)) s];
+    if (chosen.isEmpty) return;
+    final answer = await showDialog<_SuspectChoice>(
+      context: context,
+      builder: (_) => _AddSuspectsDialog(
+        categories: _d.categories,
+        modes: [for (final m in _d.modes) m.name],
+        defaultMode: _d.defaultMode,
+        count: chosen.length,
+      ),
+    );
+    if (answer == null || !mounted) return;
+    _d.addCategory(answer.category);
+    for (final s in chosen) {
+      if (_d.items.any((i) => i.name.toLowerCase() == s.service.name.toLowerCase())) continue;
+      _d.items.add(WatchItem(s.service.name, categories: [answer.category]));
+    }
+    for (final m in answer.modes) {
+      _d.enableCategoryIn(m, answer.category);
+    }
+    setState(() {
+      _changed = true;
+      _pickedSuspects.clear();
+      _message = l.catalogAdded(chosen.length);
+      _notice = answer.modes.isEmpty ? l.suspectNoMode(answer.category) : null;
+    });
+  }
+
+  void _ignoreSuspects() {
+    widget.seen.ignore(_pickedSuspects);
+    _saveSeen();
+    setState(_pickedSuspects.clear);
+  }
+
+  void _unignoreAll() {
+    widget.seen.ignored.clear();
+    _saveSeen();
+    setState(() {});
+  }
+
   void _rename(RenameSuggestion r) {
     applyRename(_d, r);
     setState(() => _changed = true);
@@ -138,6 +229,13 @@ class _CatalogDialogState extends State<_CatalogDialog> {
       ),
     );
   }
+
+  String _reasonText(AppLocalizations l, Reason r) => switch (r.kind) {
+        ReasonKind.name => l.suspectReasonName(r.value),
+        ReasonKind.display => l.suspectReasonDisplay(r.value),
+        ReasonKind.path => l.suspectReasonPath(r.value),
+        ReasonKind.signer => l.suspectReasonSigner(r.value),
+      };
 
   String _sourceText(AppLocalizations l) => switch (_c.source) {
         CatalogSource.bundled => l.catalogSourceBundled,
@@ -204,7 +302,7 @@ class _CatalogDialogState extends State<_CatalogDialog> {
                   Text(l.catalogScanning),
                 ]),
               )
-            else if (d.isEmpty)
+            else if (d.isEmpty && _suspects.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: Text(l.catalogNothing),
@@ -274,6 +372,49 @@ class _CatalogDialogState extends State<_CatalogDialog> {
                 ),
               ],
             ],
+            if (_suspects.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.xs),
+                child: Text(l.suspectsHeader(_suspects.length), style: theme.textTheme.titleSmall),
+              ),
+              Text(l.suspectsHint, style: theme.textTheme.bodySmall),
+              for (final sp in _suspects)
+                CheckboxListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: _pickedSuspects.contains(sp.service.name),
+                  onChanged: (v) => setState(
+                      () => v == true ? _pickedSuspects.add(sp.service.name) : _pickedSuspects.remove(sp.service.name)),
+                  title: Text(
+                    sp.service.displayName.isEmpty ? sp.service.name : sp.service.displayName,
+                    style: AppFonts.userContent,
+                  ),
+                  subtitle: Text(
+                    '${sp.service.name}  ·  ${[for (final r in sp.reasons) _reasonText(l, r)].join(', ')}',
+                    style: AppFonts.userContent,
+                  ),
+                ),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                TextButton(
+                  onPressed: _pickedSuspects.isEmpty ? null : _ignoreSuspects,
+                  child: Text(l.suspectIgnore(_pickedSuspects.length)),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                FilledButton(
+                  onPressed: _pickedSuspects.isEmpty ? null : _addSuspects,
+                  child: Text(l.suspectAdd(_pickedSuspects.length)),
+                ),
+              ]),
+            ],
+            if (widget.seen.ignored.isNotEmpty)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: _unignoreAll,
+                  child: Text(l.suspectUnignore(widget.seen.ignored.length)),
+                ),
+              ),
             const SizedBox(height: AppSpacing.md),
             TextButton.icon(
               onPressed: _installed == null ? null : _report,
@@ -287,6 +428,111 @@ class _CatalogDialogState extends State<_CatalogDialog> {
         TextButton(
           onPressed: () => Navigator.pop(context, _changed ? _d : null),
           child: Text(l.commonClose),
+        ),
+      ],
+    );
+  }
+}
+
+class _SuspectChoice {
+  const _SuspectChoice(this.category, this.modes);
+
+  final String category;
+  final Set<String> modes;
+}
+
+/// 후보를 목록에 넣을 때: 어느 카테고리에 넣고, 어느 모드에서 켤지 정한다.
+/// 모드에서 켜지 않으면 모든 모드가 이 서비스를 끄므로, 뱅킹에 필요한 서비스를 빠뜨리지 않게 묻는다.
+class _AddSuspectsDialog extends StatefulWidget {
+  const _AddSuspectsDialog({
+    required this.categories,
+    required this.modes,
+    required this.defaultMode,
+    required this.count,
+  });
+
+  final List<String> categories;
+  final List<String> modes;
+  final String? defaultMode;
+  final int count;
+
+  @override
+  State<_AddSuspectsDialog> createState() => _AddSuspectsDialogState();
+}
+
+class _AddSuspectsDialogState extends State<_AddSuspectsDialog> {
+  late final TextEditingController _newCat;
+  String? _chosen; // 기존 카테고리를 골랐으면 그 이름, 아니면 새 이름 입력칸을 쓴다.
+  late final Set<String> _modes;
+
+  @override
+  void initState() {
+    super.initState();
+    _newCat = TextEditingController();
+    // 기본 모드(보통 "개발")가 아닌 모드를 미리 켜 둔다 — 보안 서비스는 뱅킹처럼 필요한 모드에서 켜야 하니까.
+    _modes = {for (final m in widget.modes) if (m != widget.defaultMode) m};
+  }
+
+  @override
+  void dispose() {
+    _newCat.dispose();
+    super.dispose();
+  }
+
+  String? _category(AppLocalizations l) {
+    final typed = _newCat.text.trim();
+    if (typed.isNotEmpty) return typed;
+    return _chosen ?? l.suspectCategoryDefault;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return AlertDialog(
+      title: Text(l.suspectAddTitle(widget.count)),
+      content: SizedBox(
+        width: 520,
+        child: SingleChildScrollView(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(l.suspectCategory, style: theme.textTheme.titleSmall),
+            const SizedBox(height: AppSpacing.xs),
+            Wrap(spacing: AppSpacing.sm, children: [
+              for (final c in widget.categories)
+                ChoiceChip(
+                  label: Text(c, style: AppFonts.userContent),
+                  selected: _chosen == c && _newCat.text.trim().isEmpty,
+                  onSelected: (_) => setState(() {
+                    _chosen = c;
+                    _newCat.clear();
+                  }),
+                ),
+            ]),
+            TextField(
+              controller: _newCat,
+              decoration: InputDecoration(labelText: l.suspectNewCategory, hintText: l.suspectCategoryDefault),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(l.suspectModesTitle, style: theme.textTheme.titleSmall),
+            for (final m in widget.modes)
+              CheckboxListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: _modes.contains(m),
+                onChanged: (v) => setState(() => v == true ? _modes.add(m) : _modes.remove(m)),
+                title: Text(l.suspectModeItem(m), style: AppFonts.userContent),
+              ),
+            Text(l.suspectModesNote, style: theme.textTheme.bodySmall),
+          ]),
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.commonCancel)),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _SuspectChoice(_category(l)!, Set.of(_modes))),
+          child: Text(l.commonAdd),
         ),
       ],
     );

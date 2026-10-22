@@ -6,6 +6,7 @@ class ModeActions extends ChangeNotifier {
   List<String> _names = const [];
   String? _current;
   String? _summary;
+  int _alerts = 0;
 
   /// 모드 이름들(표시 순서).
   List<String> get names => _names;
@@ -16,11 +17,20 @@ class ModeActions extends ChangeNotifier {
   /// 트레이 툴팁 등에 쓸 한 줄 상태.
   String? get summary => _summary;
 
+  /// 새로 제안된 서비스 개수 (카탈로그 제안 + 새 보안 서비스 후보). 트레이 툴팁에 쓴다.
+  int get alerts => _alerts;
+
   /// 이름의 모드로 바꾼다. HomePage 가 없으면 null.
   Future<void> Function(String name)? apply;
 
-  void update({required List<String> names, required String? current, required String? summary}) {
-    if (listEquals(names, _names) && current == _current && summary == _summary) return;
+  void update({
+    required List<String> names,
+    required String? current,
+    required String? summary,
+    int alerts = 0,
+  }) {
+    if (listEquals(names, _names) && current == _current && summary == _summary && alerts == _alerts) return;
+    _alerts = alerts;
     _names = List.of(names);
     _current = current;
     _summary = summary;

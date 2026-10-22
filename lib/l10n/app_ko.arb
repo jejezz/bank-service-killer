@@ -696,7 +696,7 @@
   "reportOpenFailed": "브라우저를 열지 못했어요.",
   "reportChecking": "서명자를 확인하는 중…",
   "helpCatalogTitle": "보안 서비스 카탈로그",
-  "helpCatalogBody": "보안 서비스는 제품마다, 버전마다 이름이 달라서 고정된 목록은 금방 어긋나요. 그래서 '어떤 제품이 어떤 이름·실행 파일로 설치되는지'를 적은 카탈로그를 두고 정기적으로(24시간마다) 받아 와요.\n• 지구본 아이콘(보안 서비스 카탈로그)을 누르면 이 PC에서 발견했지만 목록에 없는 서비스와, 이름이 바뀐 것 같은 항목을 보여 줘요. 새 제안이 있으면 아이콘에 숫자가 붙어요.\n• 카탈로그는 제안만 해요. 서비스를 자동으로 켜거나 끄지 않고, 목록에 넣을지는 직접 골라요. 새로 만들어진 카테고리는 어떤 모드에도 '켜기'로 지정돼 있지 않아서, 모드 관리에서 정하기 전에는 모든 모드에서 꺼져요.\n• 받은 카탈로그는 서명을 확인해요. 서명이 맞지 않거나 이전 버전이면 쓰지 않고, 앱에 들어 있는 기본 카탈로그로 동작해요.\n• 카탈로그에 없는 서비스는 '신고'로 알릴 수 있어요. 서비스 이름·표시 이름·실행 파일 이름·서명자만 담긴 GitHub 이슈 초안이 열리고, 내용을 확인한 뒤 직접 제출해요 (경로는 담지 않아요).",
+  "helpCatalogBody": "보안 서비스는 제품마다, 버전마다 이름이 달라서 고정된 목록은 금방 어긋나요. 그래서 '어떤 제품이 어떤 이름·실행 파일로 설치되는지'를 적은 카탈로그를 두고 정기적으로(24시간마다) 받아 와요.\n• 지구본 아이콘(보안 서비스 카탈로그)을 누르면 이 PC에서 발견했지만 목록에 없는 서비스와, 이름이 바뀐 것 같은 항목을 보여 줘요. 새 제안이 있으면 아이콘에 숫자가 붙어요.\n• 카탈로그는 제안만 해요. 서비스를 자동으로 켜거나 끄지 않고, 목록에 넣을지는 직접 골라요. 새로 만들어진 카테고리는 어떤 모드에도 '켜기'로 지정돼 있지 않아서, 모드 관리에서 정하기 전에는 모든 모드에서 꺼져요.\n• 받은 카탈로그는 서명을 확인해요. 서명이 맞지 않거나 이전 버전이면 쓰지 않고, 앱에 들어 있는 기본 카탈로그로 동작해요.\n• 카탈로그에 없는 서비스는 '신고'로 알릴 수 있어요. 서비스 이름·표시 이름·실행 파일 이름·서명자만 담긴 GitHub 이슈 초안이 열리고, 내용을 확인한 뒤 직접 제출해요 (경로는 담지 않아요).\n• 새로 설치된 서비스도 알아채요. 서비스를 읽을 때마다(앱을 켤 때, 30분마다) 지난번에 본 목록과 견주고, 카탈로그에 없어도 이름·경로·서명자가 보안 프로그램처럼 보이면 후보로 알려요. 아이콘 배지와 트레이 툴팁에 개수가 나와요. 처음 실행 때는 지금 있는 서비스를 기준으로 삼고 알리지 않아요.\n• 후보를 목록에 넣을 때는 카테고리와 켤 모드를 함께 정해요. 모드에서 켜지 않으면 그 서비스는 모든 모드에서 꺼져요. 후보가 아니라고 판단하면 '무시'해서 다시 보지 않을 수 있어요.",
   "catalogKeyInfo": "서명 확인용 공개키: {fp}…",
   "@catalogKeyInfo": {
     "placeholders": {
@@ -716,6 +716,108 @@
       },
       "fp": {
         "type": "String"
+      }
+    }
+  },
+  "suspectsHeader": "보안 프로그램으로 보이는 서비스 {n}개 (카탈로그에 없어요)",
+  "@suspectsHeader": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectsHint": "이름·경로·서명자로 짐작한 후보예요. 틀릴 수 있으니 이유를 보고 골라 주세요.",
+  "suspectReasonName": "이름에 '{v}'",
+  "@suspectReasonName": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "suspectReasonDisplay": "표시 이름에 '{v}'",
+  "@suspectReasonDisplay": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "suspectReasonPath": "실행 경로에 '{v}'",
+  "@suspectReasonPath": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "suspectReasonSigner": "서명자에 '{v}'",
+  "@suspectReasonSigner": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "suspectAdd": "선택한 {n}개 추가…",
+  "@suspectAdd": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectIgnore": "선택한 {n}개 무시",
+  "@suspectIgnore": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectUnignore": "무시한 서비스 {n}개 다시 보기",
+  "@suspectUnignore": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectAddTitle": "서비스 {n}개를 목록에 추가",
+  "@suspectAddTitle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectCategory": "카테고리",
+  "suspectNewCategory": "새 카테고리 이름",
+  "suspectCategoryDefault": "새 보안 서비스",
+  "suspectModesTitle": "어느 모드에서 켤까요?",
+  "suspectModeItem": "'{name}' 모드에서 켜기",
+  "@suspectModeItem": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "suspectModesNote": "체크하지 않은 모드에서는 이 서비스가 꺼져요. 뱅킹처럼 보안 서비스가 필요한 모드는 체크하세요. 나중에 모드 관리에서 바꿀 수 있어요.",
+  "suspectNoMode": "'{category}' 카테고리는 어느 모드에서도 켜지 않도록 추가했어요. 모든 모드에서 꺼져요. 필요하면 모드 관리에서 바꾸세요.",
+  "@suspectNoMode": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "trayAlerts": "새 보안 서비스 의심 {n}개",
+  "@trayAlerts": {
+    "placeholders": {
+      "n": {
+        "type": "int"
       }
     }
   }
