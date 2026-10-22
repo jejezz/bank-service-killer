@@ -29,6 +29,9 @@ class WatchItem {
   }
 }
 
+/// 모드가 서비스 하나에 바라는 것.
+enum Want { on, off, keep }
+
 /// 모드: 이름 붙은 "목표 상태".
 /// [on] 카테고리의 서비스는 켜고, [keep] 카테고리의 서비스는 건드리지 않고,
 /// 나머지 감시 서비스는 모두 끈다. (한 서비스가 on 과 keep 에 모두 속하면 on 이 이긴다.)
@@ -40,23 +43,58 @@ class WatchMode {
   /// 이 모드로 바꾼 뒤 기본 모드로 자동 복귀하기까지 분. 0 이면 복귀하지 않는다.
   final int revertMinutes;
 
-  const WatchMode(this.name, {this.on = const [], this.keep = const [], this.revertMinutes = 0});
+  /// 서비스 이름(소문자)으로 직접 정한 동작. 카테고리로 정한 것보다 **우선**한다.
+  /// 사이트가 요구하는 서비스만 골라 켜는 작은 모드를 만들 때 쓴다.
+  final Map<String, Want> services;
 
-  WatchMode copyWith({String? name, List<String>? on, List<String>? keep, int? revertMinutes}) => WatchMode(
+  const WatchMode(
+    this.name, {
+    this.on = const [],
+    this.keep = const [],
+    this.revertMinutes = 0,
+    this.services = const {},
+  });
+
+  WatchMode copyWith({
+    String? name,
+    List<String>? on,
+    List<String>? keep,
+    int? revertMinutes,
+    Map<String, Want>? services,
+  }) =>
+      WatchMode(
         name ?? this.name,
         on: on ?? this.on,
         keep: keep ?? this.keep,
         revertMinutes: revertMinutes ?? this.revertMinutes,
+        services: services ?? this.services,
       );
 
-  Map<String, dynamic> toJson() => {'name': name, 'on': on, 'keep': keep, 'revertMinutes': revertMinutes};
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'on': on,
+        'keep': keep,
+        'revertMinutes': revertMinutes,
+        if (services.isNotEmpty) 'services': {for (final e in services.entries) e.key: e.value.name},
+      };
 
-  factory WatchMode.fromJson(Map<String, dynamic> j) => WatchMode(
-        j['name'] as String,
-        on: [for (final c in (j['on'] as List? ?? const [])) c.toString()],
-        keep: [for (final c in (j['keep'] as List? ?? const [])) c.toString()],
-        revertMinutes: (j['revertMinutes'] ?? 0) as int,
-      );
+  factory WatchMode.fromJson(Map<String, dynamic> j) {
+    final raw = j['services'];
+    final svc = <String, Want>{};
+    if (raw is Map) {
+      for (final e in raw.entries) {
+        final w = Want.values.asNameMap()[e.value.toString()];
+        if (w != null) svc[e.key.toString().toLowerCase()] = w;
+      }
+    }
+    return WatchMode(
+      j['name'] as String,
+      on: [for (final c in (j['on'] as List? ?? const [])) c.toString()],
+      keep: [for (final c in (j['keep'] as List? ?? const [])) c.toString()],
+      revertMinutes: (j['revertMinutes'] ?? 0) as int,
+      services: svc,
+    );
+  }
 }
 
 /// 처음 만들 때·옛 파일을 옮길 때 쓰는 표시 언어별 이름들.
@@ -92,7 +130,7 @@ class WatchData {
     _sync();
   }
 
-  static const version = 3;
+  static const version = 4;
 
   final List<String> categories;
   final List<WatchItem> items;
@@ -111,9 +149,12 @@ class WatchData {
     }
     for (var i = 0; i < modes.length; i++) {
       final m = modes[i];
+      final names = {for (final it in items) it.name.toLowerCase()};
       modes[i] = m.copyWith(
         on: m.on.where(categories.contains).toList(),
         keep: m.keep.where(categories.contains).toList(),
+        // 목록에 없는 서비스를 가리키는 직접 지정은 버린다.
+        services: {for (final e in m.services.entries) if (names.contains(e.key)) e.key: e.value},
       );
     }
     if (modes.isEmpty) {
@@ -175,7 +216,51 @@ class WatchData {
     ]);
   }
 
+  // ── 서비스 항목 편집 (모드의 직접 지정도 함께 갱신) ─────────────────
+
+  /// 서비스 항목 이름을 바꾼다. 모드에서 그 이름으로 정한 동작도 따라 옮긴다. 다른 항목과 겹치거나 빈 이름이면 false.
+  bool renameItem(String from, String to) {
+    final n = to.trim();
+    final i = items.indexWhere((e) => e.name == from);
+    if (i < 0 || n.isEmpty) return false;
+    if (items.any((e) => e.name.toLowerCase() == n.toLowerCase() && e.name != from)) return false;
+    items[i] = items[i].copyWith(name: n);
+    final fromKey = from.toLowerCase(), toKey = n.toLowerCase();
+    if (fromKey != toKey) {
+      _replaceAll(modes, [
+        for (final m in modes)
+          m.services.containsKey(fromKey)
+              ? m.copyWith(services: {
+                  for (final e in m.services.entries) e.key == fromKey ? toKey : e.key: e.value,
+                })
+              : m,
+      ]);
+    }
+    return true;
+  }
+
+  /// 서비스 항목을 지운다. 모드에서 그 서비스에 정한 동작도 함께 지운다.
+  void removeItem(String name) {
+    items.removeWhere((e) => e.name == name);
+    final key = name.toLowerCase();
+    _replaceAll(modes, [
+      for (final m in modes)
+        m.services.containsKey(key)
+            ? m.copyWith(services: {for (final e in m.services.entries) if (e.key != key) e.key: e.value})
+            : m,
+    ]);
+  }
+
   // ── 모드 편집 ─────────────────────────────────────────────
+
+  /// [base]와 겹치지 않는 모드 이름 ("뱅킹 복사", "뱅킹 복사 2" …).
+  String uniqueModeName(String base) {
+    if (!modes.any((m) => m.name == base)) return base;
+    for (var n = 2;; n++) {
+      final candidate = '$base $n';
+      if (!modes.any((m) => m.name == candidate)) return candidate;
+    }
+  }
 
   /// 모드를 추가한다. 이름이 비었거나 겹치면 false.
   bool addMode(WatchMode mode) {

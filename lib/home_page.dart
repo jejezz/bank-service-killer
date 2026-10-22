@@ -17,6 +17,7 @@ import 'catalog/setup_dialog.dart';
 import 'category_dialog.dart';
 import 'help_dialog.dart';
 import 'l10n/app_localizations.dart';
+import 'list_search.dart';
 import 'mode_actions.dart';
 import 'mode_dialog.dart';
 import 'mode_engine.dart';
@@ -65,6 +66,7 @@ class _HomePageState extends State<HomePage> {
   WatchData _data = WatchData(categories: const [], items: const []);
   // null = 전체, _uncategorized = 카테고리가 없는 항목, 그 밖에는 카테고리 이름.
   String? _filter;
+  final TextEditingController _search = TextEditingController();
   static const _uncategorized = '\u0000uncategorized';
   List<SvcInfo> _all = [];
   List<SvcRow> _rows = [];
@@ -107,6 +109,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _rescanTimer?.cancel();
+    _search.dispose();
     widget.catalog.removeListener(_onCatalogChanged);
     _cancelRevert(closeDialog: false);
     widget.modeActions?.detach();
@@ -255,18 +258,33 @@ class _HomePageState extends State<HomePage> {
     return res.ok;
   }
 
-  /// 지금 필터에 보이는 항목.
-  List<SvcRow> get _visible => switch (_filter) {
-        null => _rows,
-        _uncategorized => [for (final r in _rows) if (r.item.categories.isEmpty) r],
-        final c => [for (final r in _rows) if (r.item.categories.contains(c)) r],
-      };
+  /// 지금 카테고리 필터와 검색어에 맞는 항목. 검색은 이름·표시 이름·메모·카테고리를 본다 (대소문자 무시).
+  List<SvcRow> get _visible {
+    final byCategory = switch (_filter) {
+      null => _rows,
+      _uncategorized => [for (final r in _rows) if (r.item.categories.isEmpty) r],
+      final c => [for (final r in _rows) if (r.item.categories.contains(c)) r],
+    };
+    return [
+      for (final r in byCategory)
+        if (matchesSearch(
+          _search.text,
+          name: r.item.name,
+          displayName: r.svc?.displayName ?? '',
+          note: r.item.note,
+          categories: r.item.categories,
+        ))
+          r,
+    ];
+  }
 
-  String get _scopeLabel => switch (_filter) {
-        null => _l10n.catAll,
-        _uncategorized => _l10n.catUncategorized,
-        final c => c,
-      };
+  String get _scopeLabel => _search.text.trim().isNotEmpty
+      ? _l10n.searchResultsLabel
+      : switch (_filter) {
+          null => _l10n.catAll,
+          _uncategorized => _l10n.catUncategorized,
+          final c => c,
+        };
 
   Future<void> _runRows(List<SvcRow> rows, Future<bool> Function(SvcRow) op) async {
     setState(() => _busy = true);
@@ -491,7 +509,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _manageModes() async {
-    final result = await showModeManager(context, _data);
+    final result = await showModeManager(
+      context,
+      _data,
+      running: {for (final r in _rows) r.item.name.toLowerCase(): r.svc?.running},
+    );
     if (result == null) return;
     setState(() {
       _data = result;
@@ -645,7 +667,10 @@ class _HomePageState extends State<HomePage> {
       _data.addCategory(c);
     }
     if (index >= 0) {
-      items[index] = result;
+      // 이름이 바뀌면 모드에서 그 서비스에 직접 정한 동작도 따라가야 하므로 renameItem 을 거친다.
+      _data.renameItem(edit!.item.name, result.name);
+      final k = _data.items.indexWhere((e) => e.name == result.name);
+      if (k >= 0) items[k] = result;
     } else {
       items.add(result);
     }
@@ -654,7 +679,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _remove(SvcRow r) async {
-    _data.items.removeWhere((e) => e.name == r.item.name);
+    _data.removeItem(r.item.name);
     await WatchStore.save(_data);
     await _refresh();
   }
@@ -783,6 +808,25 @@ class _HomePageState extends State<HomePage> {
                   ),
                   _modeStatus(l, theme),
                   const SizedBox(width: AppSpacing.md),
+                  SizedBox(
+                    width: 240,
+                    child: TextField(
+                      controller: _search,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        hintText: l.listSearchHint,
+                        suffixIcon: _search.text.isEmpty
+                            ? null
+                            : IconButton(
+                                tooltip: l.listSearchClear,
+                                icon: const Icon(Icons.clear_rounded),
+                                onPressed: () => setState(_search.clear),
+                              ),
+                      ),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
                   TextButton.icon(
                     onPressed: _busy || _visible.isEmpty ? null : () => _runRows(_visible, _turnOn),
                     icon: Icon(Icons.play_arrow_rounded, color: _runColor),
@@ -809,7 +853,12 @@ class _HomePageState extends State<HomePage> {
                     child: _loaded && _rows.isEmpty
                         ? _emptyState(l, theme)
                         : _visible.isEmpty
-                            ? Center(child: Text(l.catEmptyFilter, style: theme.textTheme.bodyMedium))
+                            ? Center(
+                                child: Text(
+                                  _search.text.trim().isNotEmpty ? l.searchNoResults : l.catEmptyFilter,
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                              )
                             : _list(l, theme, _visible),
                   ),
                   Tooltip(

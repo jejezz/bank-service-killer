@@ -262,7 +262,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpGroupBody =>
-      '• Categories: labels that group services (e.g. keyboard security, certificates, per bank). A service can be in several. Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• Modes: target states — what to turn on, what to leave alone and what to turn off. Pick one in the [Banking | Dev …] toggle at the top and the services are started/stopped to match. Services already in the right state are left alone.\n• Pressing a mode first opens a preview of the services to turn off / on. Nothing changes until you press Run; Cancel leaves everything as it is. (The default mode at app start and auto-return run without asking, since nobody may be there.)\n• The current mode is judged from the real service states, not a saved value. If nothing matches it shows \'Mixed\'; pressing a mode while mixed only fixes the remaining services.\n• Manage modes (sliders icon) lets you create and edit modes. The ★ default mode is applied when the app starts (including at Windows sign-in) and on auto-return.\n• Auto-return: give a mode a time and it falls back to the default mode afterwards, with a warning 1 minute before.\n• The tray icon\'s right-click menu also switches modes, with a check on the current one.';
+      '• Categories: labels that group services (e.g. keyboard security, certificates, per bank). A service can be in several. Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• Modes: target states — what to turn on, what to leave alone and what to turn off. Pick one in the [Banking | Dev …] toggle at the top and the services are started/stopped to match. Services already in the right state are left alone.\n• Pressing a mode first opens a preview of the services to turn off / on. Nothing changes until you press Run; Cancel leaves everything as it is. (The default mode at app start and auto-return run without asking, since nobody may be there.)\n• The current mode is judged from the real service states, not a saved value. If nothing matches it shows \'Mixed\'; pressing a mode while mixed only fixes the remaining services.\n• Manage modes (sliders icon) lets you create and edit modes. The ★ default mode is applied when the app starts (including at Windows sign-in) and on auto-return.\n• Auto-return: give a mode a time and it falls back to the default mode afterwards, with a warning 1 minute before.\n• The tray icon\'s right-click menu also switches modes, with a check on the current one.\n• A mode can be defined per service, not just per category. Open a mode in Manage modes and use the \'By service\' tab to choose On / Keep / Off. A direct setting overrides the category setting. Sites usually need only a few services, so a small mode that turns on just those also switches faster. The search box, the Installed / Running / Set directly filters and \'Set all shown at once\' make large lists easy, and the duplicate button starts from an existing mode.\n• The search box on the main screen finds services in the list right away. You can also turn just the search results on or off.';
 
   @override
   String get helpOnOffTitle => 'Turning on and off';
@@ -973,4 +973,84 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get searchNote =>
       'The search button uses only the service name and executable name as the query, in your browser. No path is sent.';
+
+  @override
+  String get modeTabCategories => 'By category';
+
+  @override
+  String get modeTabServices => 'By service';
+
+  @override
+  String get svcTabHint =>
+      'Pick services one by one and set On / Keep / Off. What you set here overrides the category setting; press it again to clear it and fall back to the category.';
+
+  @override
+  String get svcSearchHint => 'Search services (name, note, category)';
+
+  @override
+  String get svcFilterInstalled => 'Installed';
+
+  @override
+  String get svcFilterRunning => 'Running';
+
+  @override
+  String get svcFilterDirect => 'Set directly';
+
+  @override
+  String svcShown(int n) {
+    return '$n shown';
+  }
+
+  @override
+  String get svcBulkTooltip => 'Set all shown services at once';
+
+  @override
+  String svcBulkSet(String want) {
+    return 'Set all shown to \'$want\'';
+  }
+
+  @override
+  String get svcBulkClear => 'Clear direct settings of shown';
+
+  @override
+  String svcByCategory(String want) {
+    return 'By category: $want';
+  }
+
+  @override
+  String get svcNoCategory => 'No category';
+
+  @override
+  String get svcNoResults => 'No services match.';
+
+  @override
+  String get notInstalledShort => 'not installed';
+
+  @override
+  String get modeClone => 'Duplicate mode';
+
+  @override
+  String modeCopyName(String name) {
+    return '$name copy';
+  }
+
+  @override
+  String modeSummaryServices(int n) {
+    return '$n services set directly';
+  }
+
+  @override
+  String get listSearchHint => 'Search services';
+
+  @override
+  String get listSearchClear => 'Clear search';
+
+  @override
+  String get searchResultsLabel => 'search results';
+
+  @override
+  String get searchNoResults => 'No search results.';
+
+  @override
+  String get modeEdit => 'Edit mode';
 }

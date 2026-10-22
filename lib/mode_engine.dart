@@ -1,9 +1,12 @@
 import 'watch_item.dart';
 
-/// 모드가 서비스 하나에 바라는 것.
-enum Want { on, off, keep }
+/// [Want]는 watch_item.dart 에 있다 (모드가 서비스별 동작을 저장하므로). 여기서도 쓰도록 다시 내보낸다.
+export 'watch_item.dart' show Want;
 
+/// 모드가 서비스 하나에 바라는 것. 우선순위: 서비스를 직접 정한 값 → 카테고리 켜기 → 카테고리 그대로 → 끄기.
 Want wantFor(WatchMode mode, WatchItem item) {
+  final direct = mode.services[item.name.toLowerCase()];
+  if (direct != null) return direct;
   if (item.categories.any(mode.on.contains)) return Want.on;
   if (item.categories.any(mode.keep.contains)) return Want.keep;
   return Want.off;

@@ -86,8 +86,5 @@ List<String> addFinds(WatchData data, Catalog catalog, List<CatalogHit> hits, St
 
 /// 이름이 바뀐 항목을 새 서비스 이름으로 고친다. 카테고리와 메모는 그대로다.
 void applyRename(WatchData data, RenameSuggestion r) {
-  final i = data.items.indexWhere((e) => e.name == r.item.name);
-  if (i < 0) return;
-  if (data.items.any((e) => e.name.toLowerCase() == r.hit.service.name.toLowerCase())) return;
-  data.items[i] = data.items[i].copyWith(name: r.hit.service.name);
+  data.renameItem(r.item.name, r.hit.service.name);
 }

@@ -260,7 +260,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get helpGroupBody =>
-      '• 카테고리: 서비스를 묶는 이름표예요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요. 위쪽 칩을 누르면 그 카테고리만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 모드: \'켤 것 · 그대로 둘 것 · 끌 것\'을 정해 둔 목표 상태예요. 위쪽 [뱅킹 | 개발 …] 토글에서 고르면 그 상태가 되도록 서비스를 켜고 꺼요. 이미 맞는 서비스는 건드리지 않아요.\n• 모드를 누르면 먼저 \'끌 서비스 / 켤 서비스\' 미리보기 창이 떠요. 확인하고 [실행]을 누르면 그때 바뀌고, [취소]하면 아무것도 바뀌지 않아요. (앱 시작 시 기본 모드와 자동 복귀는 사람이 없어도 돌아야 해서 묻지 않고 실행해요.)\n• 현재 모드는 저장한 값이 아니라 서비스의 실제 상태로 판단해요. 어느 모드와도 맞지 않으면 \'혼합\'으로 보여 줘요. 혼합일 때 모드를 누르면 남은 서비스만 맞춰요.\n• 모드 관리(슬라이더 아이콘)에서 모드를 만들고 고칠 수 있어요. ★ 기본 모드는 앱을 시작할 때(Windows 로그온 포함)와 자동 복귀할 때 적용돼요.\n• 자동 복귀: 모드마다 시간을 정해 두면 그 뒤 기본 모드로 돌아가요. 1분 전에 알려 줘요.\n• 트레이 아이콘 우클릭 메뉴에서도 모드를 바꿀 수 있고, 현재 모드에 체크가 붙어요.';
+      '• 카테고리: 서비스를 묶는 이름표예요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요. 위쪽 칩을 누르면 그 카테고리만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 모드: \'켤 것 · 그대로 둘 것 · 끌 것\'을 정해 둔 목표 상태예요. 위쪽 [뱅킹 | 개발 …] 토글에서 고르면 그 상태가 되도록 서비스를 켜고 꺼요. 이미 맞는 서비스는 건드리지 않아요.\n• 모드를 누르면 먼저 \'끌 서비스 / 켤 서비스\' 미리보기 창이 떠요. 확인하고 [실행]을 누르면 그때 바뀌고, [취소]하면 아무것도 바뀌지 않아요. (앱 시작 시 기본 모드와 자동 복귀는 사람이 없어도 돌아야 해서 묻지 않고 실행해요.)\n• 현재 모드는 저장한 값이 아니라 서비스의 실제 상태로 판단해요. 어느 모드와도 맞지 않으면 \'혼합\'으로 보여 줘요. 혼합일 때 모드를 누르면 남은 서비스만 맞춰요.\n• 모드 관리(슬라이더 아이콘)에서 모드를 만들고 고칠 수 있어요. ★ 기본 모드는 앱을 시작할 때(Windows 로그온 포함)와 자동 복귀할 때 적용돼요.\n• 자동 복귀: 모드마다 시간을 정해 두면 그 뒤 기본 모드로 돌아가요. 1분 전에 알려 줘요.\n• 트레이 아이콘 우클릭 메뉴에서도 모드를 바꿀 수 있고, 현재 모드에 체크가 붙어요.\n• 모드는 카테고리뿐 아니라 서비스를 하나씩 골라 정할 수도 있어요. 모드 관리에서 모드를 열고 \'서비스별\' 탭에서 켜기·그대로·끄기를 고르세요. 서비스를 직접 정한 값이 카테고리로 정한 값보다 우선해요. 사이트가 요구하는 서비스는 보통 몇 개뿐이라, 그 서비스만 켜는 작은 모드를 만들면 전환도 빨라져요. 검색 상자와 \'설치됨·실행 중·직접 지정\' 거르기, \'보이는 서비스 한꺼번에 정하기\'로 많은 서비스도 쉽게 고를 수 있고, 복제 단추로 기존 모드에서 시작할 수 있어요.\n• 메인 화면의 검색 상자로 목록에서 서비스를 바로 찾을 수 있어요. 검색 결과만 켜거나 끌 수도 있어요.';
 
   @override
   String get helpOnOffTitle => '켜기·끄기';
@@ -965,4 +965,84 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get searchNote =>
       '검색 단추는 서비스 이름·실행 파일 이름만 검색어로 써서 브라우저에서 열어요. 경로는 보내지 않아요.';
+
+  @override
+  String get modeTabCategories => '카테고리별';
+
+  @override
+  String get modeTabServices => '서비스별';
+
+  @override
+  String get svcTabHint =>
+      '서비스를 하나씩 골라 켜기·그대로·끄기를 정해요. 여기서 정한 값이 카테고리로 정한 값보다 우선하고, 다시 누르면 지정이 풀려 카테고리 기준으로 돌아가요.';
+
+  @override
+  String get svcSearchHint => '서비스 검색 (이름·메모·카테고리)';
+
+  @override
+  String get svcFilterInstalled => '설치됨';
+
+  @override
+  String get svcFilterRunning => '실행 중';
+
+  @override
+  String get svcFilterDirect => '직접 지정';
+
+  @override
+  String svcShown(int n) {
+    return '$n개 표시';
+  }
+
+  @override
+  String get svcBulkTooltip => '보이는 서비스 한꺼번에 정하기';
+
+  @override
+  String svcBulkSet(String want) {
+    return '보이는 서비스 모두 \'$want\'로';
+  }
+
+  @override
+  String get svcBulkClear => '보이는 서비스 지정 풀기';
+
+  @override
+  String svcByCategory(String want) {
+    return '카테고리 기준: $want';
+  }
+
+  @override
+  String get svcNoCategory => '카테고리 없음';
+
+  @override
+  String get svcNoResults => '조건에 맞는 서비스가 없어요.';
+
+  @override
+  String get notInstalledShort => '설치되지 않음';
+
+  @override
+  String get modeClone => '모드 복제';
+
+  @override
+  String modeCopyName(String name) {
+    return '$name 복사';
+  }
+
+  @override
+  String modeSummaryServices(int n) {
+    return '서비스 직접 지정 $n개';
+  }
+
+  @override
+  String get listSearchHint => '서비스 검색';
+
+  @override
+  String get listSearchClear => '검색어 지우기';
+
+  @override
+  String get searchResultsLabel => '검색 결과';
+
+  @override
+  String get searchNoResults => '검색 결과가 없어요.';
+
+  @override
+  String get modeEdit => '모드 수정';
 }

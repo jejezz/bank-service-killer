@@ -152,7 +152,7 @@
   "helpListTitle": "Where does the service list come from?",
   "helpListBody": "The list is not built automatically. It starts with common banking/security services, and after that you manage it yourself.\n• Add: press + (Ctrl+N) and type a service name or display name; matching services installed on this PC appear below — click one to pick it.\n• Newly installed services are NOT detected automatically; add them yourself. You can find service names in msconfig (Services tab) or services.msc.\n• Partial names match too. \"Not installed / name mismatch\" means the service isn't on this PC or the name differs.\n• The list is saved to %APPDATA%\\BankServiceKiller\\watchlist.json. Refresh (F5) re-reads the current service states.",
   "helpGroupTitle": "Categories and modes",
-  "helpGroupBody": "• Categories: labels that group services (e.g. keyboard security, certificates, per bank). A service can be in several. Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• Modes: target states — what to turn on, what to leave alone and what to turn off. Pick one in the [Banking | Dev …] toggle at the top and the services are started/stopped to match. Services already in the right state are left alone.\n• Pressing a mode first opens a preview of the services to turn off / on. Nothing changes until you press Run; Cancel leaves everything as it is. (The default mode at app start and auto-return run without asking, since nobody may be there.)\n• The current mode is judged from the real service states, not a saved value. If nothing matches it shows 'Mixed'; pressing a mode while mixed only fixes the remaining services.\n• Manage modes (sliders icon) lets you create and edit modes. The ★ default mode is applied when the app starts (including at Windows sign-in) and on auto-return.\n• Auto-return: give a mode a time and it falls back to the default mode afterwards, with a warning 1 minute before.\n• The tray icon's right-click menu also switches modes, with a check on the current one.",
+  "helpGroupBody": "• Categories: labels that group services (e.g. keyboard security, certificates, per bank). A service can be in several. Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• Modes: target states — what to turn on, what to leave alone and what to turn off. Pick one in the [Banking | Dev …] toggle at the top and the services are started/stopped to match. Services already in the right state are left alone.\n• Pressing a mode first opens a preview of the services to turn off / on. Nothing changes until you press Run; Cancel leaves everything as it is. (The default mode at app start and auto-return run without asking, since nobody may be there.)\n• The current mode is judged from the real service states, not a saved value. If nothing matches it shows 'Mixed'; pressing a mode while mixed only fixes the remaining services.\n• Manage modes (sliders icon) lets you create and edit modes. The ★ default mode is applied when the app starts (including at Windows sign-in) and on auto-return.\n• Auto-return: give a mode a time and it falls back to the default mode afterwards, with a warning 1 minute before.\n• The tray icon's right-click menu also switches modes, with a check on the current one.\n• A mode can be defined per service, not just per category. Open a mode in Manage modes and use the 'By service' tab to choose On / Keep / Off. A direct setting overrides the category setting. Sites usually need only a few services, so a small mode that turns on just those also switches faster. The search box, the Installed / Running / Set directly filters and 'Set all shown at once' make large lists easy, and the duplicate button starts from an existing mode.\n• The search box on the main screen finds services in the list right away. You can also turn just the search results on or off.",
   "helpOnOffTitle": "Turning on and off",
   "helpOnOffBody": "• Switching modes, \"Turn … on / off\" and the play/stop button on each row start or stop services right now. If the startup type is Disabled it is set to Manual first, then started.\n• After starting or stopping, the app verifies the real state and writes the result to the log below. After a stop it checks again 3 seconds later in case the service came back.\n• Turning off only stops the service; it doesn't change the startup type. If it is Automatic, it starts again the next time the PC boots.",
   "helpModeTitle": "Startup type (Automatic / Manual / Disabled)",
@@ -853,5 +853,63 @@
     }
   },
   "searchEngineTooltip": "Change search engine",
-  "searchNote": "The search button uses only the service name and executable name as the query, in your browser. No path is sent."
+  "searchNote": "The search button uses only the service name and executable name as the query, in your browser. No path is sent.",
+  "modeTabCategories": "By category",
+  "modeTabServices": "By service",
+  "svcTabHint": "Pick services one by one and set On / Keep / Off. What you set here overrides the category setting; press it again to clear it and fall back to the category.",
+  "svcSearchHint": "Search services (name, note, category)",
+  "svcFilterInstalled": "Installed",
+  "svcFilterRunning": "Running",
+  "svcFilterDirect": "Set directly",
+  "svcShown": "{n} shown",
+  "@svcShown": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "svcBulkTooltip": "Set all shown services at once",
+  "svcBulkSet": "Set all shown to '{want}'",
+  "@svcBulkSet": {
+    "placeholders": {
+      "want": {
+        "type": "String"
+      }
+    }
+  },
+  "svcBulkClear": "Clear direct settings of shown",
+  "svcByCategory": "By category: {want}",
+  "@svcByCategory": {
+    "placeholders": {
+      "want": {
+        "type": "String"
+      }
+    }
+  },
+  "svcNoCategory": "No category",
+  "svcNoResults": "No services match.",
+  "notInstalledShort": "not installed",
+  "modeClone": "Duplicate mode",
+  "modeCopyName": "{name} copy",
+  "@modeCopyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modeSummaryServices": "{n} services set directly",
+  "@modeSummaryServices": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "listSearchHint": "Search services",
+  "listSearchClear": "Clear search",
+  "searchResultsLabel": "search results",
+  "searchNoResults": "No search results.",
+  "modeEdit": "Edit mode"
 }
