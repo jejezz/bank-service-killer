@@ -546,5 +546,138 @@
         "type": "String"
       }
     }
-  }
+  },
+  "catalogTooltip": "Security service catalog",
+  "catalogTooltipCount": "Security service catalog · {n} new suggestions",
+  "@catalogTooltipCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogTitle": "Security service catalog",
+  "catalogInfo": "Catalog v{version} · {updated}",
+  "@catalogInfo": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogSourceBundled": "Built-in catalog shipped with the app",
+  "catalogSourceCache": "Downloaded catalog (signature verified)",
+  "catalogSourceRemote": "Just downloaded (signature verified)",
+  "catalogChecked": "Last checked: {when}",
+  "@catalogChecked": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogNeverChecked": "Not checked yet",
+  "catalogCheckNow": "Check now",
+  "catalogChecking": "Checking…",
+  "catalogRemoteOff": "Remote updates are off (no signing public key is set). Only the built-in catalog is used.",
+  "catalogResultUpdated": "Got a new catalog.",
+  "catalogResultUpToDate": "Already up to date.",
+  "catalogResultRejected": "The downloaded catalog was not used: {reason}",
+  "@catalogResultRejected": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogResultFailed": "Couldn't get the catalog: {reason}",
+  "@catalogResultFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogErrNetwork": "network error",
+  "catalogErrSignature": "signature does not match",
+  "catalogErrFormat": "invalid format",
+  "catalogErrRollback": "older version",
+  "catalogScanning": "Checking this PC's services…",
+  "catalogFindsHeader": "{n} services found on this PC that aren't in your list",
+  "@catalogFindsHeader": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogRenamesHeader": "{n} items that look renamed",
+  "@catalogRenamesHeader": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogNothing": "No new services found and no renamed items.",
+  "catalogAddSelected": "Add {n} selected",
+  "@catalogAddSelected": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogRenameApply": "Rename",
+  "catalogRenameLine": "{from} → {to}",
+  "@catalogRenameLine": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogRenameNote": "The catalog knows the old name as part of '{product}'",
+  "@catalogRenameNote": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogDriverTag": "Driver-linked",
+  "catalogAdded": "Added {n} services to your list.",
+  "@catalogAdded": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogNewCategoriesNote": "The new categories ({list}) aren't set to 'On' in any mode yet, so every mode turns them off until you decide. Set them in Manage modes.",
+  "@catalogNewCategoriesNote": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogReport": "Report a service that's not listed…",
+  "catalogSuggestionNote": "The catalog only suggests. It never turns services on or off by itself.",
+  "reportTitle": "Report a service",
+  "reportHint": "Pick a service the catalog doesn't know. Only the content below goes into a draft GitHub issue, and you submit it yourself.",
+  "reportSearch": "Search services",
+  "reportWillSend": "What goes into the draft issue (no paths):",
+  "reportOpen": "Open on GitHub",
+  "reportBack": "Pick another",
+  "reportOpenFailed": "Couldn't open the browser.",
+  "reportChecking": "Checking the signer…",
+  "helpCatalogTitle": "Security service catalog",
+  "helpCatalogBody": "Security services change names between products and versions, so a fixed list goes stale quickly. The app keeps a catalog of which product installs under which names and executables, and refreshes it regularly (every 24 hours).\n• The globe icon (Security service catalog) shows services found on this PC that aren't in your list, and items that look renamed. A number appears on the icon when there are new suggestions.\n• The catalog only suggests. It never turns services on or off by itself, and you choose what to add. Newly created categories aren't set to 'On' in any mode, so every mode turns them off until you decide in Manage modes.\n• Downloaded catalogs are signature-checked. One with a bad signature or an older version is ignored and the built-in catalog is used.\n• For a service the catalog doesn't know, use 'Report'. It opens a draft GitHub issue containing only the service name, display name, executable name and signer; you review it and submit it yourself (no paths are included)."
 }

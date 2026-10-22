@@ -1189,6 +1189,264 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'\'{name}\' 모드 전환을 취소했어요.'**
   String logModeCancelled(String name);
+
+  /// No description provided for @catalogTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'보안 서비스 카탈로그'**
+  String get catalogTooltip;
+
+  /// No description provided for @catalogTooltipCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'보안 서비스 카탈로그 · 새 제안 {n}개'**
+  String catalogTooltipCount(int n);
+
+  /// No description provided for @catalogTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'보안 서비스 카탈로그'**
+  String get catalogTitle;
+
+  /// No description provided for @catalogInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'카탈로그 v{version} · {updated}'**
+  String catalogInfo(int version, String updated);
+
+  /// No description provided for @catalogSourceBundled.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱에 들어 있는 기본 카탈로그'**
+  String get catalogSourceBundled;
+
+  /// No description provided for @catalogSourceCache.
+  ///
+  /// In ko, this message translates to:
+  /// **'받아 둔 카탈로그 (서명 확인됨)'**
+  String get catalogSourceCache;
+
+  /// No description provided for @catalogSourceRemote.
+  ///
+  /// In ko, this message translates to:
+  /// **'방금 받은 카탈로그 (서명 확인됨)'**
+  String get catalogSourceRemote;
+
+  /// No description provided for @catalogChecked.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 확인: {when}'**
+  String catalogChecked(String when);
+
+  /// No description provided for @catalogNeverChecked.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 확인하지 않았어요'**
+  String get catalogNeverChecked;
+
+  /// No description provided for @catalogCheckNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 확인'**
+  String get catalogCheckNow;
+
+  /// No description provided for @catalogChecking.
+  ///
+  /// In ko, this message translates to:
+  /// **'확인하는 중…'**
+  String get catalogChecking;
+
+  /// No description provided for @catalogRemoteOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'원격 갱신이 꺼져 있어요 (서명 공개키가 설정되지 않았어요). 앱에 들어 있는 기본 카탈로그만 써요.'**
+  String get catalogRemoteOff;
+
+  /// No description provided for @catalogResultUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 카탈로그를 받았어요.'**
+  String get catalogResultUpdated;
+
+  /// No description provided for @catalogResultUpToDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 최신이에요.'**
+  String get catalogResultUpToDate;
+
+  /// No description provided for @catalogResultRejected.
+  ///
+  /// In ko, this message translates to:
+  /// **'받은 카탈로그를 쓰지 않았어요: {reason}'**
+  String catalogResultRejected(String reason);
+
+  /// No description provided for @catalogResultFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'카탈로그를 받지 못했어요: {reason}'**
+  String catalogResultFailed(String reason);
+
+  /// No description provided for @catalogErrNetwork.
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 오류'**
+  String get catalogErrNetwork;
+
+  /// No description provided for @catalogErrSignature.
+  ///
+  /// In ko, this message translates to:
+  /// **'서명이 맞지 않아요'**
+  String get catalogErrSignature;
+
+  /// No description provided for @catalogErrFormat.
+  ///
+  /// In ko, this message translates to:
+  /// **'형식이 맞지 않아요'**
+  String get catalogErrFormat;
+
+  /// No description provided for @catalogErrRollback.
+  ///
+  /// In ko, this message translates to:
+  /// **'더 낮은 버전이라 쓰지 않았어요'**
+  String get catalogErrRollback;
+
+  /// No description provided for @catalogScanning.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 PC의 서비스를 확인하는 중…'**
+  String get catalogScanning;
+
+  /// No description provided for @catalogFindsHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 PC에서 발견했지만 목록에 없는 서비스 {n}개'**
+  String catalogFindsHeader(int n);
+
+  /// No description provided for @catalogRenamesHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름이 바뀐 것 같은 항목 {n}개'**
+  String catalogRenamesHeader(int n);
+
+  /// No description provided for @catalogNothing.
+  ///
+  /// In ko, this message translates to:
+  /// **'새로 발견한 서비스도, 이름이 바뀐 항목도 없어요.'**
+  String get catalogNothing;
+
+  /// No description provided for @catalogAddSelected.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 {n}개 추가'**
+  String catalogAddSelected(int n);
+
+  /// No description provided for @catalogRenameApply.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름 바꾸기'**
+  String get catalogRenameApply;
+
+  /// No description provided for @catalogRenameLine.
+  ///
+  /// In ko, this message translates to:
+  /// **'{from} → {to}'**
+  String catalogRenameLine(String from, String to);
+
+  /// No description provided for @catalogRenameNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'카탈로그가 \'{product}\'의 이름으로 알고 있는 서비스예요'**
+  String catalogRenameNote(String product);
+
+  /// No description provided for @catalogDriverTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'드라이버 연동'**
+  String get catalogDriverTag;
+
+  /// No description provided for @catalogAdded.
+  ///
+  /// In ko, this message translates to:
+  /// **'서비스 {n}개를 목록에 추가했어요.'**
+  String catalogAdded(int n);
+
+  /// No description provided for @catalogNewCategoriesNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 카테고리({list})는 아직 어떤 모드에도 \'켜기\'로 지정되지 않았어요. 정하기 전에는 모든 모드에서 꺼져요. 모드 관리에서 정하세요.'**
+  String catalogNewCategoriesNote(String list);
+
+  /// No description provided for @catalogReport.
+  ///
+  /// In ko, this message translates to:
+  /// **'목록에 없는 서비스 신고…'**
+  String get catalogReport;
+
+  /// No description provided for @catalogSuggestionNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'카탈로그는 제안만 해요. 서비스를 자동으로 켜거나 끄지 않아요.'**
+  String get catalogSuggestionNote;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'서비스 신고'**
+  String get reportTitle;
+
+  /// No description provided for @reportHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'카탈로그에 없는 서비스를 골라 주세요. 아래 내용만 GitHub 이슈 초안에 담기고, 제출은 직접 해요.'**
+  String get reportHint;
+
+  /// No description provided for @reportSearch.
+  ///
+  /// In ko, this message translates to:
+  /// **'서비스 검색'**
+  String get reportSearch;
+
+  /// No description provided for @reportWillSend.
+  ///
+  /// In ko, this message translates to:
+  /// **'이슈 초안에 담기는 내용 (경로는 담지 않아요):'**
+  String get reportWillSend;
+
+  /// No description provided for @reportOpen.
+  ///
+  /// In ko, this message translates to:
+  /// **'GitHub에서 열기'**
+  String get reportOpen;
+
+  /// No description provided for @reportBack.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 서비스 고르기'**
+  String get reportBack;
+
+  /// No description provided for @reportOpenFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'브라우저를 열지 못했어요.'**
+  String get reportOpenFailed;
+
+  /// No description provided for @reportChecking.
+  ///
+  /// In ko, this message translates to:
+  /// **'서명자를 확인하는 중…'**
+  String get reportChecking;
+
+  /// No description provided for @helpCatalogTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'보안 서비스 카탈로그'**
+  String get helpCatalogTitle;
+
+  /// No description provided for @helpCatalogBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'보안 서비스는 제품마다, 버전마다 이름이 달라서 고정된 목록은 금방 어긋나요. 그래서 \'어떤 제품이 어떤 이름·실행 파일로 설치되는지\'를 적은 카탈로그를 두고 정기적으로(24시간마다) 받아 와요.\n• 지구본 아이콘(보안 서비스 카탈로그)을 누르면 이 PC에서 발견했지만 목록에 없는 서비스와, 이름이 바뀐 것 같은 항목을 보여 줘요. 새 제안이 있으면 아이콘에 숫자가 붙어요.\n• 카탈로그는 제안만 해요. 서비스를 자동으로 켜거나 끄지 않고, 목록에 넣을지는 직접 골라요. 새로 만들어진 카테고리는 어떤 모드에도 \'켜기\'로 지정돼 있지 않아서, 모드 관리에서 정하기 전에는 모든 모드에서 꺼져요.\n• 받은 카탈로그는 서명을 확인해요. 서명이 맞지 않거나 이전 버전이면 쓰지 않고, 앱에 들어 있는 기본 카탈로그로 동작해요.\n• 카탈로그에 없는 서비스는 \'신고\'로 알릴 수 있어요. 서비스 이름·표시 이름·실행 파일 이름·서명자만 담긴 GitHub 이슈 초안이 열리고, 내용을 확인한 뒤 직접 제출해요 (경로는 담지 않아요).'**
+  String get helpCatalogBody;
 }
 
 class _AppLocalizationsDelegate

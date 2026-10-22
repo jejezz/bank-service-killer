@@ -1,0 +1,30 @@
+name: Catalog check
+
+# 보안 서비스 카탈로그(catalog/)를 고친 PR 이 형식과 서명을 통과하는지 확인한다.
+# 서명은 maintainer 가 로컬에서 tool/catalog/sign.dart 로 하고(비밀 키는 저장소에 두지 않는다),
+# 여기서는 catalog/public_key.txt 의 공개키로 검증만 한다.
+on:
+  pull_request:
+    paths:
+      - "catalog/**"
+      - "lib/catalog/**"
+      - "tool/catalog/**"
+  push:
+    branches: [main]
+    paths:
+      - "catalog/**"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.1"
+          cache: true
+      - run: flutter pub get
+      - name: Catalog format and signature
+        run: dart run tool/catalog/verify.dart
+      - name: Catalog tests
+        run: flutter test test/catalog_test.dart test/catalog_controller_test.dart

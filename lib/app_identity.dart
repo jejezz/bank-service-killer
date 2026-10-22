@@ -30,6 +30,20 @@ abstract final class AppIdentity {
     defaultValue: 'https://c-a3f19c04.rtc.zoomon.art/repos',
   );
 
+  /// 보안 서비스 카탈로그 주소(https). 서명은 같은 주소 뒤에 `.sig` 를 붙인 곳에 있다.
+  /// 빌드 때 `--dart-define=CATALOG_URL=…` 로 바꾼다.
+  static const catalogUrl = String.fromEnvironment(
+    'CATALOG_URL',
+    defaultValue: 'https://raw.githubusercontent.com/jejezz/bank-service-killer/main/catalog/catalog.json',
+  );
+
+  /// 카탈로그 서명 확인용 Ed25519 공개키(base64). tool/catalog/keygen.dart 가 만든다.
+  /// **빈 값이면 원격 카탈로그 갱신을 끈다** — 앱에 들어 있는 기본 카탈로그만 쓴다.
+  static const catalogPublicKey = String.fromEnvironment('CATALOG_PUBLIC_KEY');
+
+  /// 카탈로그에 없는 서비스를 신고하는 이슈 주소.
+  static String get newIssueUrl => '$repositoryUrl/issues/new';
+
   /// 서버가 앱을 아는 이름 = 저장소 이름 (repositoryUrl 의 마지막 경로).
   static String get updateAppId => Uri.parse(repositoryUrl).pathSegments.where((s) => s.isNotEmpty).last;
 }

@@ -12,6 +12,7 @@ Future<void> showHelpDialog(BuildContext context) {
     (l.helpGroupTitle, l.helpGroupBody),
     (l.helpOnOffTitle, l.helpOnOffBody),
     (l.helpModeTitle, l.helpModeBody),
+    (l.helpCatalogTitle, l.helpCatalogBody),
     (l.helpResidentTitle, l.helpResidentBody),
   ];
   final theme = Theme.of(context);

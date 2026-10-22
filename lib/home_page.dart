@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'catalog/catalog_controller.dart';
+import 'catalog/catalog_dialog.dart';
 import 'category_dialog.dart';
 import 'help_dialog.dart';
 import 'l10n/app_localizations.dart';
@@ -29,9 +31,18 @@ class SvcRow {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.onAbout, this.modeActions, this.applyDefaultModeAtStart = false});
+  const HomePage({
+    super.key,
+    required this.onAbout,
+    required this.catalog,
+    this.modeActions,
+    this.applyDefaultModeAtStart = false,
+  });
 
   final VoidCallback onAbout;
+
+  /// 보안 서비스 카탈로그 (이 PC에서 새로 발견한 서비스·이름 변경을 제안하는 근거).
+  final CatalogController catalog;
 
   /// 트레이 메뉴 같은 바깥에서 모드를 바꾸고 상태를 알 수 있게 연결한다.
   final ModeActions? modeActions;
@@ -54,6 +65,7 @@ class _HomePageState extends State<HomePage> {
   bool _busy = false;
   bool _admin = true;
   bool _loaded = false;
+  int _suggestions = 0; // 카탈로그가 제안하는 개수 (배지)
   double? _logHeight;
 
   // ── 모드 ──
@@ -73,11 +85,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     widget.modeActions?.apply = (name) => _applyMode(name);
+    widget.catalog.addListener(_onCatalogChanged);
     _init();
   }
 
   @override
   void dispose() {
+    widget.catalog.removeListener(_onCatalogChanged);
     _cancelRevert(closeDialog: false);
     widget.modeActions?.detach();
     super.dispose();
@@ -193,7 +207,21 @@ class _HomePageState extends State<HomePage> {
   List<ItemState> get _states => [for (final r in _rows) ItemState(r.item, r.svc?.running)];
 
   /// 서비스의 실제 상태로 현재 모드를 다시 판정하고, 트레이 쪽에도 알린다.
+  void _onCatalogChanged() {
+    if (!mounted) return;
+    setState(() => _suggestions = suggestionCount(widget.catalog.catalog, _data, _all));
+  }
+
+  Future<void> _openCatalog() async {
+    final result = await showCatalogDialog(context, controller: widget.catalog, data: _data, services: _all);
+    if (result == null || !mounted) return;
+    setState(() => _data = result);
+    await WatchStore.save(_data);
+    await _refresh();
+  }
+
   void _updateStatus() {
+    _suggestions = suggestionCount(widget.catalog.catalog, _data, _all);
     _status = detect(_data, _states, preferred: _lastMode);
     final l = _l10n;
     final cur = _status.current;
@@ -606,6 +634,15 @@ class _HomePageState extends State<HomePage> {
                   PopupMenuItem(value: 'msconfig', child: Text(l.openMsconfig)),
                   PopupMenuItem(value: 'services', child: Text(l.openServicesMsc)),
                 ],
+              ),
+              IconButton(
+                tooltip: _suggestions > 0 ? l.catalogTooltipCount(_suggestions) : l.catalogTooltip,
+                onPressed: _busy ? null : _openCatalog,
+                icon: Badge(
+                  isLabelVisible: _suggestions > 0,
+                  label: Text('$_suggestions'),
+                  child: Icon(Icons.travel_explore_rounded, color: _toolColor),
+                ),
               ),
               IconButton(
                 tooltip: l.helpTooltip,

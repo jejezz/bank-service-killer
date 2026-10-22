@@ -60,6 +60,31 @@ class ServiceManager {
     return r.exitCode == 0;
   }
 
+  /// 실행 파일들의 서명자(인증서 주체). 경로 → 주체이고, 서명이 없거나 읽지 못하면 빈 문자열이다.
+  /// 경로는 환경 변수로 넘겨서 따옴표 문제를 피한다. 서명 확인은 파일마다 시간이 걸린다.
+  static Future<Map<String, String>> signers(Iterable<String> exePaths) async {
+    final paths = exePaths.where((p) => p.isNotEmpty).toSet().toList();
+    if (paths.isEmpty) return {};
+    const script = r'$ErrorActionPreference="SilentlyContinue"; [Console]::OutputEncoding=[Text.Encoding]::UTF8; '
+        r'$r=@{}; foreach($p in ($env:BSK_PATHS | ConvertFrom-Json)){ '
+        r'$c=(Get-AuthenticodeSignature -LiteralPath $p).SignerCertificate; '
+        r'if($c){$r[$p]=$c.Subject}else{$r[$p]=""} }; $r | ConvertTo-Json -Compress';
+    final r = await Process.run(
+      'powershell',
+      ['-NoProfile', '-NonInteractive', '-Command', script],
+      environment: {'BSK_PATHS': jsonEncode(paths)},
+      stdoutEncoding: utf8,
+    );
+    if (r.exitCode != 0) return {};
+    final text = (r.stdout as String).trim();
+    if (text.isEmpty) return {};
+    try {
+      return {for (final e in (jsonDecode(text) as Map).entries) e.key.toString(): e.value.toString()};
+    } catch (_) {
+      return {};
+    }
+  }
+
   /// 설치된 모든 서비스.
   static Future<List<SvcInfo>> listAll() async {
     const script =

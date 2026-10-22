@@ -563,5 +563,138 @@
         "type": "String"
       }
     }
-  }
+  },
+  "catalogTooltip": "보안 서비스 카탈로그",
+  "catalogTooltipCount": "보안 서비스 카탈로그 · 새 제안 {n}개",
+  "@catalogTooltipCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogTitle": "보안 서비스 카탈로그",
+  "catalogInfo": "카탈로그 v{version} · {updated}",
+  "@catalogInfo": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogSourceBundled": "앱에 들어 있는 기본 카탈로그",
+  "catalogSourceCache": "받아 둔 카탈로그 (서명 확인됨)",
+  "catalogSourceRemote": "방금 받은 카탈로그 (서명 확인됨)",
+  "catalogChecked": "마지막 확인: {when}",
+  "@catalogChecked": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogNeverChecked": "아직 확인하지 않았어요",
+  "catalogCheckNow": "지금 확인",
+  "catalogChecking": "확인하는 중…",
+  "catalogRemoteOff": "원격 갱신이 꺼져 있어요 (서명 공개키가 설정되지 않았어요). 앱에 들어 있는 기본 카탈로그만 써요.",
+  "catalogResultUpdated": "새 카탈로그를 받았어요.",
+  "catalogResultUpToDate": "이미 최신이에요.",
+  "catalogResultRejected": "받은 카탈로그를 쓰지 않았어요: {reason}",
+  "@catalogResultRejected": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogResultFailed": "카탈로그를 받지 못했어요: {reason}",
+  "@catalogResultFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogErrNetwork": "네트워크 오류",
+  "catalogErrSignature": "서명이 맞지 않아요",
+  "catalogErrFormat": "형식이 맞지 않아요",
+  "catalogErrRollback": "더 낮은 버전이라 쓰지 않았어요",
+  "catalogScanning": "이 PC의 서비스를 확인하는 중…",
+  "catalogFindsHeader": "이 PC에서 발견했지만 목록에 없는 서비스 {n}개",
+  "@catalogFindsHeader": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogRenamesHeader": "이름이 바뀐 것 같은 항목 {n}개",
+  "@catalogRenamesHeader": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogNothing": "새로 발견한 서비스도, 이름이 바뀐 항목도 없어요.",
+  "catalogAddSelected": "선택한 {n}개 추가",
+  "@catalogAddSelected": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogRenameApply": "이름 바꾸기",
+  "catalogRenameLine": "{from} → {to}",
+  "@catalogRenameLine": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogRenameNote": "카탈로그가 '{product}'의 이름으로 알고 있는 서비스예요",
+  "@catalogRenameNote": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogDriverTag": "드라이버 연동",
+  "catalogAdded": "서비스 {n}개를 목록에 추가했어요.",
+  "@catalogAdded": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogNewCategoriesNote": "새 카테고리({list})는 아직 어떤 모드에도 '켜기'로 지정되지 않았어요. 정하기 전에는 모든 모드에서 꺼져요. 모드 관리에서 정하세요.",
+  "@catalogNewCategoriesNote": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogReport": "목록에 없는 서비스 신고…",
+  "catalogSuggestionNote": "카탈로그는 제안만 해요. 서비스를 자동으로 켜거나 끄지 않아요.",
+  "reportTitle": "서비스 신고",
+  "reportHint": "카탈로그에 없는 서비스를 골라 주세요. 아래 내용만 GitHub 이슈 초안에 담기고, 제출은 직접 해요.",
+  "reportSearch": "서비스 검색",
+  "reportWillSend": "이슈 초안에 담기는 내용 (경로는 담지 않아요):",
+  "reportOpen": "GitHub에서 열기",
+  "reportBack": "다른 서비스 고르기",
+  "reportOpenFailed": "브라우저를 열지 못했어요.",
+  "reportChecking": "서명자를 확인하는 중…",
+  "helpCatalogTitle": "보안 서비스 카탈로그",
+  "helpCatalogBody": "보안 서비스는 제품마다, 버전마다 이름이 달라서 고정된 목록은 금방 어긋나요. 그래서 '어떤 제품이 어떤 이름·실행 파일로 설치되는지'를 적은 카탈로그를 두고 정기적으로(24시간마다) 받아 와요.\n• 지구본 아이콘(보안 서비스 카탈로그)을 누르면 이 PC에서 발견했지만 목록에 없는 서비스와, 이름이 바뀐 것 같은 항목을 보여 줘요. 새 제안이 있으면 아이콘에 숫자가 붙어요.\n• 카탈로그는 제안만 해요. 서비스를 자동으로 켜거나 끄지 않고, 목록에 넣을지는 직접 골라요. 새로 만들어진 카테고리는 어떤 모드에도 '켜기'로 지정돼 있지 않아서, 모드 관리에서 정하기 전에는 모든 모드에서 꺼져요.\n• 받은 카탈로그는 서명을 확인해요. 서명이 맞지 않거나 이전 버전이면 쓰지 않고, 앱에 들어 있는 기본 카탈로그로 동작해요.\n• 카탈로그에 없는 서비스는 '신고'로 알릴 수 있어요. 서비스 이름·표시 이름·실행 파일 이름·서명자만 담긴 GitHub 이슈 초안이 열리고, 내용을 확인한 뒤 직접 제출해요 (경로는 담지 않아요)."
 }

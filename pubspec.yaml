@@ -22,6 +22,7 @@ dependencies:
       url: https://github.com/jejezz/application-release-templates
       path: updater
       ref: updater-v0.1.0
+  cryptography: ^2.9.0
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +35,7 @@ flutter:
   assets:
     - assets/icon/app_icon.png
     - assets/icon/app_icon.ico
+    - catalog/catalog.json
     - assets/licenses/
   fonts:
     - family: SeoulNamsan

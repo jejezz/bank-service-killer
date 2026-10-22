@@ -5,13 +5,17 @@
 //   언어 해석 · macOS 앱 메뉴 About · 앱 바 [테마 | 언어 | 정보] · 빈 상태.
 // 기존 앱에는 통째로 덮어쓰지 말고 필요한 부분만 옮긴다.
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'about/about_dialog.dart';
+import 'catalog/catalog.dart';
+import 'catalog/catalog_controller.dart';
 import 'about/app_menu_bar.dart';
 import 'about/extra_licenses.dart';
 import 'app_identity.dart';
@@ -52,14 +56,36 @@ Future<void> main(List<String> args) async {
   }
 
   final settings = await AppSettings.load();
+  final catalog = await _createCatalog();
   if (Platform.isWindows) await _registerStartupOnce(settings);
   // 데스크톱이 아니거나 UPDATE_SERVER 가 비어 있으면 null — 업데이트 확인 없음.
   final updates = await UpdateService.create();
   // UpdateScope 는 MaterialApp 위에 둔다 — 정보 창이 이것을 읽어 "업데이트 확인" 단추를 붙인다.
   runApp(UpdateScope(
     service: updates,
-    child: App(settings: settings, updates: updates, startedInBackground: args.contains(StartupManager.backgroundArg)),
+    child: App(
+      settings: settings,
+      updates: updates,
+      catalog: catalog,
+      startedInBackground: args.contains(StartupManager.backgroundArg),
+    ),
   ));
+}
+
+/// 앱에 들어 있는 기본 카탈로그를 읽고, 받아 둔 카탈로그가 있으면 얹고, 정해진 주기로 갱신하게 한다.
+Future<CatalogController> _createCatalog() async {
+  final bundled = Catalog.fromJson(jsonDecode(await rootBundle.loadString('catalog/catalog.json')));
+  final base = Platform.environment['APPDATA'] ?? Directory.systemTemp.path;
+  const url = AppIdentity.catalogUrl;
+  final controller = CatalogController(
+    bundled: bundled,
+    cacheDir: Directory('$base\\BankServiceKiller\\catalog'),
+    publicKey: AppIdentity.catalogPublicKey,
+    url: url.isEmpty ? null : Uri.parse(url),
+  );
+  await controller.init();
+  controller.startAutoRefresh();
+  return controller;
 }
 
 /// 첫 실행 때 한 번만 시작프로그램으로 등록한다. 사용자가 나중에 끄면 다시 켜지 않는다.
@@ -71,10 +97,17 @@ Future<void> _registerStartupOnce(AppSettings settings) async {
 }
 
 class App extends StatefulWidget {
-  const App({super.key, required this.settings, this.updates, this.startedInBackground = false});
+  const App({
+    super.key,
+    required this.settings,
+    required this.catalog,
+    this.updates,
+    this.startedInBackground = false,
+  });
 
   final AppSettings settings;
   final UpdateService? updates;
+  final CatalogController catalog;
 
   /// 시작프로그램(--background)으로 떴는가. 그러면 목록을 읽은 뒤 기본 모드를 적용한다.
   final bool startedInBackground;
@@ -226,6 +259,7 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
           ),
           home: HomePage(
             onAbout: _showAbout,
+            catalog: widget.catalog,
             modeActions: _modeActions,
             applyDefaultModeAtStart: widget.startedInBackground,
           ),

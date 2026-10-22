@@ -660,4 +660,160 @@ class AppLocalizationsKo extends AppLocalizations {
   String logModeCancelled(String name) {
     return '\'$name\' 모드 전환을 취소했어요.';
   }
+
+  @override
+  String get catalogTooltip => '보안 서비스 카탈로그';
+
+  @override
+  String catalogTooltipCount(int n) {
+    return '보안 서비스 카탈로그 · 새 제안 $n개';
+  }
+
+  @override
+  String get catalogTitle => '보안 서비스 카탈로그';
+
+  @override
+  String catalogInfo(int version, String updated) {
+    return '카탈로그 v$version · $updated';
+  }
+
+  @override
+  String get catalogSourceBundled => '앱에 들어 있는 기본 카탈로그';
+
+  @override
+  String get catalogSourceCache => '받아 둔 카탈로그 (서명 확인됨)';
+
+  @override
+  String get catalogSourceRemote => '방금 받은 카탈로그 (서명 확인됨)';
+
+  @override
+  String catalogChecked(String when) {
+    return '마지막 확인: $when';
+  }
+
+  @override
+  String get catalogNeverChecked => '아직 확인하지 않았어요';
+
+  @override
+  String get catalogCheckNow => '지금 확인';
+
+  @override
+  String get catalogChecking => '확인하는 중…';
+
+  @override
+  String get catalogRemoteOff =>
+      '원격 갱신이 꺼져 있어요 (서명 공개키가 설정되지 않았어요). 앱에 들어 있는 기본 카탈로그만 써요.';
+
+  @override
+  String get catalogResultUpdated => '새 카탈로그를 받았어요.';
+
+  @override
+  String get catalogResultUpToDate => '이미 최신이에요.';
+
+  @override
+  String catalogResultRejected(String reason) {
+    return '받은 카탈로그를 쓰지 않았어요: $reason';
+  }
+
+  @override
+  String catalogResultFailed(String reason) {
+    return '카탈로그를 받지 못했어요: $reason';
+  }
+
+  @override
+  String get catalogErrNetwork => '네트워크 오류';
+
+  @override
+  String get catalogErrSignature => '서명이 맞지 않아요';
+
+  @override
+  String get catalogErrFormat => '형식이 맞지 않아요';
+
+  @override
+  String get catalogErrRollback => '더 낮은 버전이라 쓰지 않았어요';
+
+  @override
+  String get catalogScanning => '이 PC의 서비스를 확인하는 중…';
+
+  @override
+  String catalogFindsHeader(int n) {
+    return '이 PC에서 발견했지만 목록에 없는 서비스 $n개';
+  }
+
+  @override
+  String catalogRenamesHeader(int n) {
+    return '이름이 바뀐 것 같은 항목 $n개';
+  }
+
+  @override
+  String get catalogNothing => '새로 발견한 서비스도, 이름이 바뀐 항목도 없어요.';
+
+  @override
+  String catalogAddSelected(int n) {
+    return '선택한 $n개 추가';
+  }
+
+  @override
+  String get catalogRenameApply => '이름 바꾸기';
+
+  @override
+  String catalogRenameLine(String from, String to) {
+    return '$from → $to';
+  }
+
+  @override
+  String catalogRenameNote(String product) {
+    return '카탈로그가 \'$product\'의 이름으로 알고 있는 서비스예요';
+  }
+
+  @override
+  String get catalogDriverTag => '드라이버 연동';
+
+  @override
+  String catalogAdded(int n) {
+    return '서비스 $n개를 목록에 추가했어요.';
+  }
+
+  @override
+  String catalogNewCategoriesNote(String list) {
+    return '새 카테고리($list)는 아직 어떤 모드에도 \'켜기\'로 지정되지 않았어요. 정하기 전에는 모든 모드에서 꺼져요. 모드 관리에서 정하세요.';
+  }
+
+  @override
+  String get catalogReport => '목록에 없는 서비스 신고…';
+
+  @override
+  String get catalogSuggestionNote => '카탈로그는 제안만 해요. 서비스를 자동으로 켜거나 끄지 않아요.';
+
+  @override
+  String get reportTitle => '서비스 신고';
+
+  @override
+  String get reportHint =>
+      '카탈로그에 없는 서비스를 골라 주세요. 아래 내용만 GitHub 이슈 초안에 담기고, 제출은 직접 해요.';
+
+  @override
+  String get reportSearch => '서비스 검색';
+
+  @override
+  String get reportWillSend => '이슈 초안에 담기는 내용 (경로는 담지 않아요):';
+
+  @override
+  String get reportOpen => 'GitHub에서 열기';
+
+  @override
+  String get reportBack => '다른 서비스 고르기';
+
+  @override
+  String get reportOpenFailed => '브라우저를 열지 못했어요.';
+
+  @override
+  String get reportChecking => '서명자를 확인하는 중…';
+
+  @override
+  String get helpCatalogTitle => '보안 서비스 카탈로그';
+
+  @override
+  String get helpCatalogBody =>
+      '보안 서비스는 제품마다, 버전마다 이름이 달라서 고정된 목록은 금방 어긋나요. 그래서 \'어떤 제품이 어떤 이름·실행 파일로 설치되는지\'를 적은 카탈로그를 두고 정기적으로(24시간마다) 받아 와요.\n• 지구본 아이콘(보안 서비스 카탈로그)을 누르면 이 PC에서 발견했지만 목록에 없는 서비스와, 이름이 바뀐 것 같은 항목을 보여 줘요. 새 제안이 있으면 아이콘에 숫자가 붙어요.\n• 카탈로그는 제안만 해요. 서비스를 자동으로 켜거나 끄지 않고, 목록에 넣을지는 직접 골라요. 새로 만들어진 카테고리는 어떤 모드에도 \'켜기\'로 지정돼 있지 않아서, 모드 관리에서 정하기 전에는 모든 모드에서 꺼져요.\n• 받은 카탈로그는 서명을 확인해요. 서명이 맞지 않거나 이전 버전이면 쓰지 않고, 앱에 들어 있는 기본 카탈로그로 동작해요.\n• 카탈로그에 없는 서비스는 \'신고\'로 알릴 수 있어요. 서비스 이름·표시 이름·실행 파일 이름·서명자만 담긴 GitHub 이슈 초안이 열리고, 내용을 확인한 뒤 직접 제출해요 (경로는 담지 않아요).';
 }

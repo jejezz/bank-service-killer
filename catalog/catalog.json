@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "version": 1,
+  "updated": "2026-10-22",
+  "categories": {
+    "web-plugin": { "ko": "웹 플러그인", "en": "Web plugin" },
+    "keyboard-security": { "ko": "키보드보안", "en": "Keyboard security" },
+    "firewall": { "ko": "개인방화벽", "en": "Personal firewall" }
+  },
+  "products": [
+    {
+      "id": "anysign4pc",
+      "name": "AnySign4PC",
+      "vendor": "SoftForum",
+      "categories": ["web-plugin"],
+      "usedBy": ["bank"],
+      "match": [
+        { "service": "AnySign4PC Launcher" },
+        { "exe": "AnySign4PCLauncher.exe" }
+      ]
+    },
+    {
+      "id": "crossex",
+      "name": "CrossEX",
+      "vendor": "iniLINE",
+      "categories": ["web-plugin"],
+      "usedBy": ["bank"],
+      "match": [
+        { "service": "CrossEX Live Checker" },
+        { "exe": "ObCrossEXService.exe" }
+      ]
+    },
+    {
+      "id": "image-safer",
+      "name": "Image SAFER",
+      "categories": ["web-plugin"],
+      "usedBy": ["bank"],
+      "match": [
+        { "service": "Image SAFER 5.0 Service" },
+        { "exe": "IMGSF50Svc.exe" }
+      ]
+    },
+    {
+      "id": "innorix-ex",
+      "name": "INNORIX EX",
+      "vendor": "INNORIX",
+      "categories": ["web-plugin"],
+      "usedBy": ["bank"],
+      "match": [
+        { "service": "INNORIX EX Management" },
+        { "service": "INNORIX EX Service" },
+        { "exe": "innorixem.exe" },
+        { "exe": "innorixes.exe" }
+      ]
+    },
+    {
+      "id": "interezen-lws",
+      "name": "IPinside LWS",
+      "vendor": "Interezen",
+      "categories": ["web-plugin"],
+      "usedBy": ["bank"],
+      "match": [
+        { "service": "Interezen LWS" },
+        { "exe": "I3GMainSvc.exe" }
+      ]
+    },
+    {
+      "id": "koscom-realip",
+      "name": "KOSCOM Real IP",
+      "vendor": "KOSCOM",
+      "categories": ["web-plugin"],
+      "usedBy": ["securities"],
+      "match": [
+        { "service": "KOSCOMSecLogGather" },
+        { "exe": "KOSCOMSecLogGather.exe" }
+      ]
+    },
+    {
+      "id": "magicline4nx",
+      "name": "MagicLine4NX",
+      "vendor": "DreamSecurity",
+      "categories": ["web-plugin"],
+      "usedBy": ["bank"],
+      "match": [
+        { "service": "MagicLine4NX Service" },
+        { "service": "MagicLine4NXSVC" },
+        { "exe": "MagicLine4NXServices.exe" }
+      ]
+    },
+    {
+      "id": "nxts",
+      "name": "nxTS",
+      "categories": ["keyboard-security"],
+      "usedBy": ["bank"],
+      "driver": true,
+      "note": { "ko": "키보드보안, 드라이버 연동 가능", "en": "Keyboard security, may be tied to a driver" },
+      "match": [
+        { "service": "nxTS Process Manager Service" },
+        { "service": "nxTSSvc" },
+        { "exe": "nxtssvc.exe" }
+      ]
+    },
+    {
+      "id": "nxfirewall",
+      "name": "nxFirewall",
+      "categories": ["firewall"],
+      "usedBy": ["bank"],
+      "driver": true,
+      "note": { "ko": "개인방화벽, 드라이버 연동 가능", "en": "Personal firewall, may be tied to a driver" },
+      "match": [
+        { "service": "ToucnEn_nxFirewall" }
+      ]
+    },
+    {
+      "id": "ozwl",
+      "name": "OZWLservice",
+      "categories": ["web-plugin"],
+      "usedBy": ["bank"],
+      "match": [
+        { "service": "OZWLservice" }
+      ]
+    },
+    {
+      "id": "signkorea",
+      "name": "SignKorea",
+      "categories": ["web-plugin"],
+      "usedBy": ["bank"],
+      "match": [
+        { "service": "SignKoreaWD" }
+      ]
+    },
+    {
+      "id": "wizvera-pm",
+      "name": "Wizvera Process Manager",
+      "vendor": "Wizvera",
+      "categories": ["web-plugin"],
+      "usedBy": ["bank"],
+      "match": [
+        { "service": "WIZVERA Process Manager Service" },
+        { "service": "WizveraPMSvc" }
+      ]
+    }
+  ]
+}

@@ -666,4 +666,161 @@ class AppLocalizationsEn extends AppLocalizations {
   String logModeCancelled(String name) {
     return 'Cancelled the switch to \'$name\'.';
   }
+
+  @override
+  String get catalogTooltip => 'Security service catalog';
+
+  @override
+  String catalogTooltipCount(int n) {
+    return 'Security service catalog · $n new suggestions';
+  }
+
+  @override
+  String get catalogTitle => 'Security service catalog';
+
+  @override
+  String catalogInfo(int version, String updated) {
+    return 'Catalog v$version · $updated';
+  }
+
+  @override
+  String get catalogSourceBundled => 'Built-in catalog shipped with the app';
+
+  @override
+  String get catalogSourceCache => 'Downloaded catalog (signature verified)';
+
+  @override
+  String get catalogSourceRemote => 'Just downloaded (signature verified)';
+
+  @override
+  String catalogChecked(String when) {
+    return 'Last checked: $when';
+  }
+
+  @override
+  String get catalogNeverChecked => 'Not checked yet';
+
+  @override
+  String get catalogCheckNow => 'Check now';
+
+  @override
+  String get catalogChecking => 'Checking…';
+
+  @override
+  String get catalogRemoteOff =>
+      'Remote updates are off (no signing public key is set). Only the built-in catalog is used.';
+
+  @override
+  String get catalogResultUpdated => 'Got a new catalog.';
+
+  @override
+  String get catalogResultUpToDate => 'Already up to date.';
+
+  @override
+  String catalogResultRejected(String reason) {
+    return 'The downloaded catalog was not used: $reason';
+  }
+
+  @override
+  String catalogResultFailed(String reason) {
+    return 'Couldn\'t get the catalog: $reason';
+  }
+
+  @override
+  String get catalogErrNetwork => 'network error';
+
+  @override
+  String get catalogErrSignature => 'signature does not match';
+
+  @override
+  String get catalogErrFormat => 'invalid format';
+
+  @override
+  String get catalogErrRollback => 'older version';
+
+  @override
+  String get catalogScanning => 'Checking this PC\'s services…';
+
+  @override
+  String catalogFindsHeader(int n) {
+    return '$n services found on this PC that aren\'t in your list';
+  }
+
+  @override
+  String catalogRenamesHeader(int n) {
+    return '$n items that look renamed';
+  }
+
+  @override
+  String get catalogNothing => 'No new services found and no renamed items.';
+
+  @override
+  String catalogAddSelected(int n) {
+    return 'Add $n selected';
+  }
+
+  @override
+  String get catalogRenameApply => 'Rename';
+
+  @override
+  String catalogRenameLine(String from, String to) {
+    return '$from → $to';
+  }
+
+  @override
+  String catalogRenameNote(String product) {
+    return 'The catalog knows the old name as part of \'$product\'';
+  }
+
+  @override
+  String get catalogDriverTag => 'Driver-linked';
+
+  @override
+  String catalogAdded(int n) {
+    return 'Added $n services to your list.';
+  }
+
+  @override
+  String catalogNewCategoriesNote(String list) {
+    return 'The new categories ($list) aren\'t set to \'On\' in any mode yet, so every mode turns them off until you decide. Set them in Manage modes.';
+  }
+
+  @override
+  String get catalogReport => 'Report a service that\'s not listed…';
+
+  @override
+  String get catalogSuggestionNote =>
+      'The catalog only suggests. It never turns services on or off by itself.';
+
+  @override
+  String get reportTitle => 'Report a service';
+
+  @override
+  String get reportHint =>
+      'Pick a service the catalog doesn\'t know. Only the content below goes into a draft GitHub issue, and you submit it yourself.';
+
+  @override
+  String get reportSearch => 'Search services';
+
+  @override
+  String get reportWillSend => 'What goes into the draft issue (no paths):';
+
+  @override
+  String get reportOpen => 'Open on GitHub';
+
+  @override
+  String get reportBack => 'Pick another';
+
+  @override
+  String get reportOpenFailed => 'Couldn\'t open the browser.';
+
+  @override
+  String get reportChecking => 'Checking the signer…';
+
+  @override
+  String get helpCatalogTitle => 'Security service catalog';
+
+  @override
+  String get helpCatalogBody =>
+      'Security services change names between products and versions, so a fixed list goes stale quickly. The app keeps a catalog of which product installs under which names and executables, and refreshes it regularly (every 24 hours).\n• The globe icon (Security service catalog) shows services found on this PC that aren\'t in your list, and items that look renamed. A number appears on the icon when there are new suggestions.\n• The catalog only suggests. It never turns services on or off by itself, and you choose what to add. Newly created categories aren\'t set to \'On\' in any mode, so every mode turns them off until you decide in Manage modes.\n• Downloaded catalogs are signature-checked. One with a bad signature or an older version is ignored and the built-in catalog is used.\n• For a service the catalog doesn\'t know, use \'Report\'. It opens a draft GitHub issue containing only the service name, display name, executable name and signer; you review it and submit it yourself (no paths are included).';
 }
