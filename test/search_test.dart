@@ -1,4 +1,6 @@
 import 'package:bank_service_killer/catalog/catalog.dart';
+import 'package:bank_service_killer/catalog/installed.dart';
+import 'package:bank_service_killer/service_manager.dart';
 import 'package:bank_service_killer/catalog/search_button.dart';
 import 'package:bank_service_killer/catalog/web_search.dart';
 import 'package:bank_service_killer/l10n/app_localizations.dart';
@@ -33,6 +35,27 @@ void main() {
       expect(q, isNot(contains('someone')));
       expect(q, isNot(contains(r'C:\')));
       expect(q, isNot(contains('AppData')));
+    });
+  });
+
+  group('searchTargetFor (메인 목록의 줄)', () {
+    test('이 PC에 있는 서비스는 서비스 이름·표시 이름·실행 파일 이름으로 검색한다', () {
+      const svc = SvcInfo(
+        name: 'nossvc',
+        displayName: 'nProtect Online Security',
+        state: 'Running',
+        startMode: 'Auto',
+        path: r'"C:\Users\someone\nprotect\npkcsvc.exe" -svc',
+        pid: 1,
+      );
+      final t = searchTargetFor(svc: svc, itemName: '목록에 적은 이름');
+      expect(searchQuery(t), '"nossvc" nProtect Online Security npkcsvc.exe');
+      expect(searchQuery(t), isNot(contains('someone')));
+    });
+
+    test('설치되지 않은(이름 불일치) 줄은 목록에 적은 이름만으로 검색한다', () {
+      final t = searchTargetFor(itemName: 'ToucnEn_nxFireWall');
+      expect(searchQuery(t), '"ToucnEn_nxFireWall"');
     });
   });
 

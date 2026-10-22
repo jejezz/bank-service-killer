@@ -18,6 +18,11 @@ extension SvcInfoCatalog on SvcInfo {
   bool get isWindowsOwn => toInstalled().isWindowsOwn;
 }
 
+/// 감시 목록의 한 줄을 웹에서 검색할 때 쓸 서비스 정보. 이 PC에 있으면 서비스 이름·표시 이름·실행 파일 이름을 쓰고,
+/// 없으면(설치되지 않음 / 이름 불일치) 목록에 적은 이름만 쓴다.
+InstalledService searchTargetFor({SvcInfo? svc, required String itemName}) =>
+    svc?.toInstalled() ?? InstalledService(name: itemName);
+
 /// 서명자 조회 결과 (경로 → 서명자, 서명이 없으면 ''). 같은 파일을 다시 조사하지 않게 앱이 들고 있는다.
 /// 서명 확인은 파일마다 시간이 걸려서, 새로 생긴 파일만 조사하는 데 쓴다.
 class SignerCache {

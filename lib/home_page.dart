@@ -11,6 +11,7 @@ import 'catalog/catalog_dialog.dart';
 import 'catalog/discovery.dart';
 import 'catalog/heuristics.dart';
 import 'catalog/installed.dart';
+import 'catalog/search_button.dart';
 import 'catalog/seen_state.dart';
 import 'catalog/setup_dialog.dart';
 import 'category_dialog.dart';
@@ -1010,6 +1011,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ],
+                ServiceSearchButton(searchTargetFor(svc: s, itemName: r.item.name)),
                 IconButton(
                   tooltip: l.editTooltip,
                   onPressed: _busy ? null : () => _addDialog(edit: r),
