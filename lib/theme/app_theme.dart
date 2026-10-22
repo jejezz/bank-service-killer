@@ -203,13 +203,44 @@ abstract final class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(minimumSize: buttonSize, shape: buttonShape, textStyle: buttonText),
       ),
+      // 입력칸은 테두리가 있어야 입력칸으로 보인다. 대화상자 바탕(surfaceHi)과 같은 색으로 채우면 묻히므로
+      // 더 어두운(라이트에서는 더 밝은) 바탕색으로 채우고, 포커스를 받으면 테두리를 강조색으로 굵게 그린다.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: scheme.surfaceContainerHighest,
+        fillColor: scheme.surfaceContainerLowest,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.button),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: scheme.outline),
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.button),
+          borderSide: BorderSide(color: scheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.button),
+          borderSide: BorderSide(color: scheme.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.button),
+          borderSide: BorderSide(color: scheme.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.button),
+          borderSide: BorderSide(color: scheme.error, width: 2),
+        ),
+      ),
+      // 탭: 선택된 탭 전체를 강조색으로 옅게 칠하고 아래에 굵은 막대를 둔다. 가는 밑줄만 있으면 탭으로 보이지 않는다.
+      tabBarTheme: TabBarThemeData(
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: BoxDecoration(
+          color: scheme.primary.withValues(alpha: 0.14),
+          border: Border(bottom: BorderSide(color: scheme.primary, width: 3)),
+        ),
+        labelColor: scheme.primary,
+        unselectedLabelColor: scheme.onSurfaceVariant,
+        labelStyle: TextStyle(fontFamily: AppFonts.family, fontSize: body, fontWeight: FontWeight.w700),
+        unselectedLabelStyle: TextStyle(fontFamily: AppFonts.family, fontSize: body),
+        dividerColor: scheme.outline,
       ),
       // M3 기본값은 팝업이 배경에 묻힌다 — surfaceHi + 테두리 (daylight).
       popupMenuTheme: PopupMenuThemeData(
