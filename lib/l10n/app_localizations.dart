@@ -539,7 +539,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpGroupBody.
   ///
   /// In ko, this message translates to:
-  /// **'• 카테고리: 서비스를 묶는 이름표예요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요. 위쪽 칩을 누르면 그 카테고리만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 모드: \'켤 것 · 그대로 둘 것 · 끌 것\'을 정해 둔 목표 상태예요. 위쪽 [뱅킹 | 개발 …] 토글에서 고르면 그 상태가 되도록 서비스를 켜고 꺼요. 이미 맞는 서비스는 건드리지 않아요.\n• 현재 모드는 저장한 값이 아니라 서비스의 실제 상태로 판단해요. 어느 모드와도 맞지 않으면 \'혼합\'으로 보여 줘요. 혼합일 때 모드를 누르면 남은 서비스만 맞춰요.\n• 모드 관리(슬라이더 아이콘)에서 모드를 만들고 고칠 수 있어요. ★ 기본 모드는 앱을 시작할 때(Windows 로그온 포함)와 자동 복귀할 때 적용돼요.\n• 자동 복귀: 모드마다 시간을 정해 두면 그 뒤 기본 모드로 돌아가요. 1분 전에 알려 줘요.\n• 트레이 아이콘 우클릭 메뉴에서도 모드를 바꿀 수 있고, 현재 모드에 체크가 붙어요.'**
+  /// **'• 카테고리: 서비스를 묶는 이름표예요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요. 위쪽 칩을 누르면 그 카테고리만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 모드: \'켤 것 · 그대로 둘 것 · 끌 것\'을 정해 둔 목표 상태예요. 위쪽 [뱅킹 | 개발 …] 토글에서 고르면 그 상태가 되도록 서비스를 켜고 꺼요. 이미 맞는 서비스는 건드리지 않아요.\n• 모드를 누르면 먼저 \'끌 서비스 / 켤 서비스\' 미리보기 창이 떠요. 확인하고 [실행]을 누르면 그때 바뀌고, [취소]하면 아무것도 바뀌지 않아요. (앱 시작 시 기본 모드와 자동 복귀는 사람이 없어도 돌아야 해서 묻지 않고 실행해요.)\n• 현재 모드는 저장한 값이 아니라 서비스의 실제 상태로 판단해요. 어느 모드와도 맞지 않으면 \'혼합\'으로 보여 줘요. 혼합일 때 모드를 누르면 남은 서비스만 맞춰요.\n• 모드 관리(슬라이더 아이콘)에서 모드를 만들고 고칠 수 있어요. ★ 기본 모드는 앱을 시작할 때(Windows 로그온 포함)와 자동 복귀할 때 적용돼요.\n• 자동 복귀: 모드마다 시간을 정해 두면 그 뒤 기본 모드로 돌아가요. 1분 전에 알려 줘요.\n• 트레이 아이콘 우클릭 메뉴에서도 모드를 바꿀 수 있고, 현재 모드에 체크가 붙어요.'**
   String get helpGroupBody;
 
   /// No description provided for @helpOnOffTitle.
@@ -1135,6 +1135,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'개발'**
   String get modeDefaultDev;
+
+  /// No description provided for @planTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{name}\' 모드로 전환'**
+  String planTitle(String name);
+
+  /// No description provided for @planIntro.
+  ///
+  /// In ko, this message translates to:
+  /// **'실행하면 아래처럼 바뀌어요. 확인 후 실행하세요.'**
+  String get planIntro;
+
+  /// No description provided for @planStopHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'끌 서비스 {n}개'**
+  String planStopHeader(int n);
+
+  /// No description provided for @planStartHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'켤 서비스 {n}개'**
+  String planStartHeader(int n);
+
+  /// No description provided for @planUnchanged.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 맞는 서비스 {n}개는 그대로 둬요.'**
+  String planUnchanged(int n);
+
+  /// No description provided for @planRun.
+  ///
+  /// In ko, this message translates to:
+  /// **'실행'**
+  String get planRun;
+
+  /// No description provided for @planEnableNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작 유형이 \'사용 안 함\'이라 \'수동\'으로 바꾼 뒤 시작해요'**
+  String get planEnableNote;
+
+  /// No description provided for @planAutoNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작 유형이 \'자동\'이라 PC를 다시 켜면 또 시작돼요'**
+  String get planAutoNote;
+
+  /// No description provided for @logModeCancelled.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{name}\' 모드 전환을 취소했어요.'**
+  String logModeCancelled(String name);
 }
 
 class _AppLocalizationsDelegate

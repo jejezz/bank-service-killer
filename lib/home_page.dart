@@ -11,6 +11,7 @@ import 'l10n/app_localizations.dart';
 import 'mode_actions.dart';
 import 'mode_dialog.dart';
 import 'mode_engine.dart';
+import 'mode_plan_dialog.dart';
 import 'service_manager.dart';
 import 'settings/app_settings.dart';
 import 'settings/settings_menus.dart';
@@ -71,7 +72,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    widget.modeActions?.apply = _applyMode;
+    widget.modeActions?.apply = (name) => _applyMode(name);
     _init();
   }
 
@@ -102,7 +103,7 @@ class _HomePageState extends State<HomePage> {
     final start = _data.defaultMode;
     if (mounted && widget.applyDefaultModeAtStart && _admin && start != null) {
       _addLog(_l10n.logModeStartup(start));
-      await _applyMode(start);
+      await _applyMode(start, confirm: false); // 무인 실행이라 묻지 않는다.
     }
   }
 
@@ -215,7 +216,9 @@ class _HomePageState extends State<HomePage> {
 
   /// 이름의 모드로 바꾼다: 계획 → 끄기(거꾸로) → 켜기 → 실제 상태 검증 → 보고.
   /// 혼합일 때 다시 부르면 아직 맞지 않은 서비스만 다시 시도한다.
-  Future<void> _applyMode(String name) async {
+  /// [confirm]이 true(사람이 누른 경우)면 실행 전에 계획을 보여 주고 확인을 받는다.
+  /// 시작 시 기본 모드·자동 복귀는 사람이 없어도 돌아야 하므로 false 로 부른다.
+  Future<void> _applyMode(String name, {bool confirm = true}) async {
     if (_busy || _switching) return;
     final mode = _data.modeNamed(name);
     if (mode == null) return;
@@ -231,6 +234,16 @@ class _HomePageState extends State<HomePage> {
     if (plan.isEmpty) {
       _addLog(l.logModeAlready(name));
     } else {
+      if (confirm && !await _confirmPlan(name, plan, byName)) {
+        if (!mounted) return;
+        _addLog(l.logModeCancelled(name));
+        setState(() {
+          _switching = false;
+          _busy = false;
+        });
+        return;
+      }
+      if (!mounted) return;
       _addLog(l.logModePlan(name, plan.start.length, plan.stop.length));
       for (final it in plan.stop) {
         await _turnOff(byName[it.name]!);
@@ -251,6 +264,33 @@ class _HomePageState extends State<HomePage> {
       _addLog(l.logModePartial(name, _status.closestProgress.ok, _status.closestProgress.total));
     }
     setState(() => _busy = false);
+  }
+
+  /// 드라이런: 바꾸기 전에 무엇을 끄고 켤지 보여 주고 실행/취소를 묻는다.
+  Future<bool> _confirmPlan(String name, ModePlan plan, Map<String, SvcRow> byName) async {
+    final l = _l10n;
+    // 트레이에서 눌렀다면 창이 숨어 있을 수 있다.
+    await windowManager.show();
+    await windowManager.focus();
+    if (!mounted) return false;
+    PlanLine line(WatchItem it, {required bool starting}) {
+      final svc = byName[it.name]?.svc;
+      final title = svc == null || svc.displayName.isEmpty ? it.name : svc.displayName;
+      String? note;
+      if (starting && svc?.startMode == 'Disabled') note = l.planEnableNote;
+      if (!starting && svc?.startMode == 'Auto') note = l.planAutoNote;
+      return PlanLine(title, note: note);
+    }
+
+    final touched = plan.total;
+    final installed = _rows.where((r) => r.svc != null).length;
+    return showModePlanDialog(
+      context,
+      modeName: name,
+      stop: [for (final it in plan.stop) line(it, starting: false)],
+      start: [for (final it in plan.start) line(it, starting: true)],
+      unchanged: installed - touched,
+    );
   }
 
   // ── 자동 복귀 ──
@@ -292,7 +332,7 @@ class _HomePageState extends State<HomePage> {
     if (!mounted || back == null || _revertFrom != from) return;
     _addLog(_l10n.logModeRevert(back));
     _cancelRevert();
-    await _applyMode(back);
+    await _applyMode(back, confirm: false); // 알림에서 이미 물었다.
   }
 
   /// 1분 전 알림: 창을 앞으로 가져와 연장하거나 지금 돌아갈지 묻는다.

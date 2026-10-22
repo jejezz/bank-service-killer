@@ -260,7 +260,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get helpGroupBody =>
-      '• 카테고리: 서비스를 묶는 이름표예요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요. 위쪽 칩을 누르면 그 카테고리만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 모드: \'켤 것 · 그대로 둘 것 · 끌 것\'을 정해 둔 목표 상태예요. 위쪽 [뱅킹 | 개발 …] 토글에서 고르면 그 상태가 되도록 서비스를 켜고 꺼요. 이미 맞는 서비스는 건드리지 않아요.\n• 현재 모드는 저장한 값이 아니라 서비스의 실제 상태로 판단해요. 어느 모드와도 맞지 않으면 \'혼합\'으로 보여 줘요. 혼합일 때 모드를 누르면 남은 서비스만 맞춰요.\n• 모드 관리(슬라이더 아이콘)에서 모드를 만들고 고칠 수 있어요. ★ 기본 모드는 앱을 시작할 때(Windows 로그온 포함)와 자동 복귀할 때 적용돼요.\n• 자동 복귀: 모드마다 시간을 정해 두면 그 뒤 기본 모드로 돌아가요. 1분 전에 알려 줘요.\n• 트레이 아이콘 우클릭 메뉴에서도 모드를 바꿀 수 있고, 현재 모드에 체크가 붙어요.';
+      '• 카테고리: 서비스를 묶는 이름표예요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요. 위쪽 칩을 누르면 그 카테고리만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 모드: \'켤 것 · 그대로 둘 것 · 끌 것\'을 정해 둔 목표 상태예요. 위쪽 [뱅킹 | 개발 …] 토글에서 고르면 그 상태가 되도록 서비스를 켜고 꺼요. 이미 맞는 서비스는 건드리지 않아요.\n• 모드를 누르면 먼저 \'끌 서비스 / 켤 서비스\' 미리보기 창이 떠요. 확인하고 [실행]을 누르면 그때 바뀌고, [취소]하면 아무것도 바뀌지 않아요. (앱 시작 시 기본 모드와 자동 복귀는 사람이 없어도 돌아야 해서 묻지 않고 실행해요.)\n• 현재 모드는 저장한 값이 아니라 서비스의 실제 상태로 판단해요. 어느 모드와도 맞지 않으면 \'혼합\'으로 보여 줘요. 혼합일 때 모드를 누르면 남은 서비스만 맞춰요.\n• 모드 관리(슬라이더 아이콘)에서 모드를 만들고 고칠 수 있어요. ★ 기본 모드는 앱을 시작할 때(Windows 로그온 포함)와 자동 복귀할 때 적용돼요.\n• 자동 복귀: 모드마다 시간을 정해 두면 그 뒤 기본 모드로 돌아가요. 1분 전에 알려 줘요.\n• 트레이 아이콘 우클릭 메뉴에서도 모드를 바꿀 수 있고, 현재 모드에 체크가 붙어요.';
 
   @override
   String get helpOnOffTitle => '켜기·끄기';
@@ -623,4 +623,41 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get modeDefaultDev => '개발';
+
+  @override
+  String planTitle(String name) {
+    return '\'$name\' 모드로 전환';
+  }
+
+  @override
+  String get planIntro => '실행하면 아래처럼 바뀌어요. 확인 후 실행하세요.';
+
+  @override
+  String planStopHeader(int n) {
+    return '끌 서비스 $n개';
+  }
+
+  @override
+  String planStartHeader(int n) {
+    return '켤 서비스 $n개';
+  }
+
+  @override
+  String planUnchanged(int n) {
+    return '이미 맞는 서비스 $n개는 그대로 둬요.';
+  }
+
+  @override
+  String get planRun => '실행';
+
+  @override
+  String get planEnableNote => '시작 유형이 \'사용 안 함\'이라 \'수동\'으로 바꾼 뒤 시작해요';
+
+  @override
+  String get planAutoNote => '시작 유형이 \'자동\'이라 PC를 다시 켜면 또 시작돼요';
+
+  @override
+  String logModeCancelled(String name) {
+    return '\'$name\' 모드 전환을 취소했어요.';
+  }
 }

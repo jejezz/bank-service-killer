@@ -262,7 +262,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpGroupBody =>
-      '• Categories: labels that group services (e.g. keyboard security, certificates, per bank). A service can be in several. Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• Modes: target states — what to turn on, what to leave alone and what to turn off. Pick one in the [Banking | Dev …] toggle at the top and the services are started/stopped to match. Services already in the right state are left alone.\n• The current mode is judged from the real service states, not a saved value. If nothing matches it shows \'Mixed\'; pressing a mode while mixed only fixes the remaining services.\n• Manage modes (sliders icon) lets you create and edit modes. The ★ default mode is applied when the app starts (including at Windows sign-in) and on auto-return.\n• Auto-return: give a mode a time and it falls back to the default mode afterwards, with a warning 1 minute before.\n• The tray icon\'s right-click menu also switches modes, with a check on the current one.';
+      '• Categories: labels that group services (e.g. keyboard security, certificates, per bank). A service can be in several. Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• Modes: target states — what to turn on, what to leave alone and what to turn off. Pick one in the [Banking | Dev …] toggle at the top and the services are started/stopped to match. Services already in the right state are left alone.\n• Pressing a mode first opens a preview of the services to turn off / on. Nothing changes until you press Run; Cancel leaves everything as it is. (The default mode at app start and auto-return run without asking, since nobody may be there.)\n• The current mode is judged from the real service states, not a saved value. If nothing matches it shows \'Mixed\'; pressing a mode while mixed only fixes the remaining services.\n• Manage modes (sliders icon) lets you create and edit modes. The ★ default mode is applied when the app starts (including at Windows sign-in) and on auto-return.\n• Auto-return: give a mode a time and it falls back to the default mode afterwards, with a warning 1 minute before.\n• The tray icon\'s right-click menu also switches modes, with a check on the current one.';
 
   @override
   String get helpOnOffTitle => 'Turning on and off';
@@ -627,4 +627,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modeDefaultDev => 'Dev';
+
+  @override
+  String planTitle(String name) {
+    return 'Switch to \'$name\' mode';
+  }
+
+  @override
+  String get planIntro => 'This is what will change. Review it, then run.';
+
+  @override
+  String planStopHeader(int n) {
+    return '$n services to turn off';
+  }
+
+  @override
+  String planStartHeader(int n) {
+    return '$n services to turn on';
+  }
+
+  @override
+  String planUnchanged(int n) {
+    return '$n services already match and are left alone.';
+  }
+
+  @override
+  String get planRun => 'Run';
+
+  @override
+  String get planEnableNote =>
+      'Startup type is Disabled, so it\'s set to Manual first, then started';
+
+  @override
+  String get planAutoNote =>
+      'Startup type is Automatic, so it starts again after a reboot';
+
+  @override
+  String logModeCancelled(String name) {
+    return 'Cancelled the switch to \'$name\'.';
+  }
 }
