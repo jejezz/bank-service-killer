@@ -256,18 +256,18 @@ class AppLocalizationsKo extends AppLocalizations {
       '목록은 자동으로 만들어지지 않아요. 처음에는 흔한 금융·보안 서비스가 미리 들어 있고, 그 뒤로는 직접 관리해요.\n• 추가: 위쪽 + 단추(Ctrl+N)에서 서비스 이름이나 표시 이름을 입력하면 이 PC에 설치된 서비스 중 일치하는 것이 아래에 나타나요. 눌러서 고르면 돼요.\n• 새로 설치된 서비스는 자동으로 감지되지 않아요. 직접 추가해야 해요. 서비스 이름은 msconfig(서비스 탭)나 services.msc에서 볼 수 있어요.\n• 이름이 일부만 같아도 찾아 주고(부분 일치), \"설치되지 않음 / 이름 불일치\"로 나오면 이 PC에 없거나 이름이 달라요.\n• 목록은 %APPDATA%\\BankServiceKiller\\watchlist.json 에 저장돼요. 새로고침(F5)은 서비스의 현재 상태를 다시 읽어 와요.';
 
   @override
-  String get helpGroupTitle => '카테고리와 뱅킹·개발 모드';
+  String get helpGroupTitle => '카테고리와 모드';
 
   @override
   String get helpGroupBody =>
-      '서비스를 카테고리로 묶을 수 있어요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요.\n• 위쪽 칩을 누르면 그 카테고리의 서비스만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 라벨 모양 단추에서 카테고리를 만들고, 이름을 바꾸고, 지울 수 있어요. 지워도 서비스는 남아요.\n• 뱅킹 모드: 카테고리 관리에서 \'뱅킹 모드에 포함\'으로 체크한 카테고리의 서비스를 켜요.\n• 개발 모드: 감시 중인 모든 서비스를 꺼요.\n• 두 모드는 트레이 아이콘 우클릭 메뉴에서도 바로 쓸 수 있어요.';
+      '• 카테고리: 서비스를 묶는 이름표예요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요. 위쪽 칩을 누르면 그 카테고리만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 모드: \'켤 것 · 그대로 둘 것 · 끌 것\'을 정해 둔 목표 상태예요. 위쪽 [뱅킹 | 개발 …] 토글에서 고르면 그 상태가 되도록 서비스를 켜고 꺼요. 이미 맞는 서비스는 건드리지 않아요.\n• 현재 모드는 저장한 값이 아니라 서비스의 실제 상태로 판단해요. 어느 모드와도 맞지 않으면 \'혼합\'으로 보여 줘요. 혼합일 때 모드를 누르면 남은 서비스만 맞춰요.\n• 모드 관리(슬라이더 아이콘)에서 모드를 만들고 고칠 수 있어요. ★ 기본 모드는 앱을 시작할 때(Windows 로그온 포함)와 자동 복귀할 때 적용돼요.\n• 자동 복귀: 모드마다 시간을 정해 두면 그 뒤 기본 모드로 돌아가요. 1분 전에 알려 줘요.\n• 트레이 아이콘 우클릭 메뉴에서도 모드를 바꿀 수 있고, 현재 모드에 체크가 붙어요.';
 
   @override
   String get helpOnOffTitle => '켜기·끄기';
 
   @override
   String get helpOnOffBody =>
-      '• 뱅킹·개발 모드, \'○○ 켜기 / 끄기\', 그리고 항목 오른쪽의 재생·정지 단추는 서비스를 지금 바로 시작하거나 중지해요. 시작 유형이 \'사용 안 함\'이면 \'수동\'으로 바꾼 뒤 시작해요.\n• 시작·중지 후 실제 상태가 바뀌었는지 확인하고 결과를 아래 로그에 남겨요. 중지 후 3초 뒤 다시 살아났는지도 한 번 더 확인해요.\n• 끄기는 서비스를 멈출 뿐 시작 유형은 바꾸지 않아요. 시작 유형이 \'자동\'이면 PC를 다시 켤 때 서비스가 또 시작돼요.';
+      '• 모드 전환, \'○○ 켜기 / 끄기\', 그리고 항목 오른쪽의 재생·정지 단추는 서비스를 지금 바로 시작하거나 중지해요. 시작 유형이 \'사용 안 함\'이면 \'수동\'으로 바꾼 뒤 시작해요.\n• 시작·중지 후 실제 상태가 바뀌었는지 확인하고 결과를 아래 로그에 남겨요. 중지 후 3초 뒤 다시 살아났는지도 한 번 더 확인해요.\n• 끄기는 서비스를 멈출 뿐 시작 유형은 바꾸지 않아요. 시작 유형이 \'자동\'이면 PC를 다시 켤 때 서비스가 또 시작돼요.';
 
   @override
   String get helpModeTitle => '시작 유형 (자동 / 수동 / 사용 안 함)';
@@ -425,10 +425,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get catManageHint =>
-      '카테고리를 만들어 서비스를 묶어 두면 그 묶음만 켜고 끌 수 있어요. 체크한 카테고리는 \'뱅킹 모드\'에서 켜져요. 카테고리를 지워도 서비스는 남아요.';
-
-  @override
-  String get catBankingInclude => '뱅킹 모드에 포함';
+      '카테고리로 서비스를 묶어 두면 그 묶음만 켜고 끌 수 있고, 모드를 만들 때 재료로 써요. 카테고리를 지워도 서비스는 남아요.';
 
   @override
   String get catAddField => '새 카테고리 이름';
@@ -463,18 +460,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get addDialogNewCategory => '새 카테고리 만들기';
 
   @override
-  String get bankingModeButton => '뱅킹 모드';
-
-  @override
-  String get bankingModeTooltip => '뱅킹용으로 정한 카테고리의 서비스를 켜요';
-
-  @override
-  String get devModeButton => '개발 모드';
-
-  @override
-  String get devModeTooltip => '감시 중인 모든 서비스를 꺼요';
-
-  @override
   String scopeTurnOn(String scope) {
     return '$scope 켜기';
   }
@@ -485,18 +470,157 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String logModeBanking(int n) {
-    return '뱅킹 모드: 서비스 $n개를 켭니다';
+  String modeCurrent(String name) {
+    return '현재 모드: $name';
   }
 
   @override
-  String logModeDev(int n) {
-    return '개발 모드: 서비스 $n개를 끕니다';
+  String modeMixed(String name, int ok, int total) {
+    return '혼합 상태 · $name $ok/$total';
   }
 
   @override
-  String get trayBanking => '뱅킹 모드';
+  String get modeUnknown => '서비스 상태를 확인하는 중…';
 
   @override
-  String get trayDev => '개발 모드';
+  String modeRevertIn(int minutes, String name) {
+    return '$minutes분 뒤 \'$name\' 모드로 돌아가요';
+  }
+
+  @override
+  String modeToggleTooltip(String name) {
+    return '눌러서 \'$name\' 모드로 바꿔요';
+  }
+
+  @override
+  String get modeManageTooltip => '모드 관리';
+
+  @override
+  String get modeManageTitle => '모드 관리';
+
+  @override
+  String get modeManageHint =>
+      '모드는 \'켤 것 · 그대로 둘 것 · 끌 것\'을 정해 둔 목표 상태예요. 모드로 바꾸면 켤 카테고리는 켜고, 그대로 둘 카테고리는 건드리지 않고, 나머지 감시 서비스는 모두 꺼요. ★ 표시한 기본 모드는 앱이 시작될 때와 자동 복귀할 때 적용돼요.';
+
+  @override
+  String get modeDefaultHint => '기본 모드로 지정 (앱 시작·자동 복귀 때 적용)';
+
+  @override
+  String get modeDefaultTag => '기본';
+
+  @override
+  String get modeAdd => '모드 추가';
+
+  @override
+  String get modeDelete => '모드 삭제 (마지막 하나는 지울 수 없어요)';
+
+  @override
+  String get modeNameExists => '이미 있거나 사용할 수 없는 이름이에요.';
+
+  @override
+  String get modeNewTitle => '새 모드';
+
+  @override
+  String get modeEditTitle => '모드 수정';
+
+  @override
+  String get modeName => '모드 이름';
+
+  @override
+  String get modeCategoriesLabel => '카테고리별 동작';
+
+  @override
+  String get modeCategoriesHint =>
+      '켜기: 이 모드에서 켜요 · 그대로: 건드리지 않아요 · 끄기: 꺼요. 어떤 카테고리에도 속하지 않은 서비스는 꺼요.';
+
+  @override
+  String get wantOn => '켜기';
+
+  @override
+  String get wantKeep => '그대로';
+
+  @override
+  String get wantOff => '끄기';
+
+  @override
+  String get modeRevertField => '자동 복귀';
+
+  @override
+  String get modeRevertOff => '복귀 안 함';
+
+  @override
+  String modeRevertAfter(int n) {
+    return '$n분 후 기본 모드로';
+  }
+
+  @override
+  String get modeRevertHint =>
+      '이 모드로 바꾼 뒤 정한 시간이 지나면 기본 모드로 돌아가요. 1분 전에 알려 주고 연장할 수 있어요.';
+
+  @override
+  String modeSummaryOn(String list) {
+    return '켜기: $list';
+  }
+
+  @override
+  String get modeSummaryNoneOn => '켜는 것 없음';
+
+  @override
+  String modeSummaryKeep(String list) {
+    return '그대로: $list';
+  }
+
+  @override
+  String logModePlan(String name, int start, int stop) {
+    return '\'$name\' 모드로 전환: 켜기 $start개, 끄기 $stop개';
+  }
+
+  @override
+  String logModeAlready(String name) {
+    return '이미 \'$name\' 모드예요.';
+  }
+
+  @override
+  String logModeDone(String name) {
+    return '\'$name\' 모드 전환 완료 (모든 서비스 상태 확인됨)';
+  }
+
+  @override
+  String logModePartial(String name, int ok, int total) {
+    return '\'$name\' 모드 전환이 완전하지 않아요: $ok/$total. 모드 버튼을 다시 누르면 남은 서비스만 다시 시도해요.';
+  }
+
+  @override
+  String logModeRevert(String name) {
+    return '자동 복귀: \'$name\' 모드로 돌아갑니다';
+  }
+
+  @override
+  String logModeStartup(String name) {
+    return '앱 시작: 기본 모드 \'$name\'를 적용합니다';
+  }
+
+  @override
+  String revertWarnTitle(String to) {
+    return '곧 \'$to\' 모드로 돌아가요';
+  }
+
+  @override
+  String revertWarnBody(String from, int minutes, String to) {
+    return '\'$from\' 모드로 바꾼 지 $minutes분이 지났어요. 1분 뒤 \'$to\' 모드로 자동으로 돌아가요.';
+  }
+
+  @override
+  String revertExtend(int n) {
+    return '$n분 연장';
+  }
+
+  @override
+  String get revertNow => '지금 돌아가기';
+
+  @override
+  String get modeDefaultBanking => '뱅킹';
+
+  @override
+  String get modeDefaultDev => '개발';
 }

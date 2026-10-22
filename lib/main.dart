@@ -25,6 +25,8 @@ import 'theme/app_theme.dart';
 import 'update/update_scope.dart';
 import 'update/update_service.dart';
 
+const _modeKeyPrefix = 'mode:';
+
 final bool _isDesktop = Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
 Future<void> main(List<String> args) async {
@@ -54,7 +56,10 @@ Future<void> main(List<String> args) async {
   // 데스크톱이 아니거나 UPDATE_SERVER 가 비어 있으면 null — 업데이트 확인 없음.
   final updates = await UpdateService.create();
   // UpdateScope 는 MaterialApp 위에 둔다 — 정보 창이 이것을 읽어 "업데이트 확인" 단추를 붙인다.
-  runApp(UpdateScope(service: updates, child: App(settings: settings, updates: updates)));
+  runApp(UpdateScope(
+    service: updates,
+    child: App(settings: settings, updates: updates, startedInBackground: args.contains(StartupManager.backgroundArg)),
+  ));
 }
 
 /// 첫 실행 때 한 번만 시작프로그램으로 등록한다. 사용자가 나중에 끄면 다시 켜지 않는다.
@@ -66,10 +71,13 @@ Future<void> _registerStartupOnce(AppSettings settings) async {
 }
 
 class App extends StatefulWidget {
-  const App({super.key, required this.settings, this.updates});
+  const App({super.key, required this.settings, this.updates, this.startedInBackground = false});
 
   final AppSettings settings;
   final UpdateService? updates;
+
+  /// 시작프로그램(--background)으로 떴는가. 그러면 목록을 읽은 뒤 기본 모드를 적용한다.
+  final bool startedInBackground;
 
   @override
   State<App> createState() => _AppState();
@@ -89,6 +97,7 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
       windowManager.addListener(this);
       trayManager.addListener(this);
       widget.settings.addListener(_updateTray);
+      _modeActions.addListener(_updateTray);
       _initTray();
     }
     widget.updates?.startAutomaticCheck(_navigatorKey);
@@ -99,6 +108,7 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
     widget.settings.removeListener(_syncWindowBrightness);
     if (Platform.isWindows) {
       widget.settings.removeListener(_updateTray);
+      _modeActions.removeListener(_updateTray);
       windowManager.removeListener(this);
       trayManager.removeListener(this);
     }
@@ -131,12 +141,16 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
   Future<void> _updateTray() async {
     final device = WidgetsBinding.instance.platformDispatcher.locale;
     final l10n = lookupAppLocalizations(AppSettings.resolveLocale(widget.settings.locale ?? device, const []));
+    final current = _modeActions.current;
+    final summary = _modeActions.summary;
+    await trayManager.setToolTip(summary == null ? AppIdentity.displayName : '${AppIdentity.displayName} · $summary');
     await trayManager.setContextMenu(Menu(items: [
       MenuItem(key: 'show', label: l10n.trayShow),
       MenuItem.separator(),
-      MenuItem(key: 'banking', label: l10n.trayBanking),
-      MenuItem(key: 'dev', label: l10n.trayDev),
-      MenuItem.separator(),
+      // 현재 모드에 체크 표시. 눌러서 그 모드로 바꾼다.
+      for (final name in _modeActions.names)
+        MenuItem.checkbox(key: '$_modeKeyPrefix$name', label: name, checked: name == current),
+      if (_modeActions.names.isNotEmpty) MenuItem.separator(),
       MenuItem(key: 'exit', label: l10n.trayExit),
     ]));
   }
@@ -161,10 +175,8 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
     switch (menuItem.key) {
       case 'show':
         _showWindow();
-      case 'banking':
-        _modeActions.banking?.call();
-      case 'dev':
-        _modeActions.dev?.call();
+      case final key? when key.startsWith(_modeKeyPrefix):
+        _modeActions.apply?.call(key.substring(_modeKeyPrefix.length));
       case 'exit':
         () async {
           await trayManager.destroy();
@@ -212,7 +224,11 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
             onCheckForUpdates: widget.updates == null ? null : _checkForUpdates,
             child: child!,
           ),
-          home: HomePage(onAbout: _showAbout, modeActions: _modeActions),
+          home: HomePage(
+            onAbout: _showAbout,
+            modeActions: _modeActions,
+            applyDefaultModeAtStart: widget.startedInBackground,
+          ),
         ),
       ),
     );

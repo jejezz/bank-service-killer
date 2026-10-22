@@ -258,18 +258,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'The list is not built automatically. It starts with common banking/security services, and after that you manage it yourself.\n• Add: press + (Ctrl+N) and type a service name or display name; matching services installed on this PC appear below — click one to pick it.\n• Newly installed services are NOT detected automatically; add them yourself. You can find service names in msconfig (Services tab) or services.msc.\n• Partial names match too. \"Not installed / name mismatch\" means the service isn\'t on this PC or the name differs.\n• The list is saved to %APPDATA%\\BankServiceKiller\\watchlist.json. Refresh (F5) re-reads the current service states.';
 
   @override
-  String get helpGroupTitle => 'Categories, Banking and Dev mode';
+  String get helpGroupTitle => 'Categories and modes';
 
   @override
   String get helpGroupBody =>
-      'Group services into categories (e.g. keyboard security, certificates, per bank). A service can belong to several categories.\n• Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• The label button lets you create, rename and delete categories. Deleting one keeps its services.\n• Banking mode: turns on the services in categories checked as \"Include in Banking mode\" in Manage categories.\n• Dev mode: turns off every watched service.\n• Both modes are also in the tray icon\'s right-click menu.';
+      '• Categories: labels that group services (e.g. keyboard security, certificates, per bank). A service can be in several. Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• Modes: target states — what to turn on, what to leave alone and what to turn off. Pick one in the [Banking | Dev …] toggle at the top and the services are started/stopped to match. Services already in the right state are left alone.\n• The current mode is judged from the real service states, not a saved value. If nothing matches it shows \'Mixed\'; pressing a mode while mixed only fixes the remaining services.\n• Manage modes (sliders icon) lets you create and edit modes. The ★ default mode is applied when the app starts (including at Windows sign-in) and on auto-return.\n• Auto-return: give a mode a time and it falls back to the default mode afterwards, with a warning 1 minute before.\n• The tray icon\'s right-click menu also switches modes, with a check on the current one.';
 
   @override
   String get helpOnOffTitle => 'Turning on and off';
 
   @override
   String get helpOnOffBody =>
-      '• Banking/Dev mode, \"Turn … on / off\" and the play/stop button on each row start or stop services right now. If the startup type is Disabled it is set to Manual first, then started.\n• After starting or stopping, the app verifies the real state and writes the result to the log below. After a stop it checks again 3 seconds later in case the service came back.\n• Turning off only stops the service; it doesn\'t change the startup type. If it is Automatic, it starts again the next time the PC boots.';
+      '• Switching modes, \"Turn … on / off\" and the play/stop button on each row start or stop services right now. If the startup type is Disabled it is set to Manual first, then started.\n• After starting or stopping, the app verifies the real state and writes the result to the log below. After a stop it checks again 3 seconds later in case the service came back.\n• Turning off only stops the service; it doesn\'t change the startup type. If it is Automatic, it starts again the next time the PC boots.';
 
   @override
   String get helpModeTitle => 'Startup type (Automatic / Manual / Disabled)';
@@ -428,10 +428,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catManageHint =>
-      'Group services into categories to turn just that group on or off. Checked categories are turned on by Banking mode. Deleting a category keeps its services.';
-
-  @override
-  String get catBankingInclude => 'Include in Banking mode';
+      'Group services into categories to turn just that group on or off, and to build modes from. Deleting a category keeps its services.';
 
   @override
   String get catAddField => 'New category name';
@@ -466,19 +463,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addDialogNewCategory => 'Create a new category';
 
   @override
-  String get bankingModeButton => 'Banking mode';
-
-  @override
-  String get bankingModeTooltip =>
-      'Turn on the services in the categories set for banking';
-
-  @override
-  String get devModeButton => 'Dev mode';
-
-  @override
-  String get devModeTooltip => 'Turn off every watched service';
-
-  @override
   String scopeTurnOn(String scope) {
     return 'Turn $scope on';
   }
@@ -489,18 +473,158 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String logModeBanking(int n) {
-    return 'Banking mode: turning on $n services';
+  String modeCurrent(String name) {
+    return 'Current mode: $name';
   }
 
   @override
-  String logModeDev(int n) {
-    return 'Dev mode: turning off $n services';
+  String modeMixed(String name, int ok, int total) {
+    return 'Mixed · $name $ok/$total';
   }
 
   @override
-  String get trayBanking => 'Banking mode';
+  String get modeUnknown => 'Checking service states…';
 
   @override
-  String get trayDev => 'Dev mode';
+  String modeRevertIn(int minutes, String name) {
+    return 'Returns to \'$name\' in $minutes min';
+  }
+
+  @override
+  String modeToggleTooltip(String name) {
+    return 'Switch to \'$name\' mode';
+  }
+
+  @override
+  String get modeManageTooltip => 'Manage modes';
+
+  @override
+  String get modeManageTitle => 'Manage modes';
+
+  @override
+  String get modeManageHint =>
+      'A mode is a target state: what to turn on, what to leave alone, and what to turn off. Switching turns on the \'on\' categories, leaves the \'keep\' ones untouched, and turns off every other watched service. The ★ default mode is applied when the app starts and on auto-return.';
+
+  @override
+  String get modeDefaultHint =>
+      'Set as default mode (applied at app start and on auto-return)';
+
+  @override
+  String get modeDefaultTag => 'default';
+
+  @override
+  String get modeAdd => 'Add mode';
+
+  @override
+  String get modeDelete => 'Delete mode (the last one can\'t be deleted)';
+
+  @override
+  String get modeNameExists => 'That name already exists or can\'t be used.';
+
+  @override
+  String get modeNewTitle => 'New mode';
+
+  @override
+  String get modeEditTitle => 'Edit mode';
+
+  @override
+  String get modeName => 'Mode name';
+
+  @override
+  String get modeCategoriesLabel => 'What to do per category';
+
+  @override
+  String get modeCategoriesHint =>
+      'On: turned on in this mode · Keep: left untouched · Off: turned off. Services in no category are turned off.';
+
+  @override
+  String get wantOn => 'On';
+
+  @override
+  String get wantKeep => 'Keep';
+
+  @override
+  String get wantOff => 'Off';
+
+  @override
+  String get modeRevertField => 'Auto-return';
+
+  @override
+  String get modeRevertOff => 'Don\'t return';
+
+  @override
+  String modeRevertAfter(int n) {
+    return 'Back to default after $n min';
+  }
+
+  @override
+  String get modeRevertHint =>
+      'After switching to this mode, the default mode is restored once the time is up. You get a warning 1 minute before and can extend.';
+
+  @override
+  String modeSummaryOn(String list) {
+    return 'On: $list';
+  }
+
+  @override
+  String get modeSummaryNoneOn => 'Turns nothing on';
+
+  @override
+  String modeSummaryKeep(String list) {
+    return 'Keep: $list';
+  }
+
+  @override
+  String logModePlan(String name, int start, int stop) {
+    return 'Switching to \'$name\': $start on, $stop off';
+  }
+
+  @override
+  String logModeAlready(String name) {
+    return 'Already in \'$name\' mode.';
+  }
+
+  @override
+  String logModeDone(String name) {
+    return 'Switched to \'$name\' (all service states verified)';
+  }
+
+  @override
+  String logModePartial(String name, int ok, int total) {
+    return 'Switch to \'$name\' is incomplete: $ok/$total. Press the mode button again to retry only the remaining services.';
+  }
+
+  @override
+  String logModeRevert(String name) {
+    return 'Auto-return: going back to \'$name\'';
+  }
+
+  @override
+  String logModeStartup(String name) {
+    return 'App start: applying default mode \'$name\'';
+  }
+
+  @override
+  String revertWarnTitle(String to) {
+    return 'Returning to \'$to\' soon';
+  }
+
+  @override
+  String revertWarnBody(String from, int minutes, String to) {
+    return 'It\'s been $minutes min since you switched to \'$from\'. It will return to \'$to\' automatically in 1 minute.';
+  }
+
+  @override
+  String revertExtend(int n) {
+    return 'Extend $n min';
+  }
+
+  @override
+  String get revertNow => 'Return now';
+
+  @override
+  String get modeDefaultBanking => 'Banking';
+
+  @override
+  String get modeDefaultDev => 'Dev';
 }

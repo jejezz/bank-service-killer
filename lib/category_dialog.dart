@@ -40,7 +40,6 @@ class _CategoryManagerState extends State<_CategoryManager> {
     if (name.isEmpty) return;
     setState(() {
       if (_d.addCategory(name)) {
-        _d.setBanking(name, true);
         _newCtl.clear();
         _error = null;
       } else {
@@ -89,13 +88,7 @@ class _CategoryManagerState extends State<_CategoryManager> {
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: Tooltip(
-                    message: l.catBankingInclude,
-                    child: Checkbox(
-                      value: _d.bankingCategories.contains(c),
-                      onChanged: (v) => setState(() => _d.setBanking(c, v ?? false)),
-                    ),
-                  ),
+                  leading: const Icon(Icons.label_outline_rounded),
                   title: Text(c, style: AppFonts.userContent),
                   subtitle: Text(l.catItemCount(_d.countIn(c))),
                   trailing: Row(mainAxisSize: MainAxisSize.min, children: [

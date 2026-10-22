@@ -151,10 +151,10 @@
   "helpPurposeBody": "Security programs required for online banking often slow your PC or cause conflicts the rest of the time. This app turns those resident services on only when you bank, turns them off afterwards, and verifies they really started or stopped. Controlling services needs administrator rights, so Windows shows a UAC prompt when you launch it.",
   "helpListTitle": "Where does the service list come from?",
   "helpListBody": "The list is not built automatically. It starts with common banking/security services, and after that you manage it yourself.\n• Add: press + (Ctrl+N) and type a service name or display name; matching services installed on this PC appear below — click one to pick it.\n• Newly installed services are NOT detected automatically; add them yourself. You can find service names in msconfig (Services tab) or services.msc.\n• Partial names match too. \"Not installed / name mismatch\" means the service isn't on this PC or the name differs.\n• The list is saved to %APPDATA%\\BankServiceKiller\\watchlist.json. Refresh (F5) re-reads the current service states.",
-  "helpGroupTitle": "Categories, Banking and Dev mode",
-  "helpGroupBody": "Group services into categories (e.g. keyboard security, certificates, per bank). A service can belong to several categories.\n• Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• The label button lets you create, rename and delete categories. Deleting one keeps its services.\n• Banking mode: turns on the services in categories checked as \"Include in Banking mode\" in Manage categories.\n• Dev mode: turns off every watched service.\n• Both modes are also in the tray icon's right-click menu.",
+  "helpGroupTitle": "Categories and modes",
+  "helpGroupBody": "• Categories: labels that group services (e.g. keyboard security, certificates, per bank). A service can be in several. Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• Modes: target states — what to turn on, what to leave alone and what to turn off. Pick one in the [Banking | Dev …] toggle at the top and the services are started/stopped to match. Services already in the right state are left alone.\n• The current mode is judged from the real service states, not a saved value. If nothing matches it shows 'Mixed'; pressing a mode while mixed only fixes the remaining services.\n• Manage modes (sliders icon) lets you create and edit modes. The ★ default mode is applied when the app starts (including at Windows sign-in) and on auto-return.\n• Auto-return: give a mode a time and it falls back to the default mode afterwards, with a warning 1 minute before.\n• The tray icon's right-click menu also switches modes, with a check on the current one.",
   "helpOnOffTitle": "Turning on and off",
-  "helpOnOffBody": "• Banking/Dev mode, \"Turn … on / off\" and the play/stop button on each row start or stop services right now. If the startup type is Disabled it is set to Manual first, then started.\n• After starting or stopping, the app verifies the real state and writes the result to the log below. After a stop it checks again 3 seconds later in case the service came back.\n• Turning off only stops the service; it doesn't change the startup type. If it is Automatic, it starts again the next time the PC boots.",
+  "helpOnOffBody": "• Switching modes, \"Turn … on / off\" and the play/stop button on each row start or stop services right now. If the startup type is Disabled it is set to Manual first, then started.\n• After starting or stopping, the app verifies the real state and writes the result to the log below. After a stop it checks again 3 seconds later in case the service came back.\n• Turning off only stops the service; it doesn't change the startup type. If it is Automatic, it starts again the next time the PC boots.",
   "helpModeTitle": "Startup type (Automatic / Manual / Disabled)",
   "helpModeBody": "Pick it from the dropdown on a row; it applies immediately. It doesn't start or stop the running service now — it affects how the service starts from the next boot onward.\n• Automatic: starts at boot.\n• Manual: doesn't start at boot; start it with the on button when needed. Recommended for banking services.\n• Disabled: starting is blocked. This app's on button switches it to Manual first, then starts it.\n\"disabled in msconfig\" marks a service you turned off in msconfig.",
   "helpResidentTitle": "Resident mode and startup",
@@ -290,8 +290,7 @@
   "catEmptyFilter": "No services in this category.",
   "catManageTooltip": "Manage categories",
   "catManageTitle": "Manage categories",
-  "catManageHint": "Group services into categories to turn just that group on or off. Checked categories are turned on by Banking mode. Deleting a category keeps its services.",
-  "catBankingInclude": "Include in Banking mode",
+  "catManageHint": "Group services into categories to turn just that group on or off, and to build modes from. Deleting a category keeps its services.",
   "catAddField": "New category name",
   "catRename": "Rename",
   "catDelete": "Delete category",
@@ -309,10 +308,6 @@
   "catDefaultC": "Driver-linked",
   "addDialogCategories": "Categories (pick any)",
   "addDialogNewCategory": "Create a new category",
-  "bankingModeButton": "Banking mode",
-  "bankingModeTooltip": "Turn on the services in the categories set for banking",
-  "devModeButton": "Dev mode",
-  "devModeTooltip": "Turn off every watched service",
   "scopeTurnOn": "Turn {scope} on",
   "@scopeTurnOn": {
     "placeholders": {
@@ -329,22 +324,183 @@
       }
     }
   },
-  "logModeBanking": "Banking mode: turning on {n} services",
-  "@logModeBanking": {
+  "modeCurrent": "Current mode: {name}",
+  "@modeCurrent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modeMixed": "Mixed · {name} {ok}/{total}",
+  "@modeMixed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "ok": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "modeUnknown": "Checking service states…",
+  "modeRevertIn": "Returns to '{name}' in {minutes} min",
+  "@modeRevertIn": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modeToggleTooltip": "Switch to '{name}' mode",
+  "@modeToggleTooltip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modeManageTooltip": "Manage modes",
+  "modeManageTitle": "Manage modes",
+  "modeManageHint": "A mode is a target state: what to turn on, what to leave alone, and what to turn off. Switching turns on the 'on' categories, leaves the 'keep' ones untouched, and turns off every other watched service. The ★ default mode is applied when the app starts and on auto-return.",
+  "modeDefaultHint": "Set as default mode (applied at app start and on auto-return)",
+  "modeDefaultTag": "default",
+  "modeAdd": "Add mode",
+  "modeDelete": "Delete mode (the last one can't be deleted)",
+  "modeNameExists": "That name already exists or can't be used.",
+  "modeNewTitle": "New mode",
+  "modeEditTitle": "Edit mode",
+  "modeName": "Mode name",
+  "modeCategoriesLabel": "What to do per category",
+  "modeCategoriesHint": "On: turned on in this mode · Keep: left untouched · Off: turned off. Services in no category are turned off.",
+  "wantOn": "On",
+  "wantKeep": "Keep",
+  "wantOff": "Off",
+  "modeRevertField": "Auto-return",
+  "modeRevertOff": "Don't return",
+  "modeRevertAfter": "Back to default after {n} min",
+  "@modeRevertAfter": {
     "placeholders": {
       "n": {
         "type": "int"
       }
     }
   },
-  "logModeDev": "Dev mode: turning off {n} services",
-  "@logModeDev": {
+  "modeRevertHint": "After switching to this mode, the default mode is restored once the time is up. You get a warning 1 minute before and can extend.",
+  "modeSummaryOn": "On: {list}",
+  "@modeSummaryOn": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "modeSummaryNoneOn": "Turns nothing on",
+  "modeSummaryKeep": "Keep: {list}",
+  "@modeSummaryKeep": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "logModePlan": "Switching to '{name}': {start} on, {stop} off",
+  "@logModePlan": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "start": {
+        "type": "int"
+      },
+      "stop": {
+        "type": "int"
+      }
+    }
+  },
+  "logModeAlready": "Already in '{name}' mode.",
+  "@logModeAlready": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "logModeDone": "Switched to '{name}' (all service states verified)",
+  "@logModeDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "logModePartial": "Switch to '{name}' is incomplete: {ok}/{total}. Press the mode button again to retry only the remaining services.",
+  "@logModePartial": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "ok": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "logModeRevert": "Auto-return: going back to '{name}'",
+  "@logModeRevert": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "logModeStartup": "App start: applying default mode '{name}'",
+  "@logModeStartup": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "revertWarnTitle": "Returning to '{to}' soon",
+  "@revertWarnTitle": {
+    "placeholders": {
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "revertWarnBody": "It's been {minutes} min since you switched to '{from}'. It will return to '{to}' automatically in 1 minute.",
+  "@revertWarnBody": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "revertExtend": "Extend {n} min",
+  "@revertExtend": {
     "placeholders": {
       "n": {
         "type": "int"
       }
     }
   },
-  "trayBanking": "Banking mode",
-  "trayDev": "Dev mode"
+  "revertNow": "Return now",
+  "modeDefaultBanking": "Banking",
+  "modeDefaultDev": "Dev"
 }

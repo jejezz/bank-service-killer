@@ -533,13 +533,13 @@ abstract class AppLocalizations {
   /// No description provided for @helpGroupTitle.
   ///
   /// In ko, this message translates to:
-  /// **'카테고리와 뱅킹·개발 모드'**
+  /// **'카테고리와 모드'**
   String get helpGroupTitle;
 
   /// No description provided for @helpGroupBody.
   ///
   /// In ko, this message translates to:
-  /// **'서비스를 카테고리로 묶을 수 있어요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요.\n• 위쪽 칩을 누르면 그 카테고리의 서비스만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 라벨 모양 단추에서 카테고리를 만들고, 이름을 바꾸고, 지울 수 있어요. 지워도 서비스는 남아요.\n• 뱅킹 모드: 카테고리 관리에서 \'뱅킹 모드에 포함\'으로 체크한 카테고리의 서비스를 켜요.\n• 개발 모드: 감시 중인 모든 서비스를 꺼요.\n• 두 모드는 트레이 아이콘 우클릭 메뉴에서도 바로 쓸 수 있어요.'**
+  /// **'• 카테고리: 서비스를 묶는 이름표예요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요. 위쪽 칩을 누르면 그 카테고리만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 모드: \'켤 것 · 그대로 둘 것 · 끌 것\'을 정해 둔 목표 상태예요. 위쪽 [뱅킹 | 개발 …] 토글에서 고르면 그 상태가 되도록 서비스를 켜고 꺼요. 이미 맞는 서비스는 건드리지 않아요.\n• 현재 모드는 저장한 값이 아니라 서비스의 실제 상태로 판단해요. 어느 모드와도 맞지 않으면 \'혼합\'으로 보여 줘요. 혼합일 때 모드를 누르면 남은 서비스만 맞춰요.\n• 모드 관리(슬라이더 아이콘)에서 모드를 만들고 고칠 수 있어요. ★ 기본 모드는 앱을 시작할 때(Windows 로그온 포함)와 자동 복귀할 때 적용돼요.\n• 자동 복귀: 모드마다 시간을 정해 두면 그 뒤 기본 모드로 돌아가요. 1분 전에 알려 줘요.\n• 트레이 아이콘 우클릭 메뉴에서도 모드를 바꿀 수 있고, 현재 모드에 체크가 붙어요.'**
   String get helpGroupBody;
 
   /// No description provided for @helpOnOffTitle.
@@ -551,7 +551,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpOnOffBody.
   ///
   /// In ko, this message translates to:
-  /// **'• 뱅킹·개발 모드, \'○○ 켜기 / 끄기\', 그리고 항목 오른쪽의 재생·정지 단추는 서비스를 지금 바로 시작하거나 중지해요. 시작 유형이 \'사용 안 함\'이면 \'수동\'으로 바꾼 뒤 시작해요.\n• 시작·중지 후 실제 상태가 바뀌었는지 확인하고 결과를 아래 로그에 남겨요. 중지 후 3초 뒤 다시 살아났는지도 한 번 더 확인해요.\n• 끄기는 서비스를 멈출 뿐 시작 유형은 바꾸지 않아요. 시작 유형이 \'자동\'이면 PC를 다시 켤 때 서비스가 또 시작돼요.'**
+  /// **'• 모드 전환, \'○○ 켜기 / 끄기\', 그리고 항목 오른쪽의 재생·정지 단추는 서비스를 지금 바로 시작하거나 중지해요. 시작 유형이 \'사용 안 함\'이면 \'수동\'으로 바꾼 뒤 시작해요.\n• 시작·중지 후 실제 상태가 바뀌었는지 확인하고 결과를 아래 로그에 남겨요. 중지 후 3초 뒤 다시 살아났는지도 한 번 더 확인해요.\n• 끄기는 서비스를 멈출 뿐 시작 유형은 바꾸지 않아요. 시작 유형이 \'자동\'이면 PC를 다시 켤 때 서비스가 또 시작돼요.'**
   String get helpOnOffBody;
 
   /// No description provided for @helpModeTitle.
@@ -821,14 +821,8 @@ abstract class AppLocalizations {
   /// No description provided for @catManageHint.
   ///
   /// In ko, this message translates to:
-  /// **'카테고리를 만들어 서비스를 묶어 두면 그 묶음만 켜고 끌 수 있어요. 체크한 카테고리는 \'뱅킹 모드\'에서 켜져요. 카테고리를 지워도 서비스는 남아요.'**
+  /// **'카테고리로 서비스를 묶어 두면 그 묶음만 켜고 끌 수 있고, 모드를 만들 때 재료로 써요. 카테고리를 지워도 서비스는 남아요.'**
   String get catManageHint;
-
-  /// No description provided for @catBankingInclude.
-  ///
-  /// In ko, this message translates to:
-  /// **'뱅킹 모드에 포함'**
-  String get catBankingInclude;
 
   /// No description provided for @catAddField.
   ///
@@ -890,30 +884,6 @@ abstract class AppLocalizations {
   /// **'새 카테고리 만들기'**
   String get addDialogNewCategory;
 
-  /// No description provided for @bankingModeButton.
-  ///
-  /// In ko, this message translates to:
-  /// **'뱅킹 모드'**
-  String get bankingModeButton;
-
-  /// No description provided for @bankingModeTooltip.
-  ///
-  /// In ko, this message translates to:
-  /// **'뱅킹용으로 정한 카테고리의 서비스를 켜요'**
-  String get bankingModeTooltip;
-
-  /// No description provided for @devModeButton.
-  ///
-  /// In ko, this message translates to:
-  /// **'개발 모드'**
-  String get devModeButton;
-
-  /// No description provided for @devModeTooltip.
-  ///
-  /// In ko, this message translates to:
-  /// **'감시 중인 모든 서비스를 꺼요'**
-  String get devModeTooltip;
-
   /// No description provided for @scopeTurnOn.
   ///
   /// In ko, this message translates to:
@@ -926,29 +896,245 @@ abstract class AppLocalizations {
   /// **'{scope} 끄기'**
   String scopeTurnOff(String scope);
 
-  /// No description provided for @logModeBanking.
+  /// No description provided for @modeCurrent.
   ///
   /// In ko, this message translates to:
-  /// **'뱅킹 모드: 서비스 {n}개를 켭니다'**
-  String logModeBanking(int n);
+  /// **'현재 모드: {name}'**
+  String modeCurrent(String name);
 
-  /// No description provided for @logModeDev.
+  /// No description provided for @modeMixed.
   ///
   /// In ko, this message translates to:
-  /// **'개발 모드: 서비스 {n}개를 끕니다'**
-  String logModeDev(int n);
+  /// **'혼합 상태 · {name} {ok}/{total}'**
+  String modeMixed(String name, int ok, int total);
 
-  /// No description provided for @trayBanking.
+  /// No description provided for @modeUnknown.
   ///
   /// In ko, this message translates to:
-  /// **'뱅킹 모드'**
-  String get trayBanking;
+  /// **'서비스 상태를 확인하는 중…'**
+  String get modeUnknown;
 
-  /// No description provided for @trayDev.
+  /// No description provided for @modeRevertIn.
   ///
   /// In ko, this message translates to:
-  /// **'개발 모드'**
-  String get trayDev;
+  /// **'{minutes}분 뒤 \'{name}\' 모드로 돌아가요'**
+  String modeRevertIn(int minutes, String name);
+
+  /// No description provided for @modeToggleTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'눌러서 \'{name}\' 모드로 바꿔요'**
+  String modeToggleTooltip(String name);
+
+  /// No description provided for @modeManageTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'모드 관리'**
+  String get modeManageTooltip;
+
+  /// No description provided for @modeManageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'모드 관리'**
+  String get modeManageTitle;
+
+  /// No description provided for @modeManageHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'모드는 \'켤 것 · 그대로 둘 것 · 끌 것\'을 정해 둔 목표 상태예요. 모드로 바꾸면 켤 카테고리는 켜고, 그대로 둘 카테고리는 건드리지 않고, 나머지 감시 서비스는 모두 꺼요. ★ 표시한 기본 모드는 앱이 시작될 때와 자동 복귀할 때 적용돼요.'**
+  String get modeManageHint;
+
+  /// No description provided for @modeDefaultHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 모드로 지정 (앱 시작·자동 복귀 때 적용)'**
+  String get modeDefaultHint;
+
+  /// No description provided for @modeDefaultTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본'**
+  String get modeDefaultTag;
+
+  /// No description provided for @modeAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'모드 추가'**
+  String get modeAdd;
+
+  /// No description provided for @modeDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'모드 삭제 (마지막 하나는 지울 수 없어요)'**
+  String get modeDelete;
+
+  /// No description provided for @modeNameExists.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 있거나 사용할 수 없는 이름이에요.'**
+  String get modeNameExists;
+
+  /// No description provided for @modeNewTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 모드'**
+  String get modeNewTitle;
+
+  /// No description provided for @modeEditTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'모드 수정'**
+  String get modeEditTitle;
+
+  /// No description provided for @modeName.
+  ///
+  /// In ko, this message translates to:
+  /// **'모드 이름'**
+  String get modeName;
+
+  /// No description provided for @modeCategoriesLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 동작'**
+  String get modeCategoriesLabel;
+
+  /// No description provided for @modeCategoriesHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜기: 이 모드에서 켜요 · 그대로: 건드리지 않아요 · 끄기: 꺼요. 어떤 카테고리에도 속하지 않은 서비스는 꺼요.'**
+  String get modeCategoriesHint;
+
+  /// No description provided for @wantOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜기'**
+  String get wantOn;
+
+  /// No description provided for @wantKeep.
+  ///
+  /// In ko, this message translates to:
+  /// **'그대로'**
+  String get wantKeep;
+
+  /// No description provided for @wantOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'끄기'**
+  String get wantOff;
+
+  /// No description provided for @modeRevertField.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 복귀'**
+  String get modeRevertField;
+
+  /// No description provided for @modeRevertOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'복귀 안 함'**
+  String get modeRevertOff;
+
+  /// No description provided for @modeRevertAfter.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}분 후 기본 모드로'**
+  String modeRevertAfter(int n);
+
+  /// No description provided for @modeRevertHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 모드로 바꾼 뒤 정한 시간이 지나면 기본 모드로 돌아가요. 1분 전에 알려 주고 연장할 수 있어요.'**
+  String get modeRevertHint;
+
+  /// No description provided for @modeSummaryOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜기: {list}'**
+  String modeSummaryOn(String list);
+
+  /// No description provided for @modeSummaryNoneOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜는 것 없음'**
+  String get modeSummaryNoneOn;
+
+  /// No description provided for @modeSummaryKeep.
+  ///
+  /// In ko, this message translates to:
+  /// **'그대로: {list}'**
+  String modeSummaryKeep(String list);
+
+  /// No description provided for @logModePlan.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{name}\' 모드로 전환: 켜기 {start}개, 끄기 {stop}개'**
+  String logModePlan(String name, int start, int stop);
+
+  /// No description provided for @logModeAlready.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 \'{name}\' 모드예요.'**
+  String logModeAlready(String name);
+
+  /// No description provided for @logModeDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{name}\' 모드 전환 완료 (모든 서비스 상태 확인됨)'**
+  String logModeDone(String name);
+
+  /// No description provided for @logModePartial.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{name}\' 모드 전환이 완전하지 않아요: {ok}/{total}. 모드 버튼을 다시 누르면 남은 서비스만 다시 시도해요.'**
+  String logModePartial(String name, int ok, int total);
+
+  /// No description provided for @logModeRevert.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 복귀: \'{name}\' 모드로 돌아갑니다'**
+  String logModeRevert(String name);
+
+  /// No description provided for @logModeStartup.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 시작: 기본 모드 \'{name}\'를 적용합니다'**
+  String logModeStartup(String name);
+
+  /// No description provided for @revertWarnTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'곧 \'{to}\' 모드로 돌아가요'**
+  String revertWarnTitle(String to);
+
+  /// No description provided for @revertWarnBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{from}\' 모드로 바꾼 지 {minutes}분이 지났어요. 1분 뒤 \'{to}\' 모드로 자동으로 돌아가요.'**
+  String revertWarnBody(String from, int minutes, String to);
+
+  /// No description provided for @revertExtend.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}분 연장'**
+  String revertExtend(int n);
+
+  /// No description provided for @revertNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 돌아가기'**
+  String get revertNow;
+
+  /// No description provided for @modeDefaultBanking.
+  ///
+  /// In ko, this message translates to:
+  /// **'뱅킹'**
+  String get modeDefaultBanking;
+
+  /// No description provided for @modeDefaultDev.
+  ///
+  /// In ko, this message translates to:
+  /// **'개발'**
+  String get modeDefaultDev;
 }
 
 class _AppLocalizationsDelegate

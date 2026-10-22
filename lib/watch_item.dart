@@ -15,7 +15,7 @@ class WatchItem {
 
   Map<String, dynamic> toJson() => {'name': name, 'categories': categories, 'note': note};
 
-  /// v2: `categories` 목록. v1: 단일 `group`(A/B/C)을 [legacyGroups]로 카테고리 이름에 옮긴다.
+  /// v2~: `categories` 목록. v1: 단일 `group`(A/B/C)을 [legacyGroups]로 카테고리 이름에 옮긴다.
   factory WatchItem.fromJson(Map<String, dynamic> j, {Map<String, String> legacyGroups = const {}}) {
     final raw = j['categories'];
     final List<String> cats;
@@ -29,45 +29,114 @@ class WatchItem {
   }
 }
 
-/// 감시 목록 전체: 카테고리(순서 있음) + 항목 + 뱅킹 모드에 켤 카테고리.
+/// 모드: 이름 붙은 "목표 상태".
+/// [on] 카테고리의 서비스는 켜고, [keep] 카테고리의 서비스는 건드리지 않고,
+/// 나머지 감시 서비스는 모두 끈다. (한 서비스가 on 과 keep 에 모두 속하면 on 이 이긴다.)
+class WatchMode {
+  final String name;
+  final List<String> on;
+  final List<String> keep;
+
+  /// 이 모드로 바꾼 뒤 기본 모드로 자동 복귀하기까지 분. 0 이면 복귀하지 않는다.
+  final int revertMinutes;
+
+  const WatchMode(this.name, {this.on = const [], this.keep = const [], this.revertMinutes = 0});
+
+  WatchMode copyWith({String? name, List<String>? on, List<String>? keep, int? revertMinutes}) => WatchMode(
+        name ?? this.name,
+        on: on ?? this.on,
+        keep: keep ?? this.keep,
+        revertMinutes: revertMinutes ?? this.revertMinutes,
+      );
+
+  Map<String, dynamic> toJson() => {'name': name, 'on': on, 'keep': keep, 'revertMinutes': revertMinutes};
+
+  factory WatchMode.fromJson(Map<String, dynamic> j) => WatchMode(
+        j['name'] as String,
+        on: [for (final c in (j['on'] as List? ?? const [])) c.toString()],
+        keep: [for (final c in (j['keep'] as List? ?? const [])) c.toString()],
+        revertMinutes: (j['revertMinutes'] ?? 0) as int,
+      );
+}
+
+/// 처음 만들 때·옛 파일을 옮길 때 쓰는 표시 언어별 이름들.
+class WatchDefaults {
+  const WatchDefaults({
+    required this.groupA,
+    required this.groupB,
+    required this.groupC,
+    required this.bankingMode,
+    required this.devMode,
+  });
+
+  final String groupA;
+  final String groupB;
+  final String groupC;
+  final String bankingMode;
+  final String devMode;
+
+  Map<String, String> get legacyGroups => {'A': groupA, 'B': groupB, 'C': groupC};
+}
+
+/// 감시 목록 전체: 카테고리(순서 있음) + 항목 + 모드.
 class WatchData {
   WatchData({
     required List<String> categories,
     required List<WatchItem> items,
-    List<String>? bankingCategories,
+    List<WatchMode> modes = const [],
+    String? defaultMode,
   })  : categories = List.of(categories),
         items = List.of(items),
-        bankingCategories = List.of(bankingCategories ?? const []) {
-    _syncCategories();
-    // 지정하지 않으면 모든 카테고리가 뱅킹 모드 대상이다.
-    if (bankingCategories == null) this.bankingCategories.addAll(this.categories);
+        modes = List.of(modes),
+        _defaultMode = defaultMode {
+    _sync();
   }
 
-  static const version = 2;
+  static const version = 3;
 
   final List<String> categories;
   final List<WatchItem> items;
+  final List<WatchMode> modes;
+  String? _defaultMode;
 
-  /// "뱅킹 모드"가 켜는 카테고리.
-  final List<String> bankingCategories;
+  /// 앱을 시작하거나 자동 복귀할 때 적용하는 모드 이름. 모드가 없으면 null.
+  String? get defaultMode => _defaultMode;
 
-  /// 항목이 쓰는 카테고리가 목록에 없으면 뒤에 붙인다.
-  void _syncCategories() {
+  /// 항목이 쓰는 카테고리를 목록에 보충하고, 모드가 가리키는 없는 카테고리·기본 모드를 바로잡는다.
+  void _sync() {
     for (final it in items) {
       for (final c in it.categories) {
         if (!categories.contains(c)) categories.add(c);
       }
     }
-    bankingCategories.removeWhere((c) => !categories.contains(c));
+    for (var i = 0; i < modes.length; i++) {
+      final m = modes[i];
+      modes[i] = m.copyWith(
+        on: m.on.where(categories.contains).toList(),
+        keep: m.keep.where(categories.contains).toList(),
+      );
+    }
+    if (modes.isEmpty) {
+      _defaultMode = null;
+    } else if (_defaultMode == null || !modes.any((m) => m.name == _defaultMode)) {
+      _defaultMode = modes.first.name;
+    }
   }
 
-  WatchData copy() => WatchData(categories: categories, items: items, bankingCategories: bankingCategories);
+  WatchData copy() => WatchData(categories: categories, items: items, modes: modes, defaultMode: _defaultMode);
 
-  bool isInBankingMode(WatchItem item) => item.categories.any(bankingCategories.contains);
+  WatchMode? modeNamed(String? name) {
+    for (final m in modes) {
+      if (m.name == name) return m;
+    }
+    return null;
+  }
 
   int countIn(String category) => items.where((i) => i.categories.contains(category)).length;
 
   int get uncategorizedCount => items.where((i) => i.categories.isEmpty).length;
+
+  // ── 카테고리 편집 ─────────────────────────────────────────
 
   /// 카테고리를 추가한다. 이미 있거나 빈 이름이면 false.
   bool addCategory(String name) {
@@ -77,98 +146,147 @@ class WatchData {
     return true;
   }
 
-  /// 이름을 바꾼다. 항목·뱅킹 모드 설정도 따라 바뀐다. 겹치거나 빈 이름이면 false.
+  void _replaceAll<T>(List<T> target, List<T> source) => target
+    ..clear()
+    ..addAll(source);
+
+  /// 이름을 바꾼다. 항목·모드도 따라 바뀐다. 겹치거나 빈 이름이면 false.
   bool renameCategory(String from, String to) {
     final n = to.trim();
     if (n.isEmpty || (n != from && categories.contains(n))) return false;
     String map(String c) => c == from ? n : c;
-    final cats = categories.map(map).toList();
-    final bank = bankingCategories.map(map).toList();
-    final its = [for (final i in items) i.copyWith(categories: i.categories.map(map).toList())];
-    categories
-      ..clear()
-      ..addAll(cats);
-    bankingCategories
-      ..clear()
-      ..addAll(bank);
-    items
-      ..clear()
-      ..addAll(its);
+    _replaceAll(categories, categories.map(map).toList());
+    _replaceAll(items, [for (final i in items) i.copyWith(categories: i.categories.map(map).toList())]);
+    _replaceAll(modes, [
+      for (final m in modes) m.copyWith(on: m.on.map(map).toList(), keep: m.keep.map(map).toList())
+    ]);
     return true;
   }
 
   /// 카테고리만 지운다. 서비스 항목은 남고 그 카테고리에서만 빠진다.
   void deleteCategory(String name) {
     categories.remove(name);
-    bankingCategories.remove(name);
-    final its = [
+    _replaceAll(items, [
       for (final i in items) i.copyWith(categories: i.categories.where((c) => c != name).toList())
-    ];
-    items
-      ..clear()
-      ..addAll(its);
+    ]);
+    _replaceAll(modes, [
+      for (final m in modes)
+        m.copyWith(on: m.on.where((c) => c != name).toList(), keep: m.keep.where((c) => c != name).toList())
+    ]);
   }
 
-  void setBanking(String category, bool on) {
-    if (!categories.contains(category)) return;
-    if (on) {
-      if (!bankingCategories.contains(category)) bankingCategories.add(category);
-    } else {
-      bankingCategories.remove(category);
-    }
+  // ── 모드 편집 ─────────────────────────────────────────────
+
+  /// 모드를 추가한다. 이름이 비었거나 겹치면 false.
+  bool addMode(WatchMode mode) {
+    final n = mode.name.trim();
+    if (n.isEmpty || modes.any((m) => m.name == n)) return false;
+    modes.add(mode.copyWith(name: n));
+    _sync();
+    return true;
   }
+
+  /// [name] 모드를 [mode]로 바꾼다 (이름 변경 포함). 이름이 비었거나 다른 모드와 겹치면 false.
+  bool updateMode(String name, WatchMode mode) {
+    final i = modes.indexWhere((m) => m.name == name);
+    final n = mode.name.trim();
+    if (i < 0 || n.isEmpty || modes.any((m) => m.name == n && m.name != name)) return false;
+    modes[i] = mode.copyWith(name: n);
+    if (_defaultMode == name) _defaultMode = n;
+    _sync();
+    return true;
+  }
+
+  /// 마지막 하나는 지울 수 없다. 기본 모드를 지우면 첫 모드가 기본이 된다.
+  bool deleteMode(String name) {
+    if (modes.length <= 1) return false;
+    modes.removeWhere((m) => m.name == name);
+    _sync();
+    return true;
+  }
+
+  bool setDefaultMode(String name) {
+    if (!modes.any((m) => m.name == name)) return false;
+    _defaultMode = name;
+    return true;
+  }
+
+  // ── 저장 형식 ─────────────────────────────────────────────
 
   Map<String, dynamic> toJson() => {
         'version': version,
         'categories': categories,
-        'bankingCategories': bankingCategories,
+        'modes': modes.map((m) => m.toJson()).toList(),
+        'defaultMode': _defaultMode,
         'items': items.map((e) => e.toJson()).toList(),
       };
 
-  /// v2(객체) 또는 v1(항목 배열, group A/B/C)을 읽는다.
-  /// [legacyGroups]는 v1의 A/B/C → 카테고리 이름 (표시 언어로 만든다).
-  factory WatchData.fromJson(Object? json, {required Map<String, String> legacyGroups}) {
+  /// v3(모드), v2(뱅킹 카테고리), v1(항목 배열, group A/B/C)을 모두 읽는다.
+  factory WatchData.fromJson(Object? json, {required WatchDefaults defaults}) {
+    final legacy = defaults.legacyGroups;
     if (json is Map<String, dynamic>) {
       final items = [
         for (final e in (json['items'] as List? ?? const []))
-          WatchItem.fromJson(e as Map<String, dynamic>, legacyGroups: legacyGroups)
+          WatchItem.fromJson(e as Map<String, dynamic>, legacyGroups: legacy)
       ];
       final cats = [for (final c in (json['categories'] as List? ?? const [])) c.toString()];
+      if (json['modes'] is List) {
+        return WatchData(
+          categories: cats,
+          items: items,
+          modes: [for (final m in json['modes'] as List) WatchMode.fromJson(m as Map<String, dynamic>)],
+          defaultMode: json['defaultMode'] as String?,
+        );
+      }
+      // v2: bankingCategories → 뱅킹/개발 두 모드.
+      final all = {...cats, for (final i in items) ...i.categories}.toList();
       final banking = json['bankingCategories'] is List
           ? [for (final c in json['bankingCategories'] as List) c.toString()]
-          : null;
-      return WatchData(categories: cats, items: items, bankingCategories: banking);
+          : all;
+      return WatchData(
+        categories: all,
+        items: items,
+        modes: _bankingAndDev(defaults, on: banking, keep: all.where((c) => !banking.contains(c)).toList()),
+        defaultMode: defaults.devMode,
+      );
     }
     final items = [
-      for (final e in (json as List))
-        WatchItem.fromJson(e as Map<String, dynamic>, legacyGroups: legacyGroups)
+      for (final e in (json as List)) WatchItem.fromJson(e as Map<String, dynamic>, legacyGroups: legacy)
     ];
-    return WatchData._fromLegacy(items, legacyGroups);
+    return _fresh(items, defaults);
   }
 
-  factory WatchData._fromLegacy(List<WatchItem> items, Map<String, String> legacyGroups) {
+  static List<WatchMode> _bankingAndDev(WatchDefaults d,
+          {required List<String> on, required List<String> keep}) =>
+      [
+        WatchMode(d.bankingMode, on: on, keep: keep, revertMinutes: 30),
+        WatchMode(d.devMode),
+      ];
+
+  /// 항목만 있고 모드가 없을 때(v1·처음 실행): A 는 "보안 무관" 이라 뱅킹 모드에서 건드리지 않는다.
+  static WatchData _fresh(List<WatchItem> items, WatchDefaults d) {
     final used = {for (final i in items) ...i.categories};
-    final legacyNames = legacyGroups.values;
-    final cats = [
-      ...legacyNames.where(used.contains),
-      ...used.where((c) => !legacyNames.contains(c)),
-    ];
-    // v1에서 A는 "보안 무관" 이라 뱅킹 모드에는 넣지 않는다.
-    final notSecurity = legacyGroups['A'];
+    final names = d.legacyGroups.values;
+    final cats = [...names.where(used.contains), ...used.where((c) => !names.contains(c))];
     return WatchData(
       categories: cats,
       items: items,
-      bankingCategories: cats.where((c) => c != notSecurity).toList(),
+      modes: _bankingAndDev(
+        d,
+        on: cats.where((c) => c != d.groupA).toList(),
+        keep: cats.where((c) => c == d.groupA).toList(),
+      ),
+      defaultMode: d.devMode,
     );
   }
 
   /// 처음 실행할 때의 기본 목록.
-  factory WatchData.defaults(Map<String, String> legacyGroups) {
-    final items = [
+  factory WatchData.defaults(WatchDefaults d) {
+    final legacy = d.legacyGroups;
+    return _fresh([
       for (final (name, group, note) in _defaultItems)
-        WatchItem(name, categories: [legacyGroups[group] ?? group], note: note),
-    ];
-    return WatchData._fromLegacy(items, legacyGroups);
+        WatchItem(name, categories: [legacy[group] ?? group], note: note),
+    ], d);
   }
 }
 
@@ -202,15 +320,14 @@ class WatchStore {
     return File('$base\\BankBreaker\\watchlist.json');
   }
 
-  /// [legacyGroups]: v1 파일의 그룹 A/B/C 를 옮겨 담을 카테고리 이름.
-  static Future<WatchData> load({required Map<String, String> legacyGroups}) async {
+  static Future<WatchData> load({required WatchDefaults defaults}) async {
     try {
       final file = await _file.exists() ? _file : _legacyFile;
       if (await file.exists()) {
-        return WatchData.fromJson(jsonDecode(await file.readAsString()), legacyGroups: legacyGroups);
+        return WatchData.fromJson(jsonDecode(await file.readAsString()), defaults: defaults);
       }
     } catch (_) {}
-    return WatchData.defaults(legacyGroups);
+    return WatchData.defaults(defaults);
   }
 
   static Future<void> save(WatchData data) async {

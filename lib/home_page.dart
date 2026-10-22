@@ -1,12 +1,16 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'category_dialog.dart';
 import 'help_dialog.dart';
 import 'l10n/app_localizations.dart';
 import 'mode_actions.dart';
+import 'mode_dialog.dart';
+import 'mode_engine.dart';
 import 'service_manager.dart';
 import 'settings/app_settings.dart';
 import 'settings/settings_menus.dart';
@@ -24,12 +28,15 @@ class SvcRow {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.onAbout, this.modeActions});
+  const HomePage({super.key, required this.onAbout, this.modeActions, this.applyDefaultModeAtStart = false});
 
   final VoidCallback onAbout;
 
-  /// 트레이 메뉴 같은 바깥에서 뱅킹/개발 모드를 부를 수 있게 연결한다.
+  /// 트레이 메뉴 같은 바깥에서 모드를 바꾸고 상태를 알 수 있게 연결한다.
   final ModeActions? modeActions;
+
+  /// 시작프로그램(--background)으로 떴을 때: 목록을 읽은 뒤 기본 모드를 적용한다.
+  final bool applyDefaultModeAtStart;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -48,22 +55,30 @@ class _HomePageState extends State<HomePage> {
   bool _loaded = false;
   double? _logHeight;
 
+  // ── 모드 ──
+  ModeStatus _status = const ModeStatus();
+  bool _switching = false;
+  String? _lastMode; // 마지막으로 적용한 모드 (여러 모드가 동시에 맞을 때 우선)
+  Timer? _revertTimer;
+  Timer? _warnTimer;
+  Timer? _tickTimer;
+  DateTime? _revertAt;
+  String? _revertFrom; // 자동 복귀 타이머가 걸린 모드
+  BuildContext? _warnContext;
+
   AppLocalizations get _l10n => AppLocalizations.of(context);
 
   @override
   void initState() {
     super.initState();
-    widget.modeActions
-      ?..banking = _bankingMode
-      ..dev = _devMode;
+    widget.modeActions?.apply = _applyMode;
     _init();
   }
 
   @override
   void dispose() {
-    widget.modeActions
-      ?..banking = null
-      ..dev = null;
+    _cancelRevert(closeDialog: false);
+    widget.modeActions?.detach();
     super.dispose();
   }
 
@@ -72,13 +87,23 @@ class _HomePageState extends State<HomePage> {
     await Future<void>.delayed(Duration.zero);
     if (!mounted) return;
     final l = _l10n;
-    _data = await WatchStore.load(legacyGroups: {
-      'A': l.catDefaultA,
-      'B': l.catDefaultB,
-      'C': l.catDefaultC,
-    });
+    _data = await WatchStore.load(
+      defaults: WatchDefaults(
+        groupA: l.catDefaultA,
+        groupB: l.catDefaultB,
+        groupC: l.catDefaultC,
+        bankingMode: l.modeDefaultBanking,
+        devMode: l.modeDefaultDev,
+      ),
+    );
     _admin = await ServiceManager.isAdmin();
     await _refresh();
+    // 로그온 때 자동 시작이면 PC가 늘 같은 상태(기본 모드)에서 출발하게 한다.
+    final start = _data.defaultMode;
+    if (mounted && widget.applyDefaultModeAtStart && _admin && start != null) {
+      _addLog(_l10n.logModeStartup(start));
+      await _applyMode(start);
+    }
   }
 
   void _addLog(String s) {
@@ -111,31 +136,34 @@ class _HomePageState extends State<HomePage> {
     }
     if (mounted) {
       setState(() {
-        _busy = false;
+        _busy = _switching; // 모드 전환 중에는 잠금을 풀지 않는다.
         _loaded = true;
+        _updateStatus();
       });
     }
   }
 
   /// 시작 유형을 Manual 로 맞춘 뒤 시작하고 실제 상태를 검증.
-  Future<void> _turnOn(SvcRow r) async {
+  Future<bool> _turnOn(SvcRow r) async {
     final s = r.svc;
-    if (s == null) return;
+    if (s == null) return false;
     if (s.startMode == 'Disabled') {
       final c = await ServiceManager.setStartMode(s.name, 'demand');
-      if (!mounted) return;
+      if (!mounted) return false;
       _logResult(s.name, c);
-      if (!c.ok) return;
+      if (!c.ok) return false;
     }
     final res = await ServiceManager.start(s.name);
     if (mounted) _logResult(s.name, res, withStatus: true);
+    return res.ok;
   }
 
-  Future<void> _turnOff(SvcRow r) async {
+  Future<bool> _turnOff(SvcRow r) async {
     final s = r.svc;
-    if (s == null) return;
+    if (s == null) return false;
     final res = await ServiceManager.stop(s.name);
     if (mounted) _logResult(s.name, res, withStatus: true);
+    return res.ok;
   }
 
   /// 지금 필터에 보이는 항목.
@@ -151,7 +179,7 @@ class _HomePageState extends State<HomePage> {
         final c => c,
       };
 
-  Future<void> _runRows(List<SvcRow> rows, Future<void> Function(SvcRow) op) async {
+  Future<void> _runRows(List<SvcRow> rows, Future<bool> Function(SvcRow) op) async {
     setState(() => _busy = true);
     for (final r in rows) {
       if (r.svc != null) await op(r);
@@ -159,19 +187,154 @@ class _HomePageState extends State<HomePage> {
     await _refresh();
   }
 
-  /// 뱅킹 모드: 뱅킹용으로 정한 카테고리의 서비스를 켠다.
-  Future<void> _bankingMode() async {
-    if (_busy) return;
-    final rows = [for (final r in _rows) if (_data.isInBankingMode(r.item)) r];
-    _addLog(_l10n.logModeBanking(rows.length));
-    await _runRows(rows, _turnOn);
+  // ── 모드 ─────────────────────────────────────────────────
+
+  List<ItemState> get _states => [for (final r in _rows) ItemState(r.item, r.svc?.running)];
+
+  /// 서비스의 실제 상태로 현재 모드를 다시 판정하고, 트레이 쪽에도 알린다.
+  void _updateStatus() {
+    _status = detect(_data, _states, preferred: _lastMode);
+    final l = _l10n;
+    final cur = _status.current;
+    // 자동 복귀 타이머는 그 모드에 머무는 동안만 의미가 있다.
+    if (cur == null || cur.name != _revertFrom) _cancelRevert();
+    widget.modeActions?.update(
+      names: [for (final m in _data.modes) m.name],
+      current: cur?.name,
+      summary: _statusText(l),
+    );
   }
 
-  /// 개발 모드: 감시 중인 서비스를 모두 끈다.
-  Future<void> _devMode() async {
-    if (_busy) return;
-    _addLog(_l10n.logModeDev(_rows.length));
-    await _runRows(_rows, _turnOff);
+  String _statusText(AppLocalizations l) {
+    final cur = _status.current;
+    if (cur != null) return l.modeCurrent(cur.name);
+    final c = _status.closest;
+    if (c == null) return l.modeUnknown;
+    return l.modeMixed(c.name, _status.closestProgress.ok, _status.closestProgress.total);
+  }
+
+  /// 이름의 모드로 바꾼다: 계획 → 끄기(거꾸로) → 켜기 → 실제 상태 검증 → 보고.
+  /// 혼합일 때 다시 부르면 아직 맞지 않은 서비스만 다시 시도한다.
+  Future<void> _applyMode(String name) async {
+    if (_busy || _switching) return;
+    final mode = _data.modeNamed(name);
+    if (mode == null) return;
+    final l = _l10n;
+    setState(() {
+      _switching = true;
+      _busy = true;
+    });
+    await _refresh(); // 계획은 방금 읽은 실제 상태로 세운다.
+    if (!mounted) return;
+    final plan = planFor(mode, _states);
+    final byName = {for (final r in _rows) r.item.name: r};
+    if (plan.isEmpty) {
+      _addLog(l.logModeAlready(name));
+    } else {
+      _addLog(l.logModePlan(name, plan.start.length, plan.stop.length));
+      for (final it in plan.stop) {
+        await _turnOff(byName[it.name]!);
+      }
+      for (final it in plan.start) {
+        await _turnOn(byName[it.name]!);
+      }
+    }
+    _lastMode = name;
+    await _refresh();
+    if (!mounted) return;
+    setState(() => _switching = false);
+    final cur = _status.current;
+    if (cur?.name == name) {
+      if (!plan.isEmpty) _addLog(l.logModeDone(name));
+      _scheduleRevert(mode);
+    } else {
+      _addLog(l.logModePartial(name, _status.closestProgress.ok, _status.closestProgress.total));
+    }
+    setState(() => _busy = false);
+  }
+
+  // ── 자동 복귀 ──
+
+  void _cancelRevert({bool closeDialog = true}) {
+    _revertTimer?.cancel();
+    _warnTimer?.cancel();
+    _tickTimer?.cancel();
+    _revertTimer = _warnTimer = _tickTimer = null;
+    _revertAt = null;
+    _revertFrom = null;
+    final ctx = _warnContext;
+    if (closeDialog && ctx != null && ctx.mounted) Navigator.of(ctx).pop();
+    _warnContext = null;
+  }
+
+  /// [mode]에 머무는 시간이 정해져 있으면 기본 모드로 돌아갈 타이머를 건다.
+  void _scheduleRevert(WatchMode mode, {int? minutes}) {
+    _cancelRevert();
+    final back = _data.defaultMode;
+    final mins = minutes ?? mode.revertMinutes;
+    if (mins <= 0 || back == null || back == mode.name) return;
+    final total = Duration(minutes: mins);
+    _revertFrom = mode.name;
+    _revertAt = DateTime.now().add(total);
+    _revertTimer = Timer(total, () => _revertNow(mode.name));
+    if (total > const Duration(minutes: 1)) {
+      _warnTimer = Timer(total - const Duration(minutes: 1), () => _warnRevert(mode, mins));
+    }
+    // 남은 시간 표시를 분 단위로 갱신한다.
+    _tickTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _revertNow(String from) async {
+    final back = _data.defaultMode;
+    if (!mounted || back == null || _revertFrom != from) return;
+    _addLog(_l10n.logModeRevert(back));
+    _cancelRevert();
+    await _applyMode(back);
+  }
+
+  /// 1분 전 알림: 창을 앞으로 가져와 연장하거나 지금 돌아갈지 묻는다.
+  Future<void> _warnRevert(WatchMode mode, int mins) async {
+    final back = _data.defaultMode;
+    if (!mounted || back == null || _revertFrom != mode.name) return;
+    await windowManager.show();
+    await windowManager.focus();
+    if (!mounted) return;
+    final l = _l10n;
+    final answer = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        _warnContext = ctx;
+        return AlertDialog(
+          title: Text(l.revertWarnTitle(back)),
+          content: Text(l.revertWarnBody(mode.name, mins, back)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, 'now'), child: Text(l.revertNow)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, 'extend'), child: Text(l.revertExtend(mins))),
+          ],
+        );
+      },
+    );
+    _warnContext = null;
+    if (!mounted || _revertFrom != mode.name) return; // 그 사이 모드가 바뀌었거나 복귀가 끝났다.
+    if (answer == 'extend') {
+      _scheduleRevert(mode, minutes: mins);
+    } else if (answer == 'now') {
+      await _revertNow(mode.name);
+    }
+  }
+
+  Future<void> _manageModes() async {
+    final result = await showModeManager(context, _data);
+    if (result == null) return;
+    setState(() {
+      _data = result;
+      _updateStatus();
+    });
+    await WatchStore.save(_data);
   }
 
   Future<void> _manageCategories() async {
@@ -438,22 +601,13 @@ class _HomePageState extends State<HomePage> {
                 runSpacing: AppSpacing.sm,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Tooltip(
-                    message: l.bankingModeTooltip,
-                    child: FilledButton.icon(
-                      onPressed: _busy || _rows.isEmpty ? null : _bankingMode,
-                      icon: const Icon(Icons.account_balance_rounded),
-                      label: Text(l.bankingModeButton),
-                    ),
+                  _modeToggle(l),
+                  IconButton(
+                    tooltip: l.modeManageTooltip,
+                    onPressed: _busy ? null : _manageModes,
+                    icon: Icon(Icons.tune_rounded, color: _editColor),
                   ),
-                  Tooltip(
-                    message: l.devModeTooltip,
-                    child: OutlinedButton.icon(
-                      onPressed: _busy || _rows.isEmpty ? null : _devMode,
-                      icon: const Icon(Icons.code_rounded),
-                      label: Text(l.devModeButton),
-                    ),
-                  ),
+                  _modeStatus(l, theme),
                   const SizedBox(width: AppSpacing.md),
                   TextButton.icon(
                     onPressed: _busy || _visible.isEmpty ? null : () => _runRows(_visible, _turnOn),
@@ -544,6 +698,53 @@ class _HomePageState extends State<HomePage> {
           FilledButton(onPressed: _busy ? null : _addDialog, child: Text(l.homeEmptyAction)),
         ]),
       );
+
+  /// [뱅킹 | 개발 | …] 토글. 현재 모드가 눌려 보이고, 혼합이면 아무것도 눌려 있지 않다.
+  Widget _modeToggle(AppLocalizations l) {
+    final cur = _status.current?.name;
+    return SegmentedButton<String>(
+      emptySelectionAllowed: true,
+      showSelectedIcon: false,
+      segments: [
+        for (final m in _data.modes)
+          ButtonSegment(
+            value: m.name,
+            tooltip: l.modeToggleTooltip(m.name),
+            label: Text(m.name, style: AppFonts.userContent),
+          ),
+      ],
+      selected: {if (cur != null) cur},
+      // 눌린 모드를 다시 누르면 빈 선택이 오는데, 그때도 그 모드를 다시 맞춘다.
+      onSelectionChanged: _busy || _rows.isEmpty
+          ? null
+          : (sel) {
+              final target = sel.isNotEmpty ? sel.first : cur;
+              if (target != null) _applyMode(target);
+            },
+    );
+  }
+
+  /// "현재 모드: 뱅킹" / "혼합 상태 · 뱅킹 7/9" + 자동 복귀까지 남은 시간.
+  Widget _modeStatus(AppLocalizations l, ThemeData theme) {
+    final at = _revertAt;
+    final back = _data.defaultMode;
+    String? revert;
+    if (at != null && back != null) {
+      final left = at.difference(DateTime.now()).inSeconds;
+      revert = l.modeRevertIn(left <= 0 ? 0 : (left / 60).ceil(), back);
+    }
+    final mixed = _status.current == null && _loaded && _status.closest != null;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(
+          _loaded ? _statusText(l) : l.modeUnknown,
+          style: theme.textTheme.labelLarge?.copyWith(color: mixed ? _toolColor : null),
+        ),
+        if (revert != null) Text(revert, style: theme.textTheme.bodySmall),
+      ]),
+    );
+  }
 
   /// 카테고리 필터 칩 + 카테고리 관리 단추.
   Widget _categoryBar(AppLocalizations l) {
