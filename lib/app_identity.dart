@@ -38,7 +38,7 @@ abstract final class AppIdentity {
   );
 
   /// 카탈로그 서명 확인용 Ed25519 공개키(base64). tool/catalog/keygen.dart 가 만든다.
-  /// **빈 값이면 원격 카탈로그 갱신을 끈다** — 앱에 들어 있는 기본 카탈로그만 쓴다.
+  /// 비어 있으면 앱에 들어 있는 `catalog/public_key.txt` 를 쓴다(lib/catalog/public_key.dart). 둘 다 없으면 원격 갱신을 끈다.
   static const catalogPublicKey = String.fromEnvironment('CATALOG_PUBLIC_KEY');
 
   /// 카탈로그에 없는 서비스를 신고하는 이슈 주소.

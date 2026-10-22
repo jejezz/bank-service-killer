@@ -36,6 +36,7 @@ flutter:
     - assets/icon/app_icon.png
     - assets/icon/app_icon.ico
     - catalog/catalog.json
+    - catalog/public_key.txt
     - assets/licenses/
   fonts:
     - family: SeoulNamsan

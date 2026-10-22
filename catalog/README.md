@@ -63,11 +63,11 @@
 dart run tool/catalog/keygen.dart
 ```
 
-- **PUBLIC**은 `catalog/public_key.txt`에 넣고 커밋해요.
+- **PUBLIC**은 `catalog/public_key.txt`에 넣고 커밋해요. **이 파일이 앱에 그대로 들어가요** — 빌드할 때 따로 넣을 게 없어요.
+  앱은 실행할 때 앱 안에 든 이 파일을 읽어요 (네트워크에서 받은 파일이 아니에요).
 - **SECRET**은 비밀번호 관리자에만 보관하고 **저장소에 넣지 않아요.** 잃으면 새 키를 만들어 앱을 다시 배포해야 해요.
-- 앱에 공개키를 박으려면 빌드 때 `--dart-define=CATALOG_PUBLIC_KEY=<PUBLIC>`을 줘요.
-  릴리스 워크플로는 저장소 변수 `CATALOG_PUBLIC_KEY`를 읽어요 (Settings → Secrets and variables → Actions → Variables).
-- **공개키가 비어 있으면 앱은 원격 갱신을 끄고** 앱에 들어 있는 카탈로그만 써요. 서명 없이 받은 데이터는 절대 쓰지 않아요.
+- 개발 중에 다른 키를 시험하려면 `--dart-define=CATALOG_PUBLIC_KEY=<PUBLIC>`으로 덮어쓸 수 있어요 (값이 있으면 파일보다 우선).
+- **공개키가 비어 있거나 형식이 틀리면 앱은 원격 갱신을 끄고** 앱에 들어 있는 카탈로그만 써요. 서명 없이 받은 데이터는 절대 쓰지 않아요.
 
 ## 보안 모델
 

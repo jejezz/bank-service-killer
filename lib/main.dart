@@ -16,6 +16,7 @@ import 'package:window_manager/window_manager.dart';
 import 'about/about_dialog.dart';
 import 'catalog/catalog.dart';
 import 'catalog/catalog_controller.dart';
+import 'catalog/public_key.dart';
 import 'about/app_menu_bar.dart';
 import 'about/extra_licenses.dart';
 import 'app_identity.dart';
@@ -80,7 +81,10 @@ Future<CatalogController> _createCatalog() async {
   final controller = CatalogController(
     bundled: bundled,
     cacheDir: Directory('$base\\BankServiceKiller\\catalog'),
-    publicKey: AppIdentity.catalogPublicKey,
+    publicKey: await resolveCatalogPublicKey(
+      defined: AppIdentity.catalogPublicKey,
+      readAsset: () => rootBundle.loadString('catalog/public_key.txt'),
+    ),
     url: url.isEmpty ? null : Uri.parse(url),
   );
   await controller.init();

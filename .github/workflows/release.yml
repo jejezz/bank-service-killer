@@ -149,9 +149,8 @@ jobs:
 
       - run: flutter pub get
 
-      # CATALOG_PUBLIC_KEY (저장소 변수)는 카탈로그 서명 확인용 공개키다. 비어 있으면 앱이 원격 카탈로그
-      # 갱신을 끄고 들어 있는 카탈로그만 쓴다 (catalog/README.md).
-      - run: flutter build windows --release --dart-define=APP_VERSION=${{ env.VERSION }} --dart-define=CATALOG_PUBLIC_KEY=${{ vars.CATALOG_PUBLIC_KEY }}
+      # 카탈로그 서명 확인용 공개키는 앱에 들어가는 catalog/public_key.txt 에서 읽는다 (catalog/README.md).
+      - run: flutter build windows --release --dart-define=APP_VERSION=${{ env.VERSION }}
 
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
