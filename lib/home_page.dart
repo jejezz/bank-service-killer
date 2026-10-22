@@ -12,6 +12,7 @@ import 'catalog/discovery.dart';
 import 'catalog/heuristics.dart';
 import 'catalog/installed.dart';
 import 'catalog/seen_state.dart';
+import 'catalog/setup_dialog.dart';
 import 'category_dialog.dart';
 import 'help_dialog.dart';
 import 'l10n/app_localizations.dart';
@@ -116,6 +117,8 @@ class _HomePageState extends State<HomePage> {
     await Future<void>.delayed(Duration.zero);
     if (!mounted) return;
     final l = _l10n;
+    // 저장된 목록이 없으면 새로 설치한 것이다 (첫 실행 마법사 대상).
+    final firstRun = !await WatchStore.hasSaved();
     _data = await WatchStore.load(
       defaults: WatchDefaults(
         groupA: l.catDefaultA,
@@ -128,6 +131,8 @@ class _HomePageState extends State<HomePage> {
     _seen = await SeenStore.load();
     _admin = await ServiceManager.isAdmin();
     await _refresh();
+    // 로그온 때 자동 시작(창 없음)으로 처음 뜬 것이면 마법사를 미루고, 사용자가 창을 연 첫 실행에 보여 준다.
+    if (mounted && firstRun && !widget.applyDefaultModeAtStart) await _firstRun();
     // 로그온 때 자동 시작이면 PC가 늘 같은 상태(기본 모드)에서 출발하게 한다.
     final start = _data.defaultMode;
     if (mounted && widget.applyDefaultModeAtStart && _admin && start != null) {
@@ -172,6 +177,22 @@ class _HomePageState extends State<HomePage> {
       });
       _updateAlerts(); // 새로 생긴 서비스를 살핀다 (기다리지 않는다).
     }
+  }
+
+  /// 첫 실행 마법사: 이 PC에서 찾은 보안 서비스로 목록과 모드를 만든다.
+  /// 건너뛰어도 빈 목록을 저장해 다시 묻지 않는다 (지구본 아이콘에서 같은 일을 할 수 있다).
+  Future<void> _firstRun() async {
+    final result = await showSetupDialog(
+      context,
+      catalog: widget.catalog,
+      data: _data,
+      services: _all,
+      signers: _signers,
+    );
+    if (!mounted) return;
+    if (result != null) setState(() => _data = result);
+    await WatchStore.save(_data);
+    await _refresh();
   }
 
   /// 지난번에 본 서비스와 견줘 새로 생긴 것을 찾고, 그중 보안 프로그램처럼 보이는 것을 센다 (배지·트레이).
@@ -847,7 +868,9 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: AppSpacing.lg),
           Text(l.homeEmptyTitle, style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacing.lg),
-          FilledButton(onPressed: _busy ? null : _addDialog, child: Text(l.homeEmptyAction)),
+          FilledButton(onPressed: _busy ? null : _openCatalog, child: Text(l.emptyFind)),
+          const SizedBox(height: AppSpacing.sm),
+          TextButton(onPressed: _busy ? null : _addDialog, child: Text(l.homeEmptyAction)),
         ]),
       );
 

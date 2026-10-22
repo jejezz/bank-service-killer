@@ -8,6 +8,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../catalog/web_search.dart';
+
 class AppSettings extends ChangeNotifier {
   AppSettings._(this._prefs, this._themeMode, this._locale);
 
@@ -15,6 +17,7 @@ class AppSettings extends ChangeNotifier {
   static const themeModeKey = 'theme_mode';
   static const localeKey = 'app_locale';
   static const logHeightKey = 'log_panel_height';
+  static const searchEngineKey = 'search_engine';
   static const startupAttemptedKey = 'startup_registration_attempted';
 
   final SharedPreferences _prefs;
@@ -43,6 +46,16 @@ class AppSettings extends ChangeNotifier {
 
   /// 로그 패널 높이. 저장된 값이 없으면 null.
   double? get logHeight => _prefs.getDouble(logHeightKey);
+
+  /// 서비스를 웹에서 검색할 때 쓰는 검색엔진 (기본 Google).
+  SearchEngine get searchEngine =>
+      SearchEngine.values.asNameMap()[_prefs.getString(searchEngineKey)] ?? SearchEngine.google;
+
+  Future<void> setSearchEngine(SearchEngine engine) async {
+    if (engine == searchEngine) return;
+    await _prefs.setString(searchEngineKey, engine.name);
+    notifyListeners();
+  }
 
   Future<void> setLogHeight(double height) => _prefs.setDouble(logHeightKey, height);
 
@@ -80,6 +93,10 @@ class AppSettings extends ChangeNotifier {
 class AppSettingsScope extends InheritedNotifier<AppSettings> {
   const AppSettingsScope({super.key, required AppSettings settings, required super.child})
       : super(notifier: settings);
+
+  /// 범위가 없으면 null (시험처럼 [AppSettingsScope] 없이 위젯을 띄울 때).
+  static AppSettings? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<AppSettingsScope>()?.notifier;
 
   static AppSettings of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<AppSettingsScope>()!.notifier!;

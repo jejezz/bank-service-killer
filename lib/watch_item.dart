@@ -292,32 +292,10 @@ class WatchData {
     );
   }
 
-  /// 처음 실행할 때의 기본 목록.
-  factory WatchData.defaults(WatchDefaults d) {
-    final legacy = d.legacyGroups;
-    return _fresh([
-      for (final (name, group, note) in _defaultItems)
-        WatchItem(name, categories: [legacy[group] ?? group], note: note),
-    ], d);
-  }
+  /// 새로 설치했을 때의 시작 데이터: 서비스 항목은 없고 모드(뱅킹·개발)만 있다.
+  /// 서비스는 고정 목록이 아니라 이 PC에서 찾은 것으로 채운다 (첫 실행 마법사).
+  factory WatchData.initial(WatchDefaults d) => _fresh(const [], d);
 }
-
-const _defaultItems = <(String, String, String)>[
-  ('Nahimic service', 'A', '오디오 효과 (보안 아님)'),
-  ('AnySign4PC Launcher', 'B', ''),
-  ('CrossEX Live Checker', 'B', ''),
-  ('Image SAFER 5.0 Service', 'B', ''),
-  ('INNORIX EX Management', 'B', ''),
-  ('INNORIX EX Service', 'B', ''),
-  ('Interezen LWS', 'B', ''),
-  ('KOSCOMSecLogGather', 'B', ''),
-  ('MagicLine4NX Service', 'B', ''),
-  ('nxTS Process Manager Service', 'C', '키보드보안, 드라이버 연동 가능'),
-  ('OZWLservice', 'B', ''),
-  ('SignKoreaWD', 'B', ''),
-  ('ToucnEn_nxFireWall', 'C', '개인방화벽, 드라이버 연동 가능'),
-  ('WIZVERA Process Manager Service', 'B', ''),
-];
 
 /// %APPDATA%\BankServiceKiller\watchlist.json 에 감시 목록을 저장/로드한다.
 class WatchStore {
@@ -332,14 +310,23 @@ class WatchStore {
     return File('$base\\BankBreaker\\watchlist.json');
   }
 
+  /// 저장된 목록이 이미 있는가 (이 앱이나 옛 이름 Bank Breaker 로). 없으면 새로 설치한 것이다.
+  static Future<bool> hasSaved() async => await _file.exists() || await _legacyFile.exists();
+
   static Future<WatchData> load({required WatchDefaults defaults}) async {
+    File? file;
     try {
-      final file = await _file.exists() ? _file : _legacyFile;
+      file = await _file.exists() ? _file : _legacyFile;
       if (await file.exists()) {
         return WatchData.fromJson(jsonDecode(await file.readAsString()), defaults: defaults);
       }
-    } catch (_) {}
-    return WatchData.defaults(defaults);
+    } catch (_) {
+      // 읽을 수 없는 파일은 덮어쓰기 전에 옆에 남겨 둔다 (목록을 조용히 잃지 않게).
+      try {
+        await file?.copy('${file.path}.broken');
+      } catch (_) {}
+    }
+    return WatchData.initial(defaults);
   }
 
   static Future<void> save(WatchData data) async {

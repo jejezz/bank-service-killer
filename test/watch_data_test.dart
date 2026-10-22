@@ -198,10 +198,12 @@ void main() {
     });
   });
 
-  test('기본 목록은 14개이고 뱅킹 모드는 Nahimic 만 건드리지 않는다', () {
-    final d = WatchData.defaults(_d);
-    expect(d.items.length, 14);
-    expect(d.modeNamed('뱅킹')!.keep, ['보안 무관']);
+  test('새로 설치했을 때의 시작 데이터는 서비스가 없고 뱅킹·개발 모드만 있다', () {
+    final d = WatchData.initial(_d);
+    expect(d.items, isEmpty);
+    expect(d.categories, isEmpty);
+    expect(d.modes.map((m) => m.name), ['뱅킹', '개발']);
+    expect(d.modeNamed('뱅킹')!.revertMinutes, 30);
     expect(d.defaultMode, '개발');
   });
 }

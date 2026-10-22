@@ -11,7 +11,9 @@ import 'catalog_controller.dart';
 import 'discovery.dart';
 import 'heuristics.dart';
 import 'installed.dart';
+import 'reason_text.dart';
 import 'report.dart';
+import 'search_button.dart';
 import 'seen_state.dart';
 
 /// 카탈로그 창: 이 PC에서 발견한 서비스, 이름이 바뀐 항목, 카탈로그에 없지만 보안 프로그램처럼 보이는 후보를
@@ -230,13 +232,6 @@ class _CatalogDialogState extends State<_CatalogDialog> {
     );
   }
 
-  String _reasonText(AppLocalizations l, Reason r) => switch (r.kind) {
-        ReasonKind.name => l.suspectReasonName(r.value),
-        ReasonKind.display => l.suspectReasonDisplay(r.value),
-        ReasonKind.path => l.suspectReasonPath(r.value),
-        ReasonKind.signer => l.suspectReasonSigner(r.value),
-      };
-
   String _sourceText(AppLocalizations l) => switch (_c.source) {
         CatalogSource.bundled => l.catalogSourceBundled,
         CatalogSource.cache => l.catalogSourceCache,
@@ -319,10 +314,13 @@ class _CatalogDialogState extends State<_CatalogDialog> {
                     contentPadding: EdgeInsets.zero,
                     title: Text(l.catalogRenameLine(r.item.name, r.hit.service.name), style: AppFonts.userContent),
                     subtitle: Text(l.catalogRenameNote(r.hit.product.name)),
-                    trailing: FilledButton.tonal(
-                      onPressed: () => _rename(r),
-                      child: Text(l.catalogRenameApply),
-                    ),
+                    trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                      ServiceSearchButton(r.hit.service),
+                      FilledButton.tonal(
+                        onPressed: () => _rename(r),
+                        child: Text(l.catalogRenameApply),
+                      ),
+                    ]),
                   ),
               ],
               if (d.newFinds.isNotEmpty) ...[
@@ -335,6 +333,7 @@ class _CatalogDialogState extends State<_CatalogDialog> {
                     dense: true,
                     contentPadding: EdgeInsets.zero,
                     controlAffinity: ListTileControlAffinity.leading,
+                    secondary: ServiceSearchButton(h.service),
                     value: _picked.contains(h.service.name),
                     onChanged: (v) => setState(() => v == true ? _picked.add(h.service.name) : _picked.remove(h.service.name)),
                     title: Row(children: [
@@ -383,6 +382,7 @@ class _CatalogDialogState extends State<_CatalogDialog> {
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                   controlAffinity: ListTileControlAffinity.leading,
+                  secondary: ServiceSearchButton(sp.service),
                   value: _pickedSuspects.contains(sp.service.name),
                   onChanged: (v) => setState(
                       () => v == true ? _pickedSuspects.add(sp.service.name) : _pickedSuspects.remove(sp.service.name)),
@@ -391,7 +391,7 @@ class _CatalogDialogState extends State<_CatalogDialog> {
                     style: AppFonts.userContent,
                   ),
                   subtitle: Text(
-                    '${sp.service.name}  ·  ${[for (final r in sp.reasons) _reasonText(l, r)].join(', ')}',
+                    '${sp.service.name}  ·  ${[for (final r in sp.reasons) reasonText(l, r)].join(', ')}',
                     style: AppFonts.userContent,
                   ),
                 ),
@@ -416,11 +416,15 @@ class _CatalogDialogState extends State<_CatalogDialog> {
                 ),
               ),
             const SizedBox(height: AppSpacing.md),
-            TextButton.icon(
-              onPressed: _installed == null ? null : _report,
-              icon: const Icon(Icons.flag_outlined),
-              label: Text(l.catalogReport),
-            ),
+            Wrap(spacing: AppSpacing.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
+              TextButton.icon(
+                onPressed: _installed == null ? null : _report,
+                icon: const Icon(Icons.flag_outlined),
+                label: Text(l.catalogReport),
+              ),
+              const SearchEngineMenu(),
+            ]),
+            Text(l.searchNote, style: theme.textTheme.bodySmall),
           ]),
         ),
       ),
@@ -650,6 +654,7 @@ class _ReportDialogState extends State<_ReportDialog> {
                             dense: true,
                             title: Text(s.displayName.isEmpty ? s.name : s.displayName, style: AppFonts.userContent),
                             subtitle: Text('${s.name} · ${exeBaseName(s.path)}', style: AppFonts.userContent),
+                            trailing: ServiceSearchButton(s.toInstalled()),
                             onTap: () => _pick(s),
                           ),
                       ]),

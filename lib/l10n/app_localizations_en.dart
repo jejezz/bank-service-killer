@@ -822,7 +822,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpCatalogBody =>
-      'Security services change names between products and versions, so a fixed list goes stale quickly. The app keeps a catalog of which product installs under which names and executables, and refreshes it regularly (every 24 hours).\n• The globe icon (Security service catalog) shows services found on this PC that aren\'t in your list, and items that look renamed. A number appears on the icon when there are new suggestions.\n• The catalog only suggests. It never turns services on or off by itself, and you choose what to add. Newly created categories aren\'t set to \'On\' in any mode, so every mode turns them off until you decide in Manage modes.\n• Downloaded catalogs are signature-checked. One with a bad signature or an older version is ignored and the built-in catalog is used.\n• For a service the catalog doesn\'t know, use \'Report\'. It opens a draft GitHub issue containing only the service name, display name, executable name and signer; you review it and submit it yourself (no paths are included).\n• New installs are noticed too. Each time services are read (at start and every 30 minutes) they are compared with what was seen last time, and even if the catalog doesn\'t know a service, it\'s flagged as a candidate when its name, path or signer looks like security software. The count shows on the icon badge and the tray tooltip. On the first run the current services become the baseline and nothing is flagged.\n• When you add a candidate you also pick its category and which modes turn it on. A mode you leave unchecked turns it off. If you decide it isn\'t security software, \'Ignore\' it so it isn\'t shown again.';
+      'Security services change names between products and versions, so a fixed list goes stale quickly. The app keeps a catalog of which product installs under which names and executables, and refreshes it regularly (every 24 hours).\n• The globe icon (Security service catalog) shows services found on this PC that aren\'t in your list, and items that look renamed. A number appears on the icon when there are new suggestions.\n• The catalog only suggests. It never turns services on or off by itself, and you choose what to add. Newly created categories aren\'t set to \'On\' in any mode, so every mode turns them off until you decide in Manage modes.\n• Downloaded catalogs are signature-checked. One with a bad signature or an older version is ignored and the built-in catalog is used.\n• For a service the catalog doesn\'t know, use \'Report\'. It opens a draft GitHub issue containing only the service name, display name, executable name and signer; you review it and submit it yourself (no paths are included).\n• New installs are noticed too. Each time services are read (at start and every 30 minutes) they are compared with what was seen last time, and even if the catalog doesn\'t know a service, it\'s flagged as a candidate when its name, path or signer looks like security software. The count shows on the icon badge and the tray tooltip. On the first run the current services become the baseline and nothing is flagged.\n• When you add a candidate you also pick its category and which modes turn it on. A mode you leave unchecked turns it off. If you decide it isn\'t security software, \'Ignore\' it so it isn\'t shown again.\n• On first install, the security services found on this PC are shown on one screen. Ones the catalog knows are pre-checked; candidates that merely look like security software are unchecked and come with their reasons. Press [Add and start] and your list, categories and Banking mode are created. If you press [Later], the globe icon does the same thing.\n• The magnifier button next to a candidate or found service searches for it in your browser, so you can see what it is before deciding. The query is only the service name and executable name; no path is sent. Windows doesn\'t tell apps your default search engine, so you pick one (Google, Naver, Bing, DuckDuckGo) at the bottom of the catalog window.';
 
   @override
   String catalogKeyInfo(String fp) {
@@ -913,4 +913,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String trayAlerts(int n) {
     return '$n suspected new security services';
   }
+
+  @override
+  String get setupTitle => 'First setup: security services on this PC';
+
+  @override
+  String get setupIntro =>
+      'These services on this PC look like security software. Review them and start. You can change everything later.';
+
+  @override
+  String get setupNothing =>
+      'No security services were found on this PC. You\'ll be told when a bank site installs new security software.';
+
+  @override
+  String setupFoundHeader(int n) {
+    return '$n services the catalog knows';
+  }
+
+  @override
+  String setupCandidatesHeader(int n) {
+    return '$n candidates that look like security software (please check)';
+  }
+
+  @override
+  String get setupCandidatesHint =>
+      'Guessed from the name, path and signer. They can be wrong, so they\'re unchecked. Check the reasons before choosing.';
+
+  @override
+  String get setupModesTitle => 'Turn on in which modes?';
+
+  @override
+  String get setupModesNote =>
+      'In modes you leave unchecked, the chosen services are turned off. Check modes that need security services, like Banking.';
+
+  @override
+  String get setupSkip => 'Later';
+
+  @override
+  String setupStart(int n) {
+    return 'Add and start ($n)';
+  }
+
+  @override
+  String get emptyFind => 'Find security services on this PC';
+
+  @override
+  String searchTooltip(String engine) {
+    return 'Search on $engine (opens your browser)';
+  }
+
+  @override
+  String searchEngineLabel(String engine) {
+    return 'Search engine: $engine';
+  }
+
+  @override
+  String get searchEngineTooltip => 'Change search engine';
+
+  @override
+  String get searchNote =>
+      'The search button uses only the service name and executable name as the query, in your browser. No path is sent.';
 }
