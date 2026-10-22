@@ -262,7 +262,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpGroupBody =>
-      '• Categories: labels that group services (e.g. keyboard security, certificates, per bank). A service can be in several. Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• Modes: target states — what to turn on, what to leave alone and what to turn off. Pick one in the [Banking | Dev …] toggle at the top and the services are started/stopped to match. Services already in the right state are left alone.\n• Pressing a mode first opens a preview of the services to turn off / on. Nothing changes until you press Run; Cancel leaves everything as it is. (The default mode at app start and auto-return run without asking, since nobody may be there.)\n• The current mode is judged from the real service states, not a saved value. If nothing matches it shows \'Mixed\'; pressing a mode while mixed only fixes the remaining services.\n• Manage modes (sliders icon) lets you create and edit modes. The ★ default mode is applied when the app starts (including at Windows sign-in) and on auto-return.\n• Auto-return: give a mode a time and it falls back to the default mode afterwards, with a warning 1 minute before.\n• The tray icon\'s right-click menu also switches modes, with a check on the current one.\n• A mode can be defined per service, not just per category. Open a mode in Manage modes and use the \'By service\' tab to choose On / Keep / Off. A direct setting overrides the category setting. Sites usually need only a few services, so a small mode that turns on just those also switches faster. The search box, the Installed / Running / Set directly filters and \'Set all shown at once\' make large lists easy, and the duplicate button starts from an existing mode.\n• The search box on the main screen finds services in the list right away. You can also turn just the search results on or off.';
+      '• Categories: labels that group services (e.g. keyboard security, certificates, per bank). A service can be in several. Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• Modes: target states — what to turn on, what to leave alone and what to turn off. Pick one in the [Banking | Dev …] toggle at the top and the services are started/stopped to match. Services already in the right state are left alone.\n• Pressing a mode first opens a preview of the services to turn off / on. Nothing changes until you press Run; Cancel leaves everything as it is. (The default mode at app start and auto-return run without asking, since nobody may be there.)\n• The current mode is judged from the real service states, not a saved value. If nothing matches it shows \'Mixed\'; pressing a mode while mixed only fixes the remaining services.\n• Manage modes (sliders icon) lets you create and edit modes. The ★ default mode is applied when the app starts (including at Windows sign-in) and on auto-return.\n• Auto-return: give a mode a time and it falls back to the default mode afterwards, with a warning 1 minute before.\n• The tray icon\'s right-click menu also switches modes, with a check on the current one.\n• A mode can be defined per service, not just per category. Open a mode in Manage modes and use the \'By service\' tab to choose On / Keep / Off. A direct setting overrides the category setting. Sites usually need only a few services, so a small mode that turns on just those also switches faster. The search box, the Installed / Running / Set directly filters and \'Set all shown at once\' make large lists easy, and the duplicate button starts from an existing mode.\n• The search box on the main screen finds services in the list right away. You can also turn just the search results on or off.\n• Turn services on and off the way you want, then press [Save current state as a mode]: services that are running become \'On\' and stopped ones \'Off\' in a new mode. It\'s handy for keeping the state that works on a site. You can create a new mode or overwrite an existing one (overwriting replaces that mode\'s category and service settings with the current state; its auto-return time stays). Services not installed on this PC are left out.';
 
   @override
   String get helpOnOffTitle => 'Turning on and off';
@@ -1053,4 +1053,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modeEdit => 'Edit mode';
+
+  @override
+  String get snapshotButton => 'Save current state as a mode';
+
+  @override
+  String get snapshotTooltip =>
+      'Save which services are on and which are off right now as a mode';
+
+  @override
+  String get snapshotTitle => 'Save current state as a mode';
+
+  @override
+  String snapshotSummary(int total, int on, int off) {
+    return 'Saves the current state of $total services: $on on, $off off.';
+  }
+
+  @override
+  String snapshotSkipped(int n) {
+    return '$n services not installed on this PC are left out.';
+  }
+
+  @override
+  String get snapshotNew => 'New mode';
+
+  @override
+  String get snapshotOverwrite => 'Overwrite existing';
+
+  @override
+  String get snapshotDefaultName => 'Current state';
+
+  @override
+  String get snapshotOverwriteNote =>
+      'Overwriting replaces that mode\'s category and service settings with the current state. Its name and auto-return time stay.';
+
+  @override
+  String get snapshotOverwriteDefaultWarning =>
+      'This is the default mode. The app returns to this state at start and on auto-return.';
+
+  @override
+  String get snapshotDoOverwrite => 'Overwrite';
+
+  @override
+  String logSnapshotSaved(String name, int n) {
+    return 'Saved the current state as mode \'$name\' ($n services)';
+  }
+
+  @override
+  String logSnapshotOverwritten(String name, int n) {
+    return 'Overwrote mode \'$name\' with the current state ($n services)';
+  }
 }

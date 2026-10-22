@@ -23,6 +23,7 @@ import 'mode_dialog.dart';
 import 'mode_engine.dart';
 import 'mode_plan_dialog.dart';
 import 'service_manager.dart';
+import 'snapshot_dialog.dart';
 import 'settings/app_settings.dart';
 import 'settings/settings_menus.dart';
 import 'startup_manager.dart';
@@ -508,6 +509,30 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  /// 지금 서비스 상태(켜짐/꺼짐)를 그대로 모드로 저장한다: 새 모드를 만들거나 기존 모드를 덮어쓴다.
+  Future<void> _saveSnapshot() async {
+    final l = _l10n;
+    final states = _states;
+    final services = snapshotServices(states);
+    final on = services.values.where((w) => w == Want.on).length;
+    final choice = await showSnapshotDialog(
+      context,
+      data: _data,
+      on: on,
+      off: services.length - on,
+      skipped: states.length - services.length,
+      suggested: _status.current?.name,
+    );
+    if (choice == null || !mounted) return;
+    final ok = _data.saveSnapshot(choice.name, services, overwrite: choice.overwrite);
+    if (!ok) return;
+    _addLog(choice.overwrite
+        ? l.logSnapshotOverwritten(choice.name, services.length)
+        : l.logSnapshotSaved(choice.name, services.length));
+    await WatchStore.save(_data);
+    setState(_updateStatus); // 저장한 모드가 지금 상태와 같으니 바로 현재 모드로 판정된다.
+  }
+
   Future<void> _manageModes() async {
     final result = await showModeManager(
       context,
@@ -807,6 +832,14 @@ class _HomePageState extends State<HomePage> {
                     icon: Icon(Icons.tune_rounded, color: _editColor),
                   ),
                   _modeStatus(l, theme),
+                  Tooltip(
+                    message: l.snapshotTooltip,
+                    child: OutlinedButton.icon(
+                      onPressed: _busy || _rows.isEmpty ? null : _saveSnapshot,
+                      icon: Icon(Icons.bookmark_add_rounded, color: _editColor),
+                      label: Text(l.snapshotButton),
+                    ),
+                  ),
                   const SizedBox(width: AppSpacing.md),
                   SizedBox(
                     width: 240,

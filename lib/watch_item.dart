@@ -271,6 +271,20 @@ class WatchData {
     return true;
   }
 
+  /// 지금 상태([services], [snapshotServices] 결과)를 모드로 저장한다.
+  ///
+  /// - [overwrite]가 false 면 [name] 이름의 새 모드를 만든다 (빈 이름·겹치는 이름이면 false).
+  /// - true 면 이미 있는 [name] 모드를 덮어쓴다: 카테고리 지정(켜기·그대로)은 비우고 서비스 지정을 지금 상태로
+  ///   바꾼다. 이름·자동 복귀 시간은 그대로 둔다. 카테고리 지정을 남기면 저장한 상태와 어긋나기 때문이다.
+  bool saveSnapshot(String name, Map<String, Want> services, {required bool overwrite}) {
+    if (overwrite) {
+      final m = modeNamed(name);
+      if (m == null) return false;
+      return updateMode(name, m.copyWith(on: const [], keep: const [], services: services));
+    }
+    return addMode(WatchMode(name, services: services));
+  }
+
   /// [name] 모드를 [mode]로 바꾼다 (이름 변경 포함). 이름이 비었거나 다른 모드와 겹치면 false.
   bool updateMode(String name, WatchMode mode) {
     final i = modes.indexWhere((m) => m.name == name);

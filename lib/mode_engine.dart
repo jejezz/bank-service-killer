@@ -75,6 +75,13 @@ ModeStatus detect(WatchData data, List<ItemState> states, {String? preferred}) {
   return ModeStatus(closest: closest, closestProgress: best);
 }
 
+/// 지금 상태를 서비스별 동작으로 옮긴 것: 실행 중이면 켜기, 아니면 끄기. 이 PC에 설치되지 않은 서비스는 뺀다.
+/// 키는 서비스 이름(소문자)이라 [WatchMode.services] 에 그대로 쓸 수 있다.
+Map<String, Want> snapshotServices(List<ItemState> states) => {
+      for (final s in states)
+        if (s.installed) s.item.name.toLowerCase(): s.running! ? Want.on : Want.off,
+    };
+
 /// 모드로 바꾸려면 무엇을 켜고 끌지. 이미 맞는 서비스는 건드리지 않는다.
 class ModePlan {
   const ModePlan({required this.start, required this.stop});
