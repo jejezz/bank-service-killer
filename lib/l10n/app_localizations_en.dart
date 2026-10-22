@@ -199,12 +199,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonAdd => 'Add';
 
   @override
-  String get homeTurnOnAll => 'Turn All On (for Banking)';
-
-  @override
-  String get homeTurnOffAll => 'Turn All Off';
-
-  @override
   String get refreshTooltip => 'Refresh (F5)';
 
   @override
@@ -264,18 +258,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'The list is not built automatically. It starts with common banking/security services, and after that you manage it yourself.\n• Add: press + (Ctrl+N) and type a service name or display name; matching services installed on this PC appear below — click one to pick it.\n• Newly installed services are NOT detected automatically; add them yourself. You can find service names in msconfig (Services tab) or services.msc.\n• Partial names match too. \"Not installed / name mismatch\" means the service isn\'t on this PC or the name differs.\n• The list is saved to %APPDATA%\\BankServiceKiller\\watchlist.json. Refresh (F5) re-reads the current service states.';
 
   @override
-  String get helpGroupTitle => 'The [A] [B] [C] after a service name';
+  String get helpGroupTitle => 'Categories, Banking and Dev mode';
 
   @override
   String get helpGroupBody =>
-      'A label you chose when adding the item.\n• A: not security-related (e.g. audio effects)\n• B: web-plugin style security service (most banking security software)\n• C: may be tied to a driver (keyboard security, personal firewall…). Turning it off may cause problems.\nThe label is only a hint and doesn\'t change what On/Off does.';
+      'Group services into categories (e.g. keyboard security, certificates, per bank). A service can belong to several categories.\n• Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• The label button lets you create, rename and delete categories. Deleting one keeps its services.\n• Banking mode: turns on the services in categories checked as \"Include in Banking mode\" in Manage categories.\n• Dev mode: turns off every watched service.\n• Both modes are also in the tray icon\'s right-click menu.';
 
   @override
   String get helpOnOffTitle => 'Turning on and off';
 
   @override
   String get helpOnOffBody =>
-      '• Turn All On / Off and the play/stop button on each row start or stop the service right now. If the startup type is Disabled it is set to Manual first, then started.\n• After starting or stopping, the app verifies the real state and writes the result to the log below. After a stop it checks again 3 seconds later in case the service came back.\n• Turning off only stops the service; it doesn\'t change the startup type. If it is Automatic, it starts again the next time the PC boots.';
+      '• Banking/Dev mode, \"Turn … on / off\" and the play/stop button on each row start or stop services right now. If the startup type is Disabled it is set to Manual first, then started.\n• After starting or stopping, the app verifies the real state and writes the result to the log below. After a stop it checks again 3 seconds later in case the service came back.\n• Turning off only stops the service; it doesn\'t change the startup type. If it is Automatic, it starts again the next time the PC boots.';
 
   @override
   String get helpModeTitle => 'Startup type (Automatic / Manual / Disabled)';
@@ -343,15 +337,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addDialogField => 'Service name or display name';
-
-  @override
-  String get groupA => 'A: Not security-related';
-
-  @override
-  String get groupB => 'B: Web plugin';
-
-  @override
-  String get groupC => 'C: May be tied to a driver';
 
   @override
   String logQueryError(String error) {
@@ -425,4 +410,97 @@ class AppLocalizationsEn extends AppLocalizations {
   String svcListFailed(String error) {
     return 'Failed to list services: $error';
   }
+
+  @override
+  String get catAll => 'All';
+
+  @override
+  String get catUncategorized => 'Uncategorized';
+
+  @override
+  String get catEmptyFilter => 'No services in this category.';
+
+  @override
+  String get catManageTooltip => 'Manage categories';
+
+  @override
+  String get catManageTitle => 'Manage categories';
+
+  @override
+  String get catManageHint =>
+      'Group services into categories to turn just that group on or off. Checked categories are turned on by Banking mode. Deleting a category keeps its services.';
+
+  @override
+  String get catBankingInclude => 'Include in Banking mode';
+
+  @override
+  String get catAddField => 'New category name';
+
+  @override
+  String get catRename => 'Rename';
+
+  @override
+  String get catDelete => 'Delete category';
+
+  @override
+  String get catExists => 'That name already exists or can\'t be used.';
+
+  @override
+  String catItemCount(int n) {
+    return '$n services';
+  }
+
+  @override
+  String get catDefaultA => 'Not security-related';
+
+  @override
+  String get catDefaultB => 'Web plugin';
+
+  @override
+  String get catDefaultC => 'Driver-linked';
+
+  @override
+  String get addDialogCategories => 'Categories (pick any)';
+
+  @override
+  String get addDialogNewCategory => 'Create a new category';
+
+  @override
+  String get bankingModeButton => 'Banking mode';
+
+  @override
+  String get bankingModeTooltip =>
+      'Turn on the services in the categories set for banking';
+
+  @override
+  String get devModeButton => 'Dev mode';
+
+  @override
+  String get devModeTooltip => 'Turn off every watched service';
+
+  @override
+  String scopeTurnOn(String scope) {
+    return 'Turn $scope on';
+  }
+
+  @override
+  String scopeTurnOff(String scope) {
+    return 'Turn $scope off';
+  }
+
+  @override
+  String logModeBanking(int n) {
+    return 'Banking mode: turning on $n services';
+  }
+
+  @override
+  String logModeDev(int n) {
+    return 'Dev mode: turning off $n services';
+  }
+
+  @override
+  String get trayBanking => 'Banking mode';
+
+  @override
+  String get trayDev => 'Dev mode';
 }

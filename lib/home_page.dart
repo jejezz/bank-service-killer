@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'category_dialog.dart';
 import 'help_dialog.dart';
 import 'l10n/app_localizations.dart';
+import 'mode_actions.dart';
 import 'service_manager.dart';
 import 'settings/app_settings.dart';
 import 'settings/settings_menus.dart';
@@ -22,16 +24,22 @@ class SvcRow {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.onAbout});
+  const HomePage({super.key, required this.onAbout, this.modeActions});
 
   final VoidCallback onAbout;
+
+  /// 트레이 메뉴 같은 바깥에서 뱅킹/개발 모드를 부를 수 있게 연결한다.
+  final ModeActions? modeActions;
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  List<WatchItem> _items = [];
+  WatchData _data = WatchData(categories: const [], items: const []);
+  // null = 전체, _uncategorized = 카테고리가 없는 항목, 그 밖에는 카테고리 이름.
+  String? _filter;
+  static const _uncategorized = '\u0000uncategorized';
   List<SvcInfo> _all = [];
   List<SvcRow> _rows = [];
   final List<String> _log = [];
@@ -45,11 +53,30 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    widget.modeActions
+      ?..banking = _bankingMode
+      ..dev = _devMode;
     _init();
   }
 
+  @override
+  void dispose() {
+    widget.modeActions
+      ?..banking = null
+      ..dev = null;
+    super.dispose();
+  }
+
   Future<void> _init() async {
-    _items = await WatchStore.load();
+    // initState 안에서는 context 로 로케일을 읽을 수 없어 한 프레임 미룬다.
+    await Future<void>.delayed(Duration.zero);
+    if (!mounted) return;
+    final l = _l10n;
+    _data = await WatchStore.load(legacyGroups: {
+      'A': l.catDefaultA,
+      'B': l.catDefaultB,
+      'C': l.catDefaultC,
+    });
     _admin = await ServiceManager.isAdmin();
     await _refresh();
   }
@@ -73,7 +100,7 @@ class _HomePageState extends State<HomePage> {
       _all = await ServiceManager.listAll();
       final off = await ServiceManager.msconfigDisabled();
       _rows = [
-        for (final it in _items)
+        for (final it in _data.items)
           () {
             final s = ServiceManager.match(it, _all);
             return SvcRow(it, s, s != null && off.contains(s.name.toLowerCase()));
@@ -111,11 +138,52 @@ class _HomePageState extends State<HomePage> {
     if (mounted) _logResult(s.name, res, withStatus: true);
   }
 
-  Future<void> _runAll(Future<void> Function(SvcRow) op) async {
+  /// 지금 필터에 보이는 항목.
+  List<SvcRow> get _visible => switch (_filter) {
+        null => _rows,
+        _uncategorized => [for (final r in _rows) if (r.item.categories.isEmpty) r],
+        final c => [for (final r in _rows) if (r.item.categories.contains(c)) r],
+      };
+
+  String get _scopeLabel => switch (_filter) {
+        null => _l10n.catAll,
+        _uncategorized => _l10n.catUncategorized,
+        final c => c,
+      };
+
+  Future<void> _runRows(List<SvcRow> rows, Future<void> Function(SvcRow) op) async {
     setState(() => _busy = true);
-    for (final r in _rows) {
+    for (final r in rows) {
       if (r.svc != null) await op(r);
     }
+    await _refresh();
+  }
+
+  /// 뱅킹 모드: 뱅킹용으로 정한 카테고리의 서비스를 켠다.
+  Future<void> _bankingMode() async {
+    if (_busy) return;
+    final rows = [for (final r in _rows) if (_data.isInBankingMode(r.item)) r];
+    _addLog(_l10n.logModeBanking(rows.length));
+    await _runRows(rows, _turnOn);
+  }
+
+  /// 개발 모드: 감시 중인 서비스를 모두 끈다.
+  Future<void> _devMode() async {
+    if (_busy) return;
+    _addLog(_l10n.logModeDev(_rows.length));
+    await _runRows(_rows, _turnOff);
+  }
+
+  Future<void> _manageCategories() async {
+    final result = await showCategoryManager(context, _data);
+    if (result == null) return;
+    setState(() {
+      _data = result;
+      if (_filter != null && _filter != _uncategorized && !_data.categories.contains(_filter)) {
+        _filter = null;
+      }
+    });
+    await WatchStore.save(_data);
     await _refresh();
   }
 
@@ -138,7 +206,15 @@ class _HomePageState extends State<HomePage> {
   Future<void> _addDialog({SvcRow? edit}) async {
     final l = _l10n;
     final nameCtl = TextEditingController(text: edit?.item.name ?? '');
-    String group = edit?.item.group ?? 'B';
+    final newCatCtl = TextEditingController();
+    // 새로 만든 카테고리는 저장할 때 목록에 더한다.
+    final extra = <String>[];
+    final selected = <String>{
+      if (edit != null)
+        ...edit.item.categories
+      else if (_filter != null && _filter != _uncategorized)
+        _filter!,
+    };
     final result = await showDialog<WatchItem>(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -164,15 +240,40 @@ class _HomePageState extends State<HomePage> {
                   onChanged: (_) => setD(() {}),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                DropdownButton<String>(
-                  value: group,
-                  isExpanded: true,
-                  items: [
-                    DropdownMenuItem(value: 'A', child: Text(l.groupA)),
-                    DropdownMenuItem(value: 'B', child: Text(l.groupB)),
-                    DropdownMenuItem(value: 'C', child: Text(l.groupC)),
-                  ],
-                  onChanged: (v) => setD(() => group = v ?? 'B'),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(l.addDialogCategories, style: Theme.of(ctx).textTheme.labelLarge),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(spacing: AppSpacing.sm, children: [
+                    for (final c in [..._data.categories, ...extra])
+                      FilterChip(
+                        label: Text(c, style: AppFonts.userContent),
+                        selected: selected.contains(c),
+                        onSelected: (on) => setD(() => on ? selected.add(c) : selected.remove(c)),
+                      ),
+                  ]),
+                ),
+                TextField(
+                  controller: newCatCtl,
+                  decoration: InputDecoration(
+                    labelText: l.addDialogNewCategory,
+                    suffixIcon: IconButton(
+                      tooltip: l.commonAdd,
+                      icon: const Icon(Icons.add_rounded),
+                      onPressed: () {
+                        final n = newCatCtl.text.trim();
+                        if (n.isEmpty) return;
+                        setD(() {
+                          if (!_data.categories.contains(n) && !extra.contains(n)) extra.add(n);
+                          selected.add(n);
+                          newCatCtl.clear();
+                        });
+                      },
+                    ),
+                  ),
                 ),
                 for (final s in hits)
                   ListTile(
@@ -189,7 +290,14 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   final n = nameCtl.text.trim();
                   if (n.isNotEmpty) {
-                    Navigator.pop(ctx, WatchItem(n, group: group, note: edit?.item.note ?? ''));
+                    // 입력칸에 쓰다 만 새 카테고리도 놓치지 않는다.
+                    final pending = newCatCtl.text.trim();
+                    if (pending.isNotEmpty) {
+                      if (!_data.categories.contains(pending) && !extra.contains(pending)) extra.add(pending);
+                      selected.add(pending);
+                    }
+                    final ordered = [..._data.categories, ...extra].where(selected.contains).toList();
+                    Navigator.pop(ctx, WatchItem(n, categories: ordered, note: edit?.item.note ?? ''));
                   }
                 },
                 child: Text(edit == null ? l.commonAdd : l.commonSave),
@@ -200,24 +308,28 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (result == null) return;
-    final index = edit == null ? -1 : _items.indexWhere((e) => e.name == edit.item.name);
-    if (_items.asMap().entries.any(
+    final items = _data.items;
+    final index = edit == null ? -1 : items.indexWhere((e) => e.name == edit.item.name);
+    if (items.asMap().entries.any(
         (e) => e.key != index && e.value.name.toLowerCase() == result.name.toLowerCase())) {
       _addLog(l.logAlreadyInList(result.name));
       return;
     }
-    if (index >= 0) {
-      _items[index] = result;
-    } else {
-      _items.add(result);
+    for (final c in result.categories) {
+      _data.addCategory(c);
     }
-    await WatchStore.save(_items);
+    if (index >= 0) {
+      items[index] = result;
+    } else {
+      items.add(result);
+    }
+    await WatchStore.save(_data);
     await _refresh();
   }
 
   Future<void> _remove(SvcRow r) async {
-    _items.removeWhere((e) => e.name == r.item.name);
-    await WatchStore.save(_items);
+    _data.items.removeWhere((e) => e.name == r.item.name);
+    await WatchStore.save(_data);
     await _refresh();
   }
 
@@ -321,20 +433,42 @@ class _HomePageState extends State<HomePage> {
               ),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
-              child: Row(children: [
-                FilledButton.icon(
-                  onPressed: _busy || _rows.isEmpty ? null : () => _runAll(_turnOn),
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: Text(l.homeTurnOnAll),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                OutlinedButton.icon(
-                  onPressed: _busy || _rows.isEmpty ? null : () => _runAll(_turnOff),
-                  icon: const Icon(Icons.stop_rounded),
-                  label: Text(l.homeTurnOffAll),
-                ),
-              ]),
+              child: Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Tooltip(
+                    message: l.bankingModeTooltip,
+                    child: FilledButton.icon(
+                      onPressed: _busy || _rows.isEmpty ? null : _bankingMode,
+                      icon: const Icon(Icons.account_balance_rounded),
+                      label: Text(l.bankingModeButton),
+                    ),
+                  ),
+                  Tooltip(
+                    message: l.devModeTooltip,
+                    child: OutlinedButton.icon(
+                      onPressed: _busy || _rows.isEmpty ? null : _devMode,
+                      icon: const Icon(Icons.code_rounded),
+                      label: Text(l.devModeButton),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  TextButton.icon(
+                    onPressed: _busy || _visible.isEmpty ? null : () => _runRows(_visible, _turnOn),
+                    icon: Icon(Icons.play_arrow_rounded, color: _runColor),
+                    label: Text(l.scopeTurnOn(_scopeLabel), style: AppFonts.userContent),
+                  ),
+                  TextButton.icon(
+                    onPressed: _busy || _visible.isEmpty ? null : () => _runRows(_visible, _turnOff),
+                    icon: Icon(Icons.stop_rounded, color: _stopColor),
+                    label: Text(l.scopeTurnOff(_scopeLabel), style: AppFonts.userContent),
+                  ),
+                ],
+              ),
             ),
+            _categoryBar(l),
             Expanded(
               child: LayoutBuilder(builder: (context, c) {
                 // 목록·로그 모두 최소 높이를 남긴다.
@@ -344,7 +478,11 @@ class _HomePageState extends State<HomePage> {
                     .clamp(minLog, maxLog);
                 return Column(children: [
                   Expanded(
-                    child: _loaded && _rows.isEmpty ? _emptyState(l, theme) : _list(l, theme),
+                    child: _loaded && _rows.isEmpty
+                        ? _emptyState(l, theme)
+                        : _visible.isEmpty
+                            ? Center(child: Text(l.catEmptyFilter, style: theme.textTheme.bodyMedium))
+                            : _list(l, theme, _visible),
                   ),
                   Tooltip(
                     message: l.logResizeTooltip,
@@ -407,12 +545,39 @@ class _HomePageState extends State<HomePage> {
         ]),
       );
 
-  Widget _list(AppLocalizations l, ThemeData theme) => ListView.separated(
+  /// 카테고리 필터 칩 + 카테고리 관리 단추.
+  Widget _categoryBar(AppLocalizations l) {
+    Widget chip(String? value, String label, int count) => ChoiceChip(
+          label: Text('$label  $count', style: AppFonts.userContent),
+          selected: _filter == value,
+          onSelected: (_) => setState(() => _filter = value),
+        );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.sm, AppSpacing.sm),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+          child: Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.xs, children: [
+            chip(null, l.catAll, _data.items.length),
+            for (final c in _data.categories) chip(c, c, _data.countIn(c)),
+            if (_data.uncategorizedCount > 0)
+              chip(_uncategorized, l.catUncategorized, _data.uncategorizedCount),
+          ]),
+        ),
+        IconButton(
+          tooltip: l.catManageTooltip,
+          onPressed: _busy ? null : _manageCategories,
+          icon: Icon(Icons.label_rounded, color: _editColor),
+        ),
+      ]),
+    );
+  }
+
+  Widget _list(AppLocalizations l, ThemeData theme, List<SvcRow> rows) => ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-        itemCount: _rows.length,
+        itemCount: rows.length,
         separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
         itemBuilder: (_, i) {
-          final r = _rows[i];
+          final r = rows[i];
           final s = r.svc;
           final small = theme.textTheme.bodySmall;
           return Card(
@@ -425,7 +590,10 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('${r.item.name}  [${r.item.group}]',
+                    Text(
+                        r.item.categories.isEmpty
+                            ? r.item.name
+                            : '${r.item.name}  [${r.item.categories.join(', ')}]',
                         style: AppFonts.userContent.merge(theme.textTheme.bodyMedium)),
                     const SizedBox(height: 2),
                     Text(

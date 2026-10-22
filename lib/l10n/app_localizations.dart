@@ -422,18 +422,6 @@ abstract class AppLocalizations {
   /// **'추가'**
   String get commonAdd;
 
-  /// No description provided for @homeTurnOnAll.
-  ///
-  /// In ko, this message translates to:
-  /// **'전체 켜기 (뱅킹용)'**
-  String get homeTurnOnAll;
-
-  /// No description provided for @homeTurnOffAll.
-  ///
-  /// In ko, this message translates to:
-  /// **'전체 끄기'**
-  String get homeTurnOffAll;
-
   /// No description provided for @refreshTooltip.
   ///
   /// In ko, this message translates to:
@@ -545,13 +533,13 @@ abstract class AppLocalizations {
   /// No description provided for @helpGroupTitle.
   ///
   /// In ko, this message translates to:
-  /// **'서비스 이름 뒤의 [A] [B] [C]'**
+  /// **'카테고리와 뱅킹·개발 모드'**
   String get helpGroupTitle;
 
   /// No description provided for @helpGroupBody.
   ///
   /// In ko, this message translates to:
-  /// **'항목을 추가할 때 고른 분류 표시예요.\n• A: 보안과 무관한 서비스 (예: 오디오 효과)\n• B: 웹 플러그인형 보안 서비스 (대부분의 금융 보안 프로그램)\n• C: 드라이버와 연동될 수 있는 서비스 (키보드보안·개인방화벽 등). 끄면 문제가 생길 수 있으니 주의하세요.\n분류는 참고용이라 켜기·끄기 동작에는 영향이 없어요.'**
+  /// **'서비스를 카테고리로 묶을 수 있어요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요.\n• 위쪽 칩을 누르면 그 카테고리의 서비스만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 라벨 모양 단추에서 카테고리를 만들고, 이름을 바꾸고, 지울 수 있어요. 지워도 서비스는 남아요.\n• 뱅킹 모드: 카테고리 관리에서 \'뱅킹 모드에 포함\'으로 체크한 카테고리의 서비스를 켜요.\n• 개발 모드: 감시 중인 모든 서비스를 꺼요.\n• 두 모드는 트레이 아이콘 우클릭 메뉴에서도 바로 쓸 수 있어요.'**
   String get helpGroupBody;
 
   /// No description provided for @helpOnOffTitle.
@@ -563,7 +551,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpOnOffBody.
   ///
   /// In ko, this message translates to:
-  /// **'• 전체 켜기 / 끄기, 그리고 항목 오른쪽의 재생·정지 단추는 서비스를 지금 바로 시작하거나 중지해요. 시작 유형이 \'사용 안 함\'이면 \'수동\'으로 바꾼 뒤 시작해요.\n• 시작·중지 후 실제 상태가 바뀌었는지 확인하고 결과를 아래 로그에 남겨요. 중지 후 3초 뒤 다시 살아났는지도 한 번 더 확인해요.\n• 끄기는 서비스를 멈출 뿐 시작 유형은 바꾸지 않아요. 시작 유형이 \'자동\'이면 PC를 다시 켤 때 서비스가 또 시작돼요.'**
+  /// **'• 뱅킹·개발 모드, \'○○ 켜기 / 끄기\', 그리고 항목 오른쪽의 재생·정지 단추는 서비스를 지금 바로 시작하거나 중지해요. 시작 유형이 \'사용 안 함\'이면 \'수동\'으로 바꾼 뒤 시작해요.\n• 시작·중지 후 실제 상태가 바뀌었는지 확인하고 결과를 아래 로그에 남겨요. 중지 후 3초 뒤 다시 살아났는지도 한 번 더 확인해요.\n• 끄기는 서비스를 멈출 뿐 시작 유형은 바꾸지 않아요. 시작 유형이 \'자동\'이면 PC를 다시 켤 때 서비스가 또 시작돼요.'**
   String get helpOnOffBody;
 
   /// No description provided for @helpModeTitle.
@@ -692,24 +680,6 @@ abstract class AppLocalizations {
   /// **'서비스 이름 또는 표시 이름'**
   String get addDialogField;
 
-  /// No description provided for @groupA.
-  ///
-  /// In ko, this message translates to:
-  /// **'A: 보안 무관'**
-  String get groupA;
-
-  /// No description provided for @groupB.
-  ///
-  /// In ko, this message translates to:
-  /// **'B: 웹 플러그인'**
-  String get groupB;
-
-  /// No description provided for @groupC.
-  ///
-  /// In ko, this message translates to:
-  /// **'C: 드라이버 연동 가능'**
-  String get groupC;
-
   /// No description provided for @logQueryError.
   ///
   /// In ko, this message translates to:
@@ -817,6 +787,168 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'서비스 목록 조회 실패: {error}'**
   String svcListFailed(String error);
+
+  /// No description provided for @catAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get catAll;
+
+  /// No description provided for @catUncategorized.
+  ///
+  /// In ko, this message translates to:
+  /// **'미분류'**
+  String get catUncategorized;
+
+  /// No description provided for @catEmptyFilter.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 카테고리에는 서비스가 없어요.'**
+  String get catEmptyFilter;
+
+  /// No description provided for @catManageTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 관리'**
+  String get catManageTooltip;
+
+  /// No description provided for @catManageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 관리'**
+  String get catManageTitle;
+
+  /// No description provided for @catManageHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리를 만들어 서비스를 묶어 두면 그 묶음만 켜고 끌 수 있어요. 체크한 카테고리는 \'뱅킹 모드\'에서 켜져요. 카테고리를 지워도 서비스는 남아요.'**
+  String get catManageHint;
+
+  /// No description provided for @catBankingInclude.
+  ///
+  /// In ko, this message translates to:
+  /// **'뱅킹 모드에 포함'**
+  String get catBankingInclude;
+
+  /// No description provided for @catAddField.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 카테고리 이름'**
+  String get catAddField;
+
+  /// No description provided for @catRename.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름 바꾸기'**
+  String get catRename;
+
+  /// No description provided for @catDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 삭제'**
+  String get catDelete;
+
+  /// No description provided for @catExists.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미 있거나 사용할 수 없는 이름이에요.'**
+  String get catExists;
+
+  /// No description provided for @catItemCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'서비스 {n}개'**
+  String catItemCount(int n);
+
+  /// No description provided for @catDefaultA.
+  ///
+  /// In ko, this message translates to:
+  /// **'보안 무관'**
+  String get catDefaultA;
+
+  /// No description provided for @catDefaultB.
+  ///
+  /// In ko, this message translates to:
+  /// **'웹 플러그인'**
+  String get catDefaultB;
+
+  /// No description provided for @catDefaultC.
+  ///
+  /// In ko, this message translates to:
+  /// **'드라이버 연동'**
+  String get catDefaultC;
+
+  /// No description provided for @addDialogCategories.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 (여러 개 선택 가능)'**
+  String get addDialogCategories;
+
+  /// No description provided for @addDialogNewCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 카테고리 만들기'**
+  String get addDialogNewCategory;
+
+  /// No description provided for @bankingModeButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'뱅킹 모드'**
+  String get bankingModeButton;
+
+  /// No description provided for @bankingModeTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'뱅킹용으로 정한 카테고리의 서비스를 켜요'**
+  String get bankingModeTooltip;
+
+  /// No description provided for @devModeButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'개발 모드'**
+  String get devModeButton;
+
+  /// No description provided for @devModeTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'감시 중인 모든 서비스를 꺼요'**
+  String get devModeTooltip;
+
+  /// No description provided for @scopeTurnOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'{scope} 켜기'**
+  String scopeTurnOn(String scope);
+
+  /// No description provided for @scopeTurnOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'{scope} 끄기'**
+  String scopeTurnOff(String scope);
+
+  /// No description provided for @logModeBanking.
+  ///
+  /// In ko, this message translates to:
+  /// **'뱅킹 모드: 서비스 {n}개를 켭니다'**
+  String logModeBanking(int n);
+
+  /// No description provided for @logModeDev.
+  ///
+  /// In ko, this message translates to:
+  /// **'개발 모드: 서비스 {n}개를 끕니다'**
+  String logModeDev(int n);
+
+  /// No description provided for @trayBanking.
+  ///
+  /// In ko, this message translates to:
+  /// **'뱅킹 모드'**
+  String get trayBanking;
+
+  /// No description provided for @trayDev.
+  ///
+  /// In ko, this message translates to:
+  /// **'개발 모드'**
+  String get trayDev;
 }
 
 class _AppLocalizationsDelegate

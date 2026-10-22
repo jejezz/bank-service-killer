@@ -197,12 +197,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commonAdd => '추가';
 
   @override
-  String get homeTurnOnAll => '전체 켜기 (뱅킹용)';
-
-  @override
-  String get homeTurnOffAll => '전체 끄기';
-
-  @override
   String get refreshTooltip => '새로 고침 (F5)';
 
   @override
@@ -262,18 +256,18 @@ class AppLocalizationsKo extends AppLocalizations {
       '목록은 자동으로 만들어지지 않아요. 처음에는 흔한 금융·보안 서비스가 미리 들어 있고, 그 뒤로는 직접 관리해요.\n• 추가: 위쪽 + 단추(Ctrl+N)에서 서비스 이름이나 표시 이름을 입력하면 이 PC에 설치된 서비스 중 일치하는 것이 아래에 나타나요. 눌러서 고르면 돼요.\n• 새로 설치된 서비스는 자동으로 감지되지 않아요. 직접 추가해야 해요. 서비스 이름은 msconfig(서비스 탭)나 services.msc에서 볼 수 있어요.\n• 이름이 일부만 같아도 찾아 주고(부분 일치), \"설치되지 않음 / 이름 불일치\"로 나오면 이 PC에 없거나 이름이 달라요.\n• 목록은 %APPDATA%\\BankServiceKiller\\watchlist.json 에 저장돼요. 새로고침(F5)은 서비스의 현재 상태를 다시 읽어 와요.';
 
   @override
-  String get helpGroupTitle => '서비스 이름 뒤의 [A] [B] [C]';
+  String get helpGroupTitle => '카테고리와 뱅킹·개발 모드';
 
   @override
   String get helpGroupBody =>
-      '항목을 추가할 때 고른 분류 표시예요.\n• A: 보안과 무관한 서비스 (예: 오디오 효과)\n• B: 웹 플러그인형 보안 서비스 (대부분의 금융 보안 프로그램)\n• C: 드라이버와 연동될 수 있는 서비스 (키보드보안·개인방화벽 등). 끄면 문제가 생길 수 있으니 주의하세요.\n분류는 참고용이라 켜기·끄기 동작에는 영향이 없어요.';
+      '서비스를 카테고리로 묶을 수 있어요 (예: 키보드보안, 공인인증, 은행별). 한 서비스를 여러 카테고리에 넣어도 돼요.\n• 위쪽 칩을 누르면 그 카테고리의 서비스만 보이고, \'○○ 켜기 / 끄기\'가 그 카테고리에만 적용돼요.\n• 라벨 모양 단추에서 카테고리를 만들고, 이름을 바꾸고, 지울 수 있어요. 지워도 서비스는 남아요.\n• 뱅킹 모드: 카테고리 관리에서 \'뱅킹 모드에 포함\'으로 체크한 카테고리의 서비스를 켜요.\n• 개발 모드: 감시 중인 모든 서비스를 꺼요.\n• 두 모드는 트레이 아이콘 우클릭 메뉴에서도 바로 쓸 수 있어요.';
 
   @override
   String get helpOnOffTitle => '켜기·끄기';
 
   @override
   String get helpOnOffBody =>
-      '• 전체 켜기 / 끄기, 그리고 항목 오른쪽의 재생·정지 단추는 서비스를 지금 바로 시작하거나 중지해요. 시작 유형이 \'사용 안 함\'이면 \'수동\'으로 바꾼 뒤 시작해요.\n• 시작·중지 후 실제 상태가 바뀌었는지 확인하고 결과를 아래 로그에 남겨요. 중지 후 3초 뒤 다시 살아났는지도 한 번 더 확인해요.\n• 끄기는 서비스를 멈출 뿐 시작 유형은 바꾸지 않아요. 시작 유형이 \'자동\'이면 PC를 다시 켤 때 서비스가 또 시작돼요.';
+      '• 뱅킹·개발 모드, \'○○ 켜기 / 끄기\', 그리고 항목 오른쪽의 재생·정지 단추는 서비스를 지금 바로 시작하거나 중지해요. 시작 유형이 \'사용 안 함\'이면 \'수동\'으로 바꾼 뒤 시작해요.\n• 시작·중지 후 실제 상태가 바뀌었는지 확인하고 결과를 아래 로그에 남겨요. 중지 후 3초 뒤 다시 살아났는지도 한 번 더 확인해요.\n• 끄기는 서비스를 멈출 뿐 시작 유형은 바꾸지 않아요. 시작 유형이 \'자동\'이면 PC를 다시 켤 때 서비스가 또 시작돼요.';
 
   @override
   String get helpModeTitle => '시작 유형 (자동 / 수동 / 사용 안 함)';
@@ -341,15 +335,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get addDialogField => '서비스 이름 또는 표시 이름';
-
-  @override
-  String get groupA => 'A: 보안 무관';
-
-  @override
-  String get groupB => 'B: 웹 플러그인';
-
-  @override
-  String get groupC => 'C: 드라이버 연동 가능';
 
   @override
   String logQueryError(String error) {
@@ -422,4 +407,96 @@ class AppLocalizationsKo extends AppLocalizations {
   String svcListFailed(String error) {
     return '서비스 목록 조회 실패: $error';
   }
+
+  @override
+  String get catAll => '전체';
+
+  @override
+  String get catUncategorized => '미분류';
+
+  @override
+  String get catEmptyFilter => '이 카테고리에는 서비스가 없어요.';
+
+  @override
+  String get catManageTooltip => '카테고리 관리';
+
+  @override
+  String get catManageTitle => '카테고리 관리';
+
+  @override
+  String get catManageHint =>
+      '카테고리를 만들어 서비스를 묶어 두면 그 묶음만 켜고 끌 수 있어요. 체크한 카테고리는 \'뱅킹 모드\'에서 켜져요. 카테고리를 지워도 서비스는 남아요.';
+
+  @override
+  String get catBankingInclude => '뱅킹 모드에 포함';
+
+  @override
+  String get catAddField => '새 카테고리 이름';
+
+  @override
+  String get catRename => '이름 바꾸기';
+
+  @override
+  String get catDelete => '카테고리 삭제';
+
+  @override
+  String get catExists => '이미 있거나 사용할 수 없는 이름이에요.';
+
+  @override
+  String catItemCount(int n) {
+    return '서비스 $n개';
+  }
+
+  @override
+  String get catDefaultA => '보안 무관';
+
+  @override
+  String get catDefaultB => '웹 플러그인';
+
+  @override
+  String get catDefaultC => '드라이버 연동';
+
+  @override
+  String get addDialogCategories => '카테고리 (여러 개 선택 가능)';
+
+  @override
+  String get addDialogNewCategory => '새 카테고리 만들기';
+
+  @override
+  String get bankingModeButton => '뱅킹 모드';
+
+  @override
+  String get bankingModeTooltip => '뱅킹용으로 정한 카테고리의 서비스를 켜요';
+
+  @override
+  String get devModeButton => '개발 모드';
+
+  @override
+  String get devModeTooltip => '감시 중인 모든 서비스를 꺼요';
+
+  @override
+  String scopeTurnOn(String scope) {
+    return '$scope 켜기';
+  }
+
+  @override
+  String scopeTurnOff(String scope) {
+    return '$scope 끄기';
+  }
+
+  @override
+  String logModeBanking(int n) {
+    return '뱅킹 모드: 서비스 $n개를 켭니다';
+  }
+
+  @override
+  String logModeDev(int n) {
+    return '개발 모드: 서비스 $n개를 끕니다';
+  }
+
+  @override
+  String get trayBanking => '뱅킹 모드';
+
+  @override
+  String get trayDev => '개발 모드';
 }

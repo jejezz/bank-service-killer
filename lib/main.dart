@@ -16,6 +16,7 @@ import 'about/app_menu_bar.dart';
 import 'about/extra_licenses.dart';
 import 'app_identity.dart';
 import 'home_page.dart';
+import 'mode_actions.dart';
 import 'l10n/app_localizations.dart';
 import 'service_manager.dart';
 import 'settings/app_settings.dart';
@@ -78,6 +79,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, TrayListener {
   final _navigatorKey = GlobalKey<NavigatorState>();
+  final _modeActions = ModeActions();
 
   @override
   void initState() {
@@ -134,6 +136,9 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
     await trayManager.setContextMenu(Menu(items: [
       MenuItem(key: 'show', label: l10n.trayShow),
       MenuItem.separator(),
+      MenuItem(key: 'banking', label: l10n.trayBanking),
+      MenuItem(key: 'dev', label: l10n.trayDev),
+      MenuItem.separator(),
       MenuItem(key: 'exit', label: l10n.trayExit),
     ]));
   }
@@ -158,6 +163,10 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
     switch (menuItem.key) {
       case 'show':
         _showWindow();
+      case 'banking':
+        _modeActions.banking?.call();
+      case 'dev':
+        _modeActions.dev?.call();
       case 'exit':
         () async {
           await trayManager.destroy();
@@ -205,7 +214,7 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
             onCheckForUpdates: widget.updates == null ? null : _checkForUpdates,
             child: child!,
           ),
-          home: HomePage(onAbout: _showAbout),
+          home: HomePage(onAbout: _showAbout, modeActions: _modeActions),
         ),
       ),
     );

@@ -126,8 +126,6 @@
   "updateBusyBody": "A task is in progress. Please try again when it has finished.",
   "commonCancel": "Cancel",
   "commonAdd": "Add",
-  "homeTurnOnAll": "Turn All On (for Banking)",
-  "homeTurnOffAll": "Turn All Off",
   "refreshTooltip": "Refresh (F5)",
   "addServiceTooltip": "Add Service (Ctrl+N)",
   "adminWarning": "Not running as administrator. Starting, stopping and changing services only works with administrator rights.",
@@ -153,10 +151,10 @@
   "helpPurposeBody": "Security programs required for online banking often slow your PC or cause conflicts the rest of the time. This app turns those resident services on only when you bank, turns them off afterwards, and verifies they really started or stopped. Controlling services needs administrator rights, so Windows shows a UAC prompt when you launch it.",
   "helpListTitle": "Where does the service list come from?",
   "helpListBody": "The list is not built automatically. It starts with common banking/security services, and after that you manage it yourself.\n• Add: press + (Ctrl+N) and type a service name or display name; matching services installed on this PC appear below — click one to pick it.\n• Newly installed services are NOT detected automatically; add them yourself. You can find service names in msconfig (Services tab) or services.msc.\n• Partial names match too. \"Not installed / name mismatch\" means the service isn't on this PC or the name differs.\n• The list is saved to %APPDATA%\\BankServiceKiller\\watchlist.json. Refresh (F5) re-reads the current service states.",
-  "helpGroupTitle": "The [A] [B] [C] after a service name",
-  "helpGroupBody": "A label you chose when adding the item.\n• A: not security-related (e.g. audio effects)\n• B: web-plugin style security service (most banking security software)\n• C: may be tied to a driver (keyboard security, personal firewall…). Turning it off may cause problems.\nThe label is only a hint and doesn't change what On/Off does.",
+  "helpGroupTitle": "Categories, Banking and Dev mode",
+  "helpGroupBody": "Group services into categories (e.g. keyboard security, certificates, per bank). A service can belong to several categories.\n• Click a chip at the top to show only that category; \"Turn … on / off\" then applies only to it.\n• The label button lets you create, rename and delete categories. Deleting one keeps its services.\n• Banking mode: turns on the services in categories checked as \"Include in Banking mode\" in Manage categories.\n• Dev mode: turns off every watched service.\n• Both modes are also in the tray icon's right-click menu.",
   "helpOnOffTitle": "Turning on and off",
-  "helpOnOffBody": "• Turn All On / Off and the play/stop button on each row start or stop the service right now. If the startup type is Disabled it is set to Manual first, then started.\n• After starting or stopping, the app verifies the real state and writes the result to the log below. After a stop it checks again 3 seconds later in case the service came back.\n• Turning off only stops the service; it doesn't change the startup type. If it is Automatic, it starts again the next time the PC boots.",
+  "helpOnOffBody": "• Banking/Dev mode, \"Turn … on / off\" and the play/stop button on each row start or stop services right now. If the startup type is Disabled it is set to Manual first, then started.\n• After starting or stopping, the app verifies the real state and writes the result to the log below. After a stop it checks again 3 seconds later in case the service came back.\n• Turning off only stops the service; it doesn't change the startup type. If it is Automatic, it starts again the next time the PC boots.",
   "helpModeTitle": "Startup type (Automatic / Manual / Disabled)",
   "helpModeBody": "Pick it from the dropdown on a row; it applies immediately. It doesn't start or stop the running service now — it affects how the service starts from the next boot onward.\n• Automatic: starts at boot.\n• Manual: doesn't start at boot; start it with the on button when needed. Recommended for banking services.\n• Disabled: starting is blocked. This app's on button switches it to Manual first, then starts it.\n\"disabled in msconfig\" marks a service you turned off in msconfig.",
   "helpResidentTitle": "Resident mode and startup",
@@ -191,9 +189,6 @@
   "removeTooltip": "Remove from list",
   "addDialogTitle": "Add Watched Service",
   "addDialogField": "Service name or display name",
-  "groupA": "A: Not security-related",
-  "groupB": "B: Web plugin",
-  "groupC": "C: May be tied to a driver",
   "logQueryError": "Query error: {error}",
   "@logQueryError": {
     "placeholders": {
@@ -289,5 +284,67 @@
         "type": "String"
       }
     }
-  }
+  },
+  "catAll": "All",
+  "catUncategorized": "Uncategorized",
+  "catEmptyFilter": "No services in this category.",
+  "catManageTooltip": "Manage categories",
+  "catManageTitle": "Manage categories",
+  "catManageHint": "Group services into categories to turn just that group on or off. Checked categories are turned on by Banking mode. Deleting a category keeps its services.",
+  "catBankingInclude": "Include in Banking mode",
+  "catAddField": "New category name",
+  "catRename": "Rename",
+  "catDelete": "Delete category",
+  "catExists": "That name already exists or can't be used.",
+  "catItemCount": "{n} services",
+  "@catItemCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "catDefaultA": "Not security-related",
+  "catDefaultB": "Web plugin",
+  "catDefaultC": "Driver-linked",
+  "addDialogCategories": "Categories (pick any)",
+  "addDialogNewCategory": "Create a new category",
+  "bankingModeButton": "Banking mode",
+  "bankingModeTooltip": "Turn on the services in the categories set for banking",
+  "devModeButton": "Dev mode",
+  "devModeTooltip": "Turn off every watched service",
+  "scopeTurnOn": "Turn {scope} on",
+  "@scopeTurnOn": {
+    "placeholders": {
+      "scope": {
+        "type": "String"
+      }
+    }
+  },
+  "scopeTurnOff": "Turn {scope} off",
+  "@scopeTurnOff": {
+    "placeholders": {
+      "scope": {
+        "type": "String"
+      }
+    }
+  },
+  "logModeBanking": "Banking mode: turning on {n} services",
+  "@logModeBanking": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "logModeDev": "Dev mode: turning off {n} services",
+  "@logModeDev": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "trayBanking": "Banking mode",
+  "trayDev": "Dev mode"
 }
