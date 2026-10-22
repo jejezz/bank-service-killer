@@ -4,6 +4,9 @@
 //   dart run tool/catalog/sign.dart
 //
 // 카탈로그를 고칠 때마다 `version` 을 올리고(되돌리기 방지) 다시 서명한다.
+//
+// 서명은 파일 바이트 전체에 걸린다. 사용자 앱은 저장소(LF)에서 받은 바이트를 확인하므로, Windows 편집기가
+// 넣은 CRLF 줄바꿈이 있으면 먼저 LF 로 바꿔 파일에 다시 쓴 뒤 서명한다.
 import 'dart:convert';
 import 'dart:io';
 
@@ -18,7 +21,12 @@ Future<void> main() async {
     exit(2);
   }
   final file = File('catalog/catalog.json');
-  final bytes = await file.readAsBytes();
+  var bytes = await file.readAsBytes();
+  if (bytes.contains(13)) {
+    bytes = utf8.encode(utf8.decode(bytes).replaceAll('\r\n', '\n'));
+    await file.writeAsBytes(bytes);
+    stdout.writeln('Converted catalog.json line endings to LF.');
+  }
   final catalog = Catalog.fromJson(jsonDecode(utf8.decode(bytes)));
   final problems = lintCatalog(catalog);
   if (problems.isNotEmpty) {

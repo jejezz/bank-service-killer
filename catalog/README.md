@@ -54,6 +54,10 @@
    ```
 3. `dart run tool/catalog/verify.dart`로 확인한 뒤 `catalog.json`과 `catalog.json.sig`를 함께 커밋해요.
 
+**줄바꿈은 LF예요.** 서명은 파일 바이트 전체에 걸려서, Windows가 CRLF로 바꾼 파일에 서명하면 GitHub(LF)에서 받은
+앱이 "서명이 맞지 않아요"로 거절해요. `sign.dart`는 CRLF를 LF로 바꿔 파일에 다시 쓴 뒤 서명하고,
+`.gitattributes`가 `catalog/` 파일을 항상 LF로 체크아웃하게 해요.
+
 사용자 신고는 GitHub 이슈(`catalog` 라벨)로 들어와요. 확인한 뒤 위 순서로 반영하세요.
 신고에는 서비스 이름·표시 이름·실행 파일 이름·서명자만 담겨요 (경로는 담지 않아요).
 

@@ -12,6 +12,11 @@ import 'package:bank_service_killer/catalog/catalog_verify.dart';
 
 Future<void> main() async {
   final bytes = await File('catalog/catalog.json').readAsBytes();
+  if (bytes.contains(13)) {
+    // 저장소에는 LF 로 올라가므로, CRLF 로 서명하면 사용자 앱이 받은 파일과 서명이 맞지 않는다.
+    stderr.writeln('catalog/catalog.json has CRLF line endings. Run tool/catalog/sign.dart (it converts to LF and re-signs).');
+    exit(1);
+  }
   final catalog = Catalog.fromJson(jsonDecode(utf8.decode(bytes)));
   final problems = lintCatalog(catalog);
   if (problems.isNotEmpty) {

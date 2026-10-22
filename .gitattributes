@@ -1,0 +1,5 @@
+# 카탈로그는 서명이 파일 바이트 전체에 걸려 있다. Windows 의 autocrlf 가 줄바꿈을 CRLF 로 바꿔
+# 체크아웃하면, 그 파일에 한 서명은 저장소(LF)에서 받은 파일과 맞지 않는다. 항상 LF 로 둔다.
+catalog/catalog.json text eol=lf
+catalog/catalog.json.sig text eol=lf
+catalog/public_key.txt text eol=lf

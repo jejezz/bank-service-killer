@@ -199,6 +199,14 @@ void main() {
     });
   });
 
+  test('저장소의 catalog 파일들은 LF 줄바꿈이다 (서명이 바이트 전체에 걸리므로 CRLF 면 앱이 거절한다)', () {
+    for (final f in ['catalog/catalog.json', 'catalog/catalog.json.sig', 'catalog/public_key.txt']) {
+      final file = File(f);
+      if (!file.existsSync()) continue; // .sig 는 서명 전에는 없을 수 있다
+      expect(file.readAsBytesSync().contains(13), isFalse, reason: '$f 에 CR 문자가 있다');
+    }
+  });
+
   test('기본 카탈로그가 사용자가 쓰던 서비스(서비스 이름·표시 이름·실행 파일)를 알아본다', () {
     final text = File('catalog/catalog.json').readAsStringSync();
     final catalog = Catalog.fromJson(jsonDecode(text));
