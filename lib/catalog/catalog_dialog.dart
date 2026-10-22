@@ -85,7 +85,9 @@ class _CatalogDialogState extends State<_CatalogDialog> {
 
   String _errText(AppLocalizations l, CatalogError? e) => switch (e) {
         CatalogError.network || null => l.catalogErrNetwork,
-        CatalogError.signature => l.catalogErrSignature,
+        CatalogError.signature => _c.lastBytes == null
+            ? l.catalogErrSignature
+            : l.catalogErrSignatureDetail(_c.lastBytes!, _c.lastSigHead ?? '', _c.keyFingerprint),
         CatalogError.format => l.catalogErrFormat,
         CatalogError.rollback => l.catalogErrRollback,
       };
@@ -174,6 +176,11 @@ class _CatalogDialogState extends State<_CatalogDialog> {
               const SizedBox(width: AppSpacing.md),
               if (_message != null) Expanded(child: Text(_message!, style: theme.textTheme.bodySmall)),
             ]),
+            if (_c.remoteEnabled)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(l.catalogKeyInfo(_c.keyFingerprint), style: theme.textTheme.bodySmall),
+              ),
             if (!_c.remoteEnabled)
               Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.sm),

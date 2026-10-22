@@ -1447,6 +1447,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'보안 서비스는 제품마다, 버전마다 이름이 달라서 고정된 목록은 금방 어긋나요. 그래서 \'어떤 제품이 어떤 이름·실행 파일로 설치되는지\'를 적은 카탈로그를 두고 정기적으로(24시간마다) 받아 와요.\n• 지구본 아이콘(보안 서비스 카탈로그)을 누르면 이 PC에서 발견했지만 목록에 없는 서비스와, 이름이 바뀐 것 같은 항목을 보여 줘요. 새 제안이 있으면 아이콘에 숫자가 붙어요.\n• 카탈로그는 제안만 해요. 서비스를 자동으로 켜거나 끄지 않고, 목록에 넣을지는 직접 골라요. 새로 만들어진 카테고리는 어떤 모드에도 \'켜기\'로 지정돼 있지 않아서, 모드 관리에서 정하기 전에는 모든 모드에서 꺼져요.\n• 받은 카탈로그는 서명을 확인해요. 서명이 맞지 않거나 이전 버전이면 쓰지 않고, 앱에 들어 있는 기본 카탈로그로 동작해요.\n• 카탈로그에 없는 서비스는 \'신고\'로 알릴 수 있어요. 서비스 이름·표시 이름·실행 파일 이름·서명자만 담긴 GitHub 이슈 초안이 열리고, 내용을 확인한 뒤 직접 제출해요 (경로는 담지 않아요).'**
   String get helpCatalogBody;
+
+  /// No description provided for @catalogKeyInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'서명 확인용 공개키: {fp}…'**
+  String catalogKeyInfo(String fp);
+
+  /// No description provided for @catalogErrSignatureDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'서명이 맞지 않아요 (받은 카탈로그 {bytes}바이트, 서명 {sig}…, 공개키 {fp}…)'**
+  String catalogErrSignatureDetail(int bytes, String sig, String fp);
 }
 
 class _AppLocalizationsDelegate

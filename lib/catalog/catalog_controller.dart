@@ -103,6 +103,15 @@ class CatalogController extends ChangeNotifier {
   bool get checking => _checking;
   bool get remoteEnabled => publicKey.isNotEmpty && url != null;
 
+  /// 진단용: 서명 확인에 쓰는 공개키의 앞 8글자 (공개키라 보여 줘도 된다). 앱에 든 키와 저장소의 키가 같은지 눈으로 견줄 때 쓴다.
+  String get keyFingerprint => publicKey.length <= 8 ? publicKey : publicKey.substring(0, 8);
+
+  /// 진단용: 마지막으로 받은 카탈로그의 크기(바이트)와 서명 앞 8글자. 저장소의 파일과 견줄 때 쓴다.
+  int? get lastBytes => _lastBytes;
+  String? get lastSigHead => _lastSigHead;
+  int? _lastBytes;
+  String? _lastSigHead;
+
   File get _catalogFile => File('${cacheDir.path}${Platform.pathSeparator}catalog.json');
   File get _sigFile => File('${cacheDir.path}${Platform.pathSeparator}catalog.json.sig');
   File get _metaFile => File('${cacheDir.path}${Platform.pathSeparator}meta.json');
@@ -146,6 +155,9 @@ class CatalogController extends ChangeNotifier {
       if (res.status != 200) return _fail(CatalogError.network);
       final sig = await _fetcher(Uri.parse('${base.toString()}.sig'));
       if (sig.status != 200) return _fail(CatalogError.network);
+      _lastBytes = res.bytes.length;
+      final sigText = utf8.decode(sig.bytes, allowMalformed: true).trim();
+      _lastSigHead = sigText.length <= 8 ? sigText : sigText.substring(0, 8);
       if (!await verifyCatalogSignature(res.bytes, utf8.decode(sig.bytes, allowMalformed: true), publicKey)) {
         return _fail(CatalogError.signature, rejected: true);
       }

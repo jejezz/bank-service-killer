@@ -679,5 +679,27 @@
   "reportOpenFailed": "Couldn't open the browser.",
   "reportChecking": "Checking the signer…",
   "helpCatalogTitle": "Security service catalog",
-  "helpCatalogBody": "Security services change names between products and versions, so a fixed list goes stale quickly. The app keeps a catalog of which product installs under which names and executables, and refreshes it regularly (every 24 hours).\n• The globe icon (Security service catalog) shows services found on this PC that aren't in your list, and items that look renamed. A number appears on the icon when there are new suggestions.\n• The catalog only suggests. It never turns services on or off by itself, and you choose what to add. Newly created categories aren't set to 'On' in any mode, so every mode turns them off until you decide in Manage modes.\n• Downloaded catalogs are signature-checked. One with a bad signature or an older version is ignored and the built-in catalog is used.\n• For a service the catalog doesn't know, use 'Report'. It opens a draft GitHub issue containing only the service name, display name, executable name and signer; you review it and submit it yourself (no paths are included)."
+  "helpCatalogBody": "Security services change names between products and versions, so a fixed list goes stale quickly. The app keeps a catalog of which product installs under which names and executables, and refreshes it regularly (every 24 hours).\n• The globe icon (Security service catalog) shows services found on this PC that aren't in your list, and items that look renamed. A number appears on the icon when there are new suggestions.\n• The catalog only suggests. It never turns services on or off by itself, and you choose what to add. Newly created categories aren't set to 'On' in any mode, so every mode turns them off until you decide in Manage modes.\n• Downloaded catalogs are signature-checked. One with a bad signature or an older version is ignored and the built-in catalog is used.\n• For a service the catalog doesn't know, use 'Report'. It opens a draft GitHub issue containing only the service name, display name, executable name and signer; you review it and submit it yourself (no paths are included).",
+  "catalogKeyInfo": "Signing public key: {fp}…",
+  "@catalogKeyInfo": {
+    "placeholders": {
+      "fp": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogErrSignatureDetail": "signature does not match (catalog {bytes} bytes, signature {sig}…, public key {fp}…)",
+  "@catalogErrSignatureDetail": {
+    "placeholders": {
+      "bytes": {
+        "type": "int"
+      },
+      "sig": {
+        "type": "String"
+      },
+      "fp": {
+        "type": "String"
+      }
+    }
+  }
 }
