@@ -25,7 +25,7 @@ import 'mode_plan_dialog.dart';
 import 'service_manager.dart';
 import 'snapshot_dialog.dart';
 import 'settings/app_settings.dart';
-import 'settings/settings_menus.dart';
+import 'settings/settings_dialog.dart';
 import 'startup_manager.dart';
 import 'theme/app_theme.dart';
 import 'watch_item.dart';
@@ -797,8 +797,12 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () => showHelpDialog(context),
               ),
               const StartupMenuButton(),
-              const ThemeMenuButton(),
-              const LanguageMenuButton(),
+              IconButton(
+                key: const Key('app-settings'),
+                tooltip: l.settingsTooltip,
+                icon: const Icon(Icons.settings_outlined),
+                onPressed: () => showSettingsDialog(context),
+              ),
               IconButton(
                 tooltip: l.aboutTooltip,
                 icon: const Icon(Icons.info_outline_rounded),
