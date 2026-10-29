@@ -10,6 +10,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -29,6 +30,7 @@ import 'startup_manager.dart';
 import 'theme/app_theme.dart';
 import 'update/update_scope.dart';
 import 'update/update_service.dart';
+import 'window/window_placement.dart';
 
 const _modeKeyPrefix = 'mode:';
 
@@ -41,8 +43,17 @@ Future<void> main(List<String> args) async {
   if (_isDesktop) {
     await windowManager.ensureInitialized();
     // ui-ux.md §5: 최소 크기는 960×600 이하 (1366×768 노트북).
-    const options = WindowOptions(
-      minimumSize: Size(960, 600),
+    // 시작 위치는 WindowPlacement — 모니터마다 배율이 다른 Windows 듀얼
+    // 모니터에서 center: true/저장 좌표 복원이 창을 화면 밖에 놓는다 (window-placement.md).
+    const windowSize = Size(1200, 720);
+    WindowPlacement? placement;
+    if (WindowPlacement.enabled) {
+      placement = WindowPlacement(await SharedPreferences.getInstance(), defaultSize: windowSize);
+    }
+    final options = WindowOptions(
+      size: windowSize,
+      minimumSize: const Size(960, 600),
+      center: placement == null,
       title: AppIdentity.displayName,
     );
     // 상주 프로그램: 닫기 단추는 종료가 아니라 트레이로 숨기기다.
@@ -51,6 +62,8 @@ Future<void> main(List<String> args) async {
     final background = args.contains(StartupManager.backgroundArg);
     await windowManager.waitUntilReadyToShow(options, () async {
       if (background) return;
+      await placement?.placeInitially();
+      placement?.attach();
       await windowManager.show();
       await windowManager.focus();
     });
