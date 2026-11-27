@@ -37,6 +37,17 @@ const _modeKeyPrefix = 'mode:';
 
 final bool _isDesktop = Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
+/// 앱을 끝낸다 (트레이 메뉴의 "종료", 업데이트 설치). windowManager.destroy() 로 엔진이 스스로 내려가게 두면
+/// Windows 에서 창이 멈춘 채 9–13초 남는다 (daylight-broom 측정). 트레이 아이콘을 먼저 걷고(안 그러면 유령 아이콘이
+/// 남는다) 프로세스를 바로 끝낸다. 따로 정리할 백그라운드 일은 없다.
+Future<void> _quitApp() async {
+  try {
+    await trayManager.destroy();
+  } finally {
+    exit(0);
+  }
+}
+
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   registerExtraLicenses();
@@ -51,7 +62,8 @@ Future<void> main(List<String> args) async {
   final catalog = await _createCatalog();
   if (Platform.isWindows) await _registerStartupOnce(settings);
   // 데스크톱이 아니거나 UPDATE_SERVER 가 비어 있으면 null — 업데이트 확인 없음.
-  final updates = await UpdateService.create();
+  // 설치하려고 끝낼 때도 트레이 메뉴의 "종료" 와 같은 빠른 종료를 쓴다.
+  final updates = await UpdateService.create(quitApp: _quitApp);
   // UpdateScope 는 MaterialApp 위에 둔다 — 정보 창이 이것을 읽어 "업데이트 확인" 단추를 붙인다.
   runApp(UpdateScope(
     service: updates,
@@ -259,10 +271,7 @@ class _AppState extends State<App> with WidgetsBindingObserver, WindowListener, 
       case final key? when key.startsWith(_modeKeyPrefix):
         _modeActions.apply?.call(key.substring(_modeKeyPrefix.length));
       case 'exit':
-        () async {
-          await trayManager.destroy();
-          await windowManager.destroy();
-        }();
+        _quitApp();
     }
   }
 
