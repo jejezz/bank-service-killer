@@ -15,6 +15,16 @@ bool FlutterWindow::OnCreate() {
     return false;
   }
 
+  // The app runs elevated (requireAdministrator; the logon task uses RunLevel
+  // Highest), and Windows' UIPI drops Explorer's "TaskbarCreated" broadcast to
+  // higher-integrity windows unless they opt in. tray_manager re-adds the tray
+  // icon on that message, so without this the icon never appears when the app
+  // starts before the taskbar at logon (seen: app 09:19:53, explorer 09:19:54)
+  // or when Explorer restarts.
+  ::ChangeWindowMessageFilterEx(GetHandle(),
+                                ::RegisterWindowMessageW(L"TaskbarCreated"),
+                                MSGFLT_ALLOW, nullptr);
+
   RECT frame = GetClientArea();
 
   // The size here must match the window dimensions to avoid unnecessary surface
